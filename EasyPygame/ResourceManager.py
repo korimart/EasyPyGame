@@ -7,7 +7,6 @@ class ResourceManager:
         self.resourceDict = dict()
         self.supportedImageList = [".jpg", ".png", ".bmp"]
         self.fontNameDict = dict()
-        self.fontSizeObjectDict = dict()
 
     def load(self, fileName):
         _, extension = os.path.splitext(fileName)
@@ -29,6 +28,12 @@ class ResourceManager:
             self.resourceDict[fileName] = data
             return True
 
+    def unload(self, fileName):
+        try:
+            del self.resourceDict[fileName]
+        except:
+            pass
+
     def getLoaded(self, fileName):
         if fileName in self.resourceDict:
             return self.resourceDict[fileName]
@@ -46,6 +51,12 @@ class ResourceManager:
             self.fontNameDict[fontName] = dict()
 
         self.fontNameDict[fontName][size] = font
+
+    def unloadFont(self, fontName, size):
+        try:
+            del self.fontNameDict[fontName][size]
+        except:
+            pass
 
     def createTextSurface(self, fontName, size, color, surfaceName, text):
         if surfaceName in self.resourceDict:
