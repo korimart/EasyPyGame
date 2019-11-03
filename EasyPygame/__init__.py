@@ -5,8 +5,7 @@ import pygame
 
 import EasyPygame.ResourceManager
 import EasyPygame.Window
-
-# import Input
+import EasyPygame.Input
 # import Animator
 
 class IApp(ABC):
@@ -23,13 +22,14 @@ resManager = None
 inputManager = None
 
 def init(width, height, caption, FPS):
-    global window, resManager
+    global window, resManager, inputManager
     window = Window.Window(width, height, caption, FPS)
     resManager = ResourceManager.ResourceManager()
+    inputManager = Input.Input()
 
 def run(app):
-    global window
-    window.run(app)
+    global window, inputManager
+    window.run(inputManager, app)
 
 def load(fileName):
     global resManager
@@ -55,3 +55,18 @@ def drawImage(imageName, imageRect, screenRect):
         raise Exception("File not loaded")
 
     window.displaySurface.blit(surf, (screenRect.x, screenRect.y), imageRect)
+
+def isDown(inp):
+    global inputManager
+    return inputManager.isDown(inp)
+
+def isDown1stTime(inp):
+    global inputManager
+    return inputManager.isDown1stTime(inp)
+
+def consume(inp):
+    global inputManager
+    inputManager.consume(inp)
+
+def getMousePos():
+    return pygame.mouse.get_pos()

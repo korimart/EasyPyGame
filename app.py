@@ -7,7 +7,8 @@ class myApp(EasyPygame.IApp):
         EasyPygame.load("abc.jpg")
 
     def update(self, ms):
-        pass
+        if EasyPygame.isDown("d"):
+            print("d is down")
 
     def render(self, ms):
         EasyPygame.drawImage("abc.jpg", self.imageRect, self.screenRect)
