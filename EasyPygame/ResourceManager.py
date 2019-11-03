@@ -6,6 +6,8 @@ class ResourceManager:
     def __init__(self):
         self.resourceDict = dict()
         self.supportedImageList = [".jpg", ".png", ".bmp"]
+        self.fontNameDict = dict()
+        self.fontSizeObjectDict = dict()
 
     def load(self, fileName):
         _, extension = os.path.splitext(fileName)
@@ -22,7 +24,7 @@ class ResourceManager:
                 data = json.load(f)
 
         if not data:
-            return False
+            raise Exception("resource cannot be loaded; format not supported")
         else:
             self.resourceDict[fileName] = data
             return True
@@ -32,4 +34,29 @@ class ResourceManager:
             return self.resourceDict[fileName]
         else:
             return None
-            
+    
+    def loadFont(self, fontName, size):
+        try:
+            return bool(self.fontNameDict[fontName][size])
+        except:
+            pass
+
+        font = pygame.font.SysFont(fontName, size)
+        if fontName not in self.fontNameDict:
+            self.fontNameDict[fontName] = dict()
+
+        self.fontNameDict[fontName][size] = font
+
+    def createTextSurface(self, fontName, size, color, surfaceName, text):
+        if surfaceName in self.resourceDict:
+            raise Exception("imageName already exists")
+
+        try:
+            font = self.fontNameDict[fontName][size]
+        except:
+            raise Exception("font not loaded")
+
+        surf = font.render(text, True, color)
+        self.resourceDict[surfaceName] = surf
+
+        

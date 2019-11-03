@@ -23,6 +23,7 @@ inputManager = None
 
 def init(width, height, caption, FPS):
     global window, resManager, inputManager
+    pygame.init()
     window = Window.Window(width, height, caption, FPS)
     resManager = ResourceManager.ResourceManager()
     inputManager = Input.Input()
@@ -35,6 +36,11 @@ def load(fileName):
     global resManager
     return resManager.load(fileName)
 
+# TODO
+def unload(fileName):
+    global resManager
+    pass
+
 def Rect(x, y, width, height):
     return pygame.Rect(x, y, width, height)
 
@@ -43,16 +49,15 @@ def drawRect(color, rect):
     global window
     pygame.draw.rect(window.displaySurface, color, rect)
 
-def drawImage(imageName, imageRect, screenRect):
+def drawImage(imageName, screenRect, imageRect=None):
     # type: ResourceManager.ResourceManager
     global resManager, window
-    _, ext = os.path.splitext(imageName)
-    if ext not in resManager.supportedImageList:
-        raise Exception("Not an image or format not supported")
-
     surf = resManager.getLoaded(imageName)
     if not surf:
         raise Exception("File not loaded")
+
+    if not imageRect:
+        imageRect = surf.get_rect()
 
     window.displaySurface.blit(surf, (screenRect.x, screenRect.y), imageRect)
 
@@ -70,3 +75,11 @@ def consume(inp):
 
 def getMousePos():
     return pygame.mouse.get_pos()
+
+def loadFont(fontName, size):
+    global resManager
+    resManager.loadFont(fontName, size)
+
+def createTextImage(fontName, size, color, imageName, text):
+    global resManager
+    resManager.createTextSurface(fontName, size, color, imageName, text)
