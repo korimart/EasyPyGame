@@ -15,8 +15,9 @@ class Input:
         return asci in self.thisInputList and asci not in self.lastInputList and self.thisInputEnabled[asci]
 
     def consume(self, inp):
+        asci = ord(inp.lower())
         try:
-            self.thisInputEnabled[inp] = False
+            self.thisInputEnabled[asci] = False
         except:
             pass
 
