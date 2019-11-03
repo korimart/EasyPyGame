@@ -26,6 +26,7 @@ class myApp(EasyPygame.IApp):
         EasyPygame.drawImage("title", self.fontSRect)
 
 
-EasyPygame.init(500, 500, "test", 75)
-app = myApp()
-EasyPygame.run(app)
+if __name__ == "__main__":
+    EasyPygame.init(500, 500, "test", 75)
+    app = myApp()
+    EasyPygame.run(app)
