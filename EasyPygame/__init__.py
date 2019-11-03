@@ -36,10 +36,9 @@ def load(fileName):
     global resManager
     return resManager.load(fileName)
 
-# TODO
 def unload(fileName):
     global resManager
-    pass
+    resManager.unload(fileName)
 
 def Rect(x, y, width, height):
     return pygame.Rect(x, y, width, height)
@@ -79,6 +78,10 @@ def getMousePos():
 def loadFont(fontName, size):
     global resManager
     resManager.loadFont(fontName, size)
+
+def unloadFont(fontName, size):
+    global resManager
+    resManager.unloadFont(fontName, size)
 
 def createTextImage(fontName, size, color, imageName, text):
     global resManager
