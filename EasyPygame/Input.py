@@ -6,13 +6,14 @@ class Input:
         self.thisInputList = []
         self.mousePos = None
 
-    def isDown(self, input):
-        pass
+    def isDown(self, inp: str):
+        return ord(inp.lower()) in self.thisInputList
 
-    def isDown1stTime(self, input):
-        pass
+    def isDown1stTime(self, inp):
+        asci = ord(inp.lower())
+        return asci in self.thisInputList and asci not in self.lastInputList
 
-    def consume(self, input):
+    def consume(self, inp):
         pass
 
     def getMousePos(self):
