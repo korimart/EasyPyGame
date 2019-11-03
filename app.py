@@ -1,32 +1,35 @@
 import EasyPygame
 
-class InnerClass:
-    def update(self, ms):
-        if EasyPygame.isDown("d"):
-            print("d2 is down")
-
 class myApp(EasyPygame.IApp):
     def __init__(self):
-        self.screenRect = EasyPygame.Rect(0, 0, 0, 0)
-        self.fontSRect = EasyPygame.Rect(0, 0, 0, 0)
-        self.inner = InnerClass()
+        self.x = 0
+        self.transform = 50
+        self.screenRect = EasyPygame.Rect(self.x, 150, 0, 0)
+        self.animationProgress = 0
+        self.animationState = False
         EasyPygame.load("abc.jpg")
-        EasyPygame.loadFont("Comic Sans MS", 30)
-        EasyPygame.createTextImage("Comic Sans MS", 30, (255, 0, 0), "title", "HELLO WORLD!")
-        EasyPygame.unloadFont("Comic Sans MS", 30)
 
     def update(self, ms):
+        # input handler
         if EasyPygame.isDown1stTime("d"):
-            print("d is down")
-        EasyPygame.consume("d") 
-        self.inner.update(ms)
+            self.x += 1
+            self.animationState = True
+        elif EasyPygame.isDown1stTime("a"):
+            self.x -= 1
 
     def render(self, ms):
+        # render
+        if self.animationState:
+            if self.animationProgress <= 500:
+                self.screenRect.x = (self.animationProgress / 500 + self.x - 1) * self.transform
+                self.animationProgress += ms
+            else:
+                self.animationProgress = 0
+                self.animationState = False
+        else:
+            self.screenRect.x = self.x * self.transform
         EasyPygame.drawImage("abc.jpg", self.screenRect)
-        EasyPygame.drawImage("title", self.fontSRect)
-
 
 if __name__ == "__main__":
     EasyPygame.init(500, 500, "test", 75)
-    app = myApp()
-    EasyPygame.run(app)
+    EasyPygame.run(myApp())
