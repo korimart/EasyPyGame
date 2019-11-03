@@ -2,22 +2,18 @@ import pygame
 
 class Input:
     def __init__(self):
-        self.lastKeyList = []
-    
-    def isPressed(self, key):
+        self.lastInputList = []
+        self.thisInputList = []
+        self.mousePos = None
+
+    def isDown(self, input):
         pass
 
-    def isPressed1stTime(self, key):
+    def isDown1stTime(self, input):
         pass
 
-    def consume(self, key):
+    def consume(self, input):
         pass
 
     def getMousePos(self):
-        pass
-
-    def isMouseDown(self, button):
-        pass
-
-    def isMouseUp(self, button):
         pass

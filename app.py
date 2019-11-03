@@ -6,7 +6,7 @@ class myApp(EasyPygame.IApp):
         self.screenRect = EasyPygame.Rect(400, 400, 0, 0)
         EasyPygame.load("abc.jpg")
 
-    def update(self, ms):       
+    def update(self, ms):
         pass
 
     def render(self, ms):
