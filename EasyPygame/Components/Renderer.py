@@ -6,6 +6,7 @@ class Renderer:
         self.scale = scale
 
     def update(self, gameObject):
-        rect = gameObject.screenRect.copy()
-        rect.x *= self.scale
-        EasyPygame.drawImage(self.texture, rect)
+        if self.texture:
+            rect = gameObject.rect.copy()
+            rect.x *= self.scale
+            EasyPygame.drawImage(self.texture, rect)
