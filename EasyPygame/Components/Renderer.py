@@ -1,15 +1,21 @@
 import EasyPygame
 
 class Renderer:
-    def __init__(self, texture):
+    def __init__(self, texture, imageRect=None, fitObject=True):
         self.texture = texture
+        self.imageRect = imageRect
+        self.fitObject = fitObject
 
     def update(self, gameObject, camera):
         rect = gameObject.rect.copy()
         x, y = camera.view([rect.x, rect.y])
         rect.x = x
         rect.y = y
-        EasyPygame.drawImage(self.texture, rect)
+
+        if self.fitObject:
+            EasyPygame.drawStretchedImage(self.texture, rect, self.imageRect)
+        else:
+            EasyPygame.drawImage(self.texture, rect, self.imageRect)
 
 class DefaultRenderer:
     def update(self, gameObject, camera):

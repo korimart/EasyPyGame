@@ -52,17 +52,30 @@ def drawRect(color, rect):
     rt.center = (rect.x, rect.y)
     pygame.draw.rect(window.displaySurface, color, rt)
 
-def drawImage(imageName, screenRect, imageRect=None):
-    # type: ResourceManager.ResourceManager
+def _getImageSurf(imageName):
     global resManager, window
     surf = resManager.getLoaded(imageName)
     if not surf:
         raise Exception("File not loaded")
 
+    return surf
+
+def drawImage(imageName, screenRect, imageRect=None):
+    surf = _getImageSurf(imageName)
     if not imageRect:
         imageRect = surf.get_rect()
 
     window.displaySurface.blit(surf, (screenRect.x - imageRect.width / 2, screenRect.y - imageRect.height / 2), imageRect)
+
+def drawStretchedImage(imageName, screenRect, imageRect=None):
+    surf = _getImageSurf(imageName)
+    if not imageRect:
+        imageRect = surf.get_rect()
+    
+    surf = pygame.transform.scale(surf, (screenRect.width, screenRect.height))
+    rt = screenRect.copy()
+    rt.center = (screenRect.x, screenRect.y)
+    window.displaySurface.blit(surf, (rt.x, rt.y), imageRect)
 
 def isDown(inp):
     global inputManager

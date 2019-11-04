@@ -16,6 +16,7 @@ class myApp(EasyPygame.IApp):
         EasyPygame.load("abc.jpg")
         self.scene1 = EasyPygame.Components.Scene(500, 500)
         self.carrot = EasyPygame.Components.GameObject(self.scene1, "Carrot")
+        self.carrot.renderer = EasyPygame.Components.Renderer("abc.jpg")
         self.carrot.inputHandler = carrotHandler()
 
     def update(self, ms):
