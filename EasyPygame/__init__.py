@@ -7,7 +7,6 @@ import EasyPygame.ResourceManager
 import EasyPygame.Window
 import EasyPygame.Input
 import EasyPygame.Components
-# import Animator
 
 class IApp(ABC):
     @abstractmethod
@@ -18,17 +17,9 @@ class IApp(ABC):
     def render(self, ms):
         pass
 
-window = None
-resManager = None
-inputManager = None
-
-def init(width, height, caption, FPS):
+def initWindow(width, height, caption, FPS):
     global window, resManager, inputManager
-    pygame.init()
     window = Window.Window(width, height, caption, FPS)
-    resManager = ResourceManager.ResourceManager()
-    inputManager = Input.Input()
-    loadFont("Comic Sans MS", 30)
 
 def run(app):
     global window, inputManager
@@ -103,3 +94,20 @@ def unloadFont(fontName, size):
 def createTextImage(fontName, size, color, imageName, text):
     global resManager
     resManager.createTextSurface(fontName, size, color, imageName, text)
+
+def pprint(text, x, y, center=False):
+    surf = DEFAULT_FONT_OBJ.render(text, True, (0, 0, 0))
+    if center:
+        x -= surf.get_width() / 2
+        y -= surf.get_height() / 2
+    window.displaySurface.blit(surf, (x, y))
+
+pygame.init()
+
+window = None
+resManager = ResourceManager.ResourceManager()
+inputManager = Input.Input()
+
+DEFAULT_FONT = "comicsansms"
+DEFAULT_FONT_SIZE = 30
+DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)

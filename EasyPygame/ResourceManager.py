@@ -41,6 +41,7 @@ class ResourceManager:
             return None
     
     def loadFont(self, fontName, size):
+        fontName = "".join(fontName.split())
         try:
             return bool(self.fontNameDict[fontName][size])
         except:
@@ -53,12 +54,14 @@ class ResourceManager:
         self.fontNameDict[fontName][size] = font
 
     def unloadFont(self, fontName, size):
+        fontName = "".join(fontName.split())
         try:
             del self.fontNameDict[fontName][size]
         except:
             pass
 
     def createTextSurface(self, fontName, size, color, surfaceName, text):
+        fontName = "".join(fontName.split())
         if surfaceName in self.resourceDict:
             raise Exception("imageName already exists")
 

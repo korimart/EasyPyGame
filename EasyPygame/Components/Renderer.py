@@ -24,6 +24,4 @@ class DefaultRenderer:
         rect.x = x
         rect.y = y
         EasyPygame.drawRect((0, 0, 255), rect)
-        EasyPygame.createTextImage("Comic Sans MS", 30, (255, 0, 0), "temp", gameObject.name)
-        EasyPygame.drawImage("temp", rect)
-        EasyPygame.unload("temp")
+        EasyPygame.pprint(gameObject.name, x, y, True)

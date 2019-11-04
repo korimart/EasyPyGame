@@ -28,6 +28,7 @@ class myApp(EasyPygame.IApp):
         self.testObj2 = EasyPygame.Components.GameObject(self.scene1, "Test2")
         self.testObj2.rect.x = -100
         self.testObj2.rect.y = 100
+        self.testObj2.rect.width = 200
         self.testObj2.z = 1
 
     def update(self, ms):
@@ -35,7 +36,8 @@ class myApp(EasyPygame.IApp):
 
     def render(self, ms):
         self.scene1.render(ms)
+        EasyPygame.pprint("This is a sample program!", 0, 0)
 
 if __name__ == "__main__":
-    EasyPygame.init(500, 500, "test", 75)
+    EasyPygame.initWindow(500, 500, "Sample", 75)
     EasyPygame.run(myApp())
