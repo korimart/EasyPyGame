@@ -14,10 +14,21 @@ class carrotHandler(EasyPygame.Components.InputHandler):
 class myApp(EasyPygame.IApp):
     def __init__(self):
         EasyPygame.load("abc.jpg")
+
         self.scene1 = EasyPygame.Components.Scene(500, 500)
+
         self.carrot = EasyPygame.Components.GameObject(self.scene1, "Carrot")
         self.carrot.renderer = EasyPygame.Components.Renderer("abc.jpg")
         self.carrot.inputHandler = carrotHandler()
+
+        self.testObj1 = EasyPygame.Components.GameObject(self.scene1, "Test1")
+        self.testObj1.rect.x = 100
+        self.testObj1.z = -1
+
+        self.testObj2 = EasyPygame.Components.GameObject(self.scene1, "Test2")
+        self.testObj2.rect.x = -100
+        self.testObj2.rect.y = 100
+        self.testObj2.z = 1
 
     def update(self, ms):
         self.scene1.update(ms)

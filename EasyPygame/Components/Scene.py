@@ -8,9 +8,13 @@ class Scene:
         self.camera = EasyPygame.Components.Camera.Camera(self)
 
     def update(self, ms):
-        for gobj in self.gameObjects:
+        for gobj in reversed(self.gameObjects):
             gobj.update(ms)
 
     def render(self, ms):
-        for gobj in self.gameObjects:
+        for gobj in reversed(self.gameObjects):
             gobj.render(ms)
+
+    def addGameObject(self, obj):
+        self.gameObjects.append(obj)
+        self.gameObjects.sort()
