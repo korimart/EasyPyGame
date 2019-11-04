@@ -31,6 +31,8 @@ class myApp(EasyPygame.IApp):
         self.testObj2.rect.width = 200
         self.testObj2.z = 1
 
+        # EasyPygame.unload("abc.jpg")
+
     def update(self, ms):
         self.scene1.update(ms)
 
