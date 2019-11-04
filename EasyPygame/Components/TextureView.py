@@ -1,12 +1,12 @@
 import EasyPygame
 
-class Renderer:
+class TextureView:
     def __init__(self, texture, imageRect=None, fitObject=True):
         self.texture = texture
         self.imageRect = imageRect
         self.fitObject = fitObject
 
-    def update(self, gameObject, camera):
+    def render(self, gameObject, camera):
         rect = gameObject.rect.copy()
         x, y = camera.view([rect.x, rect.y])
         rect.x = x
@@ -17,8 +17,8 @@ class Renderer:
         else:
             EasyPygame.drawImage(self.texture, rect, self.imageRect)
 
-class DefaultRenderer:
-    def update(self, gameObject, camera):
+class DefaultTextureView:
+    def render(self, gameObject, camera):
         rect = gameObject.rect.copy()
         x, y = camera.view([rect.x, rect.y])
         rect.x = x

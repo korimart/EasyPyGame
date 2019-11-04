@@ -18,7 +18,7 @@ class myApp(EasyPygame.IApp):
         self.scene1 = EasyPygame.Components.Scene(500, 500)
 
         self.carrot = EasyPygame.Components.GameObject(self.scene1, "Carrot")
-        self.carrot.renderer = EasyPygame.Components.Renderer("abc.jpg")
+        self.carrot.textureView = EasyPygame.Components.TextureView("abc.jpg")
         self.carrot.inputHandler = carrotHandler()
 
         self.testObj1 = EasyPygame.Components.GameObject(self.scene1, "Test1")
