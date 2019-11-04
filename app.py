@@ -4,7 +4,7 @@ class WhiteCarrot(EasyPygame.Components.GameObject):
     def __init__(self):
         super().__init__()
         EasyPygame.load("abc.jpg")
-        self.renderer = EasyPygame.Components.Renderer("abc.jpg", 50)
+        self.renderer = EasyPygame.Components.Renderer("abc.jpg")
 
     def handleInput(self, ms):
         if EasyPygame.isDown1stTime("d"):

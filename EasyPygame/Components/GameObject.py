@@ -4,8 +4,8 @@ from EasyPygame.Components import Renderer
 
 class GameObject:
     def __init__(self):
-        self.renderer = Renderer.Renderer(None, 1)
-        self.rect = EasyPygame.Rect(0, 0, 0, 0)
+        self.rect = EasyPygame.Rect(0, 0, 100, 100)
+        self.renderer = Renderer.DefaultRenderer()
 
     def update(self, ms):
         self.handleInput(ms)
