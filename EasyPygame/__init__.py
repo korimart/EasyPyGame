@@ -47,6 +47,7 @@ def Rect(x, y, width, height):
 def drawRect(color, rect):
     # type: Window.Window
     global window
+    rect.center = (rect.x, rect.y)
     pygame.draw.rect(window.displaySurface, color, rect)
 
 def drawImage(imageName, screenRect, imageRect=None):
@@ -59,7 +60,7 @@ def drawImage(imageName, screenRect, imageRect=None):
     if not imageRect:
         imageRect = surf.get_rect()
 
-    window.displaySurface.blit(surf, (screenRect.x, screenRect.y), imageRect)
+    window.displaySurface.blit(surf, (screenRect.x - imageRect.width / 2, screenRect.y - imageRect.height / 2), imageRect)
 
 def isDown(inp):
     global inputManager
