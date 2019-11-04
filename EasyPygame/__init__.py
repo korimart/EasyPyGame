@@ -28,6 +28,7 @@ def init(width, height, caption, FPS):
     window = Window.Window(width, height, caption, FPS)
     resManager = ResourceManager.ResourceManager()
     inputManager = Input.Input()
+    loadFont("Comic Sans MS", 30)
 
 def run(app):
     global window, inputManager
@@ -47,8 +48,9 @@ def Rect(x, y, width, height):
 def drawRect(color, rect):
     # type: Window.Window
     global window
-    rect.center = (rect.x, rect.y)
-    pygame.draw.rect(window.displaySurface, color, rect)
+    rt = rect.copy()
+    rt.center = (rect.x, rect.y)
+    pygame.draw.rect(window.displaySurface, color, rt)
 
 def drawImage(imageName, screenRect, imageRect=None):
     # type: ResourceManager.ResourceManager

@@ -1,27 +1,22 @@
 import EasyPygame
-import pygame
 
-class WhiteCarrot(EasyPygame.Components.GameObject):
-    def __init__(self, scene):
-        super().__init__(scene)
-        EasyPygame.load("abc.jpg")
-        self.renderer = EasyPygame.Components.Renderer("abc.jpg")
-
-    def handleInput(self, ms):
+class carrotHandler(EasyPygame.Components.InputHandler):
+    def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("d"):
-            self.rect.x += 100
+            gameObject.rect.x += 100
         elif EasyPygame.isDown1stTime("a"):
-            self.rect.x -= 100
+            gameObject.rect.x -= 100
         elif EasyPygame.isDown1stTime("w"):
-            self.rect.y += 100
+            gameObject.rect.y += 100
         elif EasyPygame.isDown1stTime("s"):
-            self.rect.y -= 100
+            gameObject.rect.y -= 100
 
 class myApp(EasyPygame.IApp):
     def __init__(self):
+        EasyPygame.load("abc.jpg")
         self.scene1 = EasyPygame.Components.Scene(500, 500)
-        # self.scene1.camera.moveTo(100, 100)
-        self.carrot = WhiteCarrot(self.scene1)
+        self.carrot = EasyPygame.Components.GameObject(self.scene1, "Carrot")
+        self.carrot.inputHandler = carrotHandler()
 
     def update(self, ms):
         self.scene1.update(ms)
