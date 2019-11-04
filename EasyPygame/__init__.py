@@ -6,6 +6,7 @@ import pygame
 import EasyPygame.ResourceManager
 import EasyPygame.Window
 import EasyPygame.Input
+import EasyPygame.Components
 # import Animator
 
 class IApp(ABC):
