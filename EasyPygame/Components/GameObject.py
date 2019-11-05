@@ -14,6 +14,10 @@ class GameObject:
 
     def update(self, ms):
         self.inputHandler.update(self, ms)
+        self.yourLogic(ms)
+    
+    def yourLogic(self, ms):
+        pass
 
     def render(self, ms):
         self.textureView.render(self, self.scene.camera)
