@@ -12,7 +12,7 @@ class Window:
         self.displaySurface = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF | pygame.HWSURFACE)
         pygame.display.set_caption(self.caption)
 
-    def run(self, inputManager: Input, scene):
+    def run(self, inputManager, sceneManager):
         fpsClock = pygame.time.Clock()
         while True:
             self.displaySurface.fill((255, 255, 255))
@@ -37,10 +37,10 @@ class Window:
             ms = fpsClock.get_time()
 
             inputManager.enableInput()
-            scene.update(ms)
-            scene.preRender()
-            scene.render(ms)
-            scene.postRender()
+            sceneManager.currentScene.update(ms)
+            sceneManager.currentScene.preRender()
+            sceneManager.currentScene.render(ms)
+            sceneManager.currentScene.postRender()
             pygame.display.update()
             inputManager.tick()
             fpsClock.tick(self.FPS)

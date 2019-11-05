@@ -31,7 +31,7 @@ def getWindowHeight():
 
 def run():
     global window, inputManager, sceneManager
-    window.run(inputManager, sceneManager.currentScene)
+    window.run(inputManager, sceneManager)
 
 def load(fileName):
     global resManager
@@ -70,7 +70,7 @@ def drawStretchedImage(imageName, screenRect, imageRect=None):
     surf = _getImageSurf(imageName)
     if not imageRect:
         imageRect = surf.get_rect()
-    
+
     surf = pygame.transform.scale(surf, (screenRect.width, screenRect.height))
     rt = screenRect.copy()
     rt.center = (screenRect.x, screenRect.y)
