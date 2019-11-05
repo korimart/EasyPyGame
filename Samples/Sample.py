@@ -52,7 +52,7 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.pprint("postRender postRender postRender", 0, 100)
 
     def unload(self):
-        EasyPygame.unload("abc.jpg")
+        EasyPygame.unload("Carrot.jpg")
 
 class Scene2(EasyPygame.Components.Scene):
     def __init__(self):
