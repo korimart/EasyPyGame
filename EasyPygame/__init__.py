@@ -21,9 +21,17 @@ def initWindow(width, height, caption, FPS):
     global window, resManager, inputManager
     window = Window.Window(width, height, caption, FPS)
 
-def run(app):
-    global window, inputManager
-    window.run(inputManager, app)
+def getWindowWidth():
+    global window
+    return window.width
+
+def getWindowHeight():
+    global window
+    return window.height
+
+def run():
+    global window, inputManager, sceneManager
+    window.run(inputManager, sceneManager.currentScene)
 
 def load(fileName):
     global resManager
@@ -102,11 +110,28 @@ def pprint(text, x, y, center=False):
         y -= surf.get_height() / 2
     window.displaySurface.blit(surf, (x, y))
 
+def getScene(sceneName):
+    global sceneManager
+    return sceneManager.getScene(sceneName)
+
+def switchScene(sceneName):
+    global sceneManager
+    sceneManager.switchScene(sceneName)
+
+def loadScene(sceneName):
+    global sceneManager
+    sceneManager.loadScene(sceneName)
+
+def unloadScene(sceneName):
+    global sceneManager
+    sceneManager.unloadScene(sceneName)
+
 pygame.init()
 
 window = None
 resManager = ResourceManager.ResourceManager()
 inputManager = Input.Input()
+sceneManager = Components.SceneManager()
 
 DEFAULT_FONT = "comicsansms"
 DEFAULT_FONT_SIZE = 30
