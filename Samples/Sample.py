@@ -1,3 +1,9 @@
+import os
+import sys
+
+THISDIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(THISDIR))
+
 import EasyPygame
 
 class carrotHandler(EasyPygame.Components.InputHandler):
@@ -19,9 +25,9 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj2 = None
 
     def load(self):
-        EasyPygame.load("abc.jpg")
+        EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.textureView = EasyPygame.Components.TextureView("abc.jpg")
+        self.carrot.textureView = EasyPygame.Components.TextureView("Carrot.jpg")
         self.carrot.inputHandler = carrotHandler()
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
@@ -29,21 +35,22 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1.z = -1
 
         self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
-        self.testObj2.rect.x = -100
-        self.testObj2.rect.y = 100
+        self.testObj2.rect.x = -150
+        self.testObj2.rect.y = -150
         self.testObj2.rect.width = 200
         self.testObj2.z = 1
 
     def preRender(self):
-        EasyPygame.pprint("This is a sample program! preRender", 0, 100)        
+        EasyPygame.pprint("preRender preRender preRender", 0, 0)        
 
     def postRender(self):
-        EasyPygame.pprint("This is a sample program! postRender", 0, 0)        
+        EasyPygame.pprint("postRender postRender postRender", 0, 100)        
 
     def unload(self):
         EasyPygame.unload("abc.jpg")
 
 if __name__ == "__main__":
+    EasyPygame.init(THISDIR)
     EasyPygame.initWindow(500, 500, "Sample", 75)
     EasyPygame.loadScene("Scene1")
     EasyPygame.switchScene("Scene1")

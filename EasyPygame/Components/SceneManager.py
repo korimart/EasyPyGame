@@ -18,10 +18,10 @@ class SceneManager:
 
         try:
             scene = self.sceneClassDict[sceneName]()
-            scene.load()
-            self.sceneInstanceDict[sceneName] = scene
         except:
             raise Exception("Scene not defined")
+        scene.load()
+        self.sceneInstanceDict[sceneName] = scene
 
     def unloadScene(self, sceneName):
         if self.currentScene.__class__.__name__ == sceneName:
