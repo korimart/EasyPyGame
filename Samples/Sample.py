@@ -3,6 +3,7 @@ import sys
 
 THISDIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(THISDIR))
+os.chdir(THISDIR)
 
 import EasyPygame
 
@@ -50,7 +51,6 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.unload("abc.jpg")
 
 if __name__ == "__main__":
-    EasyPygame.init(THISDIR)
     EasyPygame.initWindow(500, 500, "Sample", 75)
     EasyPygame.loadScene("Scene1")
     EasyPygame.switchScene("Scene1")

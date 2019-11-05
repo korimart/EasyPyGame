@@ -17,20 +17,8 @@ class IApp(ABC):
     def render(self, ms):
         pass
 
-def init(appDir):
-    global resManager, inputManager, DEFAULT_FONT_OBJ, __file__
-
-    # hack to set pygame search dir to appDir
-    original = __file__
-    __file__ = appDir
-    pygame.init()
-    __file__ = original
-
-    # pygame related inits
-    DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
-
 def initWindow(width, height, caption, FPS):
-    global window, resManager, inputManager
+    global window
     window = Window.Window(width, height, caption, FPS)
 
 def getWindowWidth():
@@ -138,6 +126,8 @@ def unloadScene(sceneName):
     global sceneManager
     sceneManager.unloadScene(sceneName)
 
+pygame.init()
+
 window = None # initialized in initWindow()
 resManager = ResourceManager.ResourceManager()
 inputManager = Input.Input()
@@ -145,4 +135,4 @@ sceneManager = Components.SceneManager()
 
 DEFAULT_FONT = "comicsansms"
 DEFAULT_FONT_SIZE = 30
-DEFAULT_FONT_OBJ = None # initialized in init()
+DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
