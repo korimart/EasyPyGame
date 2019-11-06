@@ -6,6 +6,7 @@ import pygame
 import EasyPygame.ResourceManager
 import EasyPygame.Window
 import EasyPygame.Input
+import EasyPygame.SceneManager
 import EasyPygame.Components
 
 class IApp(ABC):
@@ -131,7 +132,7 @@ pygame.init()
 window = None # initialized in initWindow()
 resManager = ResourceManager.ResourceManager()
 inputManager = Input.Input()
-sceneManager = Components.SceneManager()
+sceneManager = SceneManager.SceneManager()
 
 DEFAULT_FONT = "comicsansms"
 DEFAULT_FONT_SIZE = 30

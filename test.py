@@ -1,10 +1,2 @@
-class Test:
-    def __init__(self):
-        print(self.__class__)
-
-class TestChild(Test):
-    def __init__(self):
-        super().__init__()
-
-t = Test()
-tchild = TestChild()
+with open("yes.bin", "wb") as file:
+    file.write(bytes([0, 255, 12, 126]))

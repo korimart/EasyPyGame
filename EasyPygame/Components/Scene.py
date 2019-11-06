@@ -6,10 +6,10 @@ class DefaultScene:
         self.gameObjects = []
         self.camera = EasyPygame.Components.Camera.Camera()
 
-    def load(self):
+    def onLoad(self):
         pass
 
-    def unload(self):
+    def onUnload(self):
         pass
 
     def update(self, ms):

@@ -20,7 +20,7 @@ class SceneManager:
             scene = self.sceneClassDict[sceneName]()
         except:
             raise Exception("Scene not defined")
-        scene.load()
+        scene.onLoad()
         self.sceneInstanceDict[sceneName] = scene
 
     def unloadScene(self, sceneName):
@@ -29,7 +29,7 @@ class SceneManager:
 
         try:
             scene = self.sceneInstanceDict[sceneName]
-            scene.unload()
+            scene.onUnload()
             del self.sceneInstanceDict[sceneName]
         except:
             return

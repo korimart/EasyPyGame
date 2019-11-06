@@ -29,7 +29,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1 = None
         self.testObj2 = None
 
-    def load(self):
+    def onLoad(self):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
         self.carrot.textureView = EasyPygame.Components.TextureView("Carrot.jpg")
@@ -51,7 +51,7 @@ class Scene1(EasyPygame.Components.Scene):
     def postRender(self):
         EasyPygame.pprint("postRender postRender postRender", 0, 100)
 
-    def unload(self):
+    def unUnload(self):
         EasyPygame.unload("Carrot.jpg")
 
 class Scene2(EasyPygame.Components.Scene):
