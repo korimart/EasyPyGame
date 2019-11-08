@@ -19,10 +19,10 @@ class carrotHandler(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("d"):
             gameObject.rect.x += 100
-            gameObject.FSM.switchState("wentLeft", ms)
+            gameObject.FSM.switchState("wentRight", ms)
         elif EasyPygame.isDown1stTime("a"):
             gameObject.rect.x -= 100
-            gameObject.FSM.switchState("wentRight", ms)
+            gameObject.FSM.switchState("wentLeft", ms)
         elif EasyPygame.isDown1stTime("w"):
             gameObject.rect.y += 100
         elif EasyPygame.isDown1stTime("s"):
@@ -42,8 +42,8 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
-        self.carrot.useTextureView(1)
+        carrotTextureViewIndex = self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
+        self.carrot.useTextureView(carrotTextureViewIndex)
         self.carrot.addInputHandler(carrotHandler())
         self.carrot.useInputHandler(1)
         self.carrot.FSM.addState(wentLeft())
@@ -52,6 +52,10 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
         self.testObj1.rect.x = 100
         self.testObj1.z = -1
+        self.testObj1.addInputHandler(carrotHandler())
+        self.testObj1.useInputHandler(1)
+        self.testObj1.FSM.addState(wentLeft())
+        self.testObj1.FSM.addState(wentRight())
 
         self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
         self.testObj2.rect.x = -150
