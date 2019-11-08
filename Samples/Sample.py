@@ -7,12 +7,22 @@ os.chdir(THISDIR)
 
 import EasyPygame
 
+class wentLeft(EasyPygame.Components.GameObjectState):
+    def onEnter(self, gameObject, ms):
+        gameObject.useTextureView(0)
+
+class wentRight(EasyPygame.Components.GameObjectState):
+    def onEnter(self, gameObject, ms):
+        gameObject.useTextureView(1)
+
 class carrotHandler(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("d"):
             gameObject.rect.x += 100
+            gameObject.FSM.switchState("wentLeft", ms)
         elif EasyPygame.isDown1stTime("a"):
             gameObject.rect.x -= 100
+            gameObject.FSM.switchState("wentRight", ms)
         elif EasyPygame.isDown1stTime("w"):
             gameObject.rect.y += 100
         elif EasyPygame.isDown1stTime("s"):
@@ -32,8 +42,12 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.textureView = EasyPygame.Components.TextureView("Carrot.jpg")
-        self.carrot.inputHandler = carrotHandler()
+        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
+        self.carrot.useTextureView(1)
+        self.carrot.addInputHandler(carrotHandler())
+        self.carrot.useInputHandler(1)
+        self.carrot.FSM.addState(wentLeft())
+        self.carrot.FSM.addState(wentRight())
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
         self.testObj1.rect.x = 100
