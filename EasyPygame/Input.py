@@ -7,15 +7,26 @@ class Input:
         self.thisInputEnabled = dict()
 
     def isDown(self, inp: str):
-        asci = ord(inp.lower())
+        try:
+            asci = ord(inp.lower())
+        except:
+            asci = inp
         return asci in self.thisInputList and self.thisInputEnabled[asci]
 
     def isDown1stTime(self, inp):
-        asci = ord(inp.lower())
+        try: 
+            asci = ord(inp.lower())
+        except:
+            asci = inp
+
         return asci in self.thisInputList and asci not in self.lastInputList and self.thisInputEnabled[asci]
 
     def consume(self, inp):
-        asci = ord(inp.lower())
+        try:
+            asci = ord(inp.lower())
+        except:
+            asci = inp
+        
         try:
             self.thisInputEnabled[asci] = False
         except:

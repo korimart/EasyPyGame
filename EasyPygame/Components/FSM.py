@@ -14,6 +14,9 @@ class FSM:
             self.currentState.onEnter(self.gameObject, ms)
         except:
             raise Exception("GameObjectState not registered in FSM")
+
+    def getCurrentStateName(self):
+        return self.currentState.__class__.__name__
     
     def update(self, ms):
         self.currentState.update(self.gameObject, ms)

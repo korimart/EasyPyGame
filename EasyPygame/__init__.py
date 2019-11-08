@@ -127,6 +127,14 @@ def unloadScene(sceneName):
     global sceneManager
     sceneManager.unloadScene(sceneName)
 
+def isMouseOnObject(gameObject):
+    screenRect = gameObject.rect.copy()
+    screenRect.x, screenRect.y = gameObject.scene.camera.view((screenRect.x, screenRect.y))
+    screenRect.x -= screenRect.width / 2
+    screenRect.y -= screenRect.height / 2
+    mouseX, mouseY = getMousePos()
+    return screenRect.collidepoint(mouseX, mouseY)
+
 pygame.init()
 
 window = None # initialized in initWindow()

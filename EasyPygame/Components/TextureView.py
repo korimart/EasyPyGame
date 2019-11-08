@@ -12,23 +12,19 @@ class TextureView:
         rect.x = x
         rect.y = y
 
-        try:
-            if self.fitObject:
-                EasyPygame.drawStretchedImage(self.texture, rect, self.imageRect)
-            else:
-                EasyPygame.drawImage(self.texture, rect, self.imageRect)
-        except:
-            DefaultTextureView.srender(gameObject, camera)
+        if self.fitObject:
+            EasyPygame.drawStretchedImage(self.texture, rect, self.imageRect)
+        else:
+            EasyPygame.drawImage(self.texture, rect, self.imageRect)
 
 class DefaultTextureView:
-    @staticmethod
-    def srender(gameObject, camera):
+    def __init__(self, color=(0, 0, 255)):
+        self.color = color
+
+    def render(self, gameObject, camera):
         rect = gameObject.rect.copy()
         x, y = camera.view([rect.x, rect.y])
         rect.x = x
         rect.y = y
-        EasyPygame.drawRect((0, 0, 255), rect)
+        EasyPygame.drawRect(self.color, rect)
         EasyPygame.pprint(gameObject.name, x, y, True)
-
-    def render(self, gameObject, camera):
-        DefaultTextureView.srender(gameObject, camera)
