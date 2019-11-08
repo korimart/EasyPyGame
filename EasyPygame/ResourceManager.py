@@ -8,11 +8,11 @@ class ResourceManager:
         self.supportedImageList = [".jpg", ".png", ".bmp"]
         self.fontNameDict = dict()
 
-    def load(self, fileName):
+    def load(self, fileName, override=False):
         _, extension = os.path.splitext(fileName)
         data = None
 
-        if fileName in self.resourceDict:
+        if not override and fileName in self.resourceDict:
             return True
 
         if extension.lower() in self.supportedImageList:
@@ -60,9 +60,9 @@ class ResourceManager:
         except:
             pass
 
-    def createTextSurface(self, fontName, size, color, surfaceName, text):
+    def createTextSurface(self, fontName, size, color, surfaceName, text, override=False):
         fontName = "".join(fontName.split())
-        if surfaceName in self.resourceDict:
+        if not override and surfaceName in self.resourceDict:
             raise Exception("imageName already exists")
 
         try:
