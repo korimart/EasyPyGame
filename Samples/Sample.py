@@ -63,9 +63,13 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj2.rect.width = 200
         self.testObj2.z = 1
 
-        self.button = EasyPygame.Components.GUI.Button(self, "Button", self.testCallback)
+        self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
         self.button.rect.x = 150
         self.button.rect.y = -150
+
+        self.textbox = EasyPygame.Components.GUI.TextBox(self)
+        self.textbox.rect.x = 150
+        self.textbox.rect.y = 200
 
     def preRender(self):
         EasyPygame.pprint("preRender preRender preRender", 0, 0)
@@ -76,9 +80,8 @@ class Scene1(EasyPygame.Components.Scene):
     def unUnload(self):
         EasyPygame.unload("Carrot.jpg")
 
-    @staticmethod
-    def testCallback():
-        print("haha")
+    def testCallback(self):
+        print(self.textbox.getText())
 
 class Scene2(EasyPygame.Components.Scene):
     def __init__(self):

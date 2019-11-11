@@ -7,8 +7,8 @@ class GameObject:
     def __init__(self, scene, name="GameObject"):
         self.rect = EasyPygame.Rect(0, 0, 100, 100)
 
-        self.textureView = [TextureView.DefaultTextureView()]
-        self.inputHandler = [InputHandler.InputHandler()]
+        self.textureViewList = [TextureView.DefaultTextureView()]
+        self.inputHandlerList = [InputHandler.InputHandler()]
         self.FSM = FSM.FSM(self)
         self.textureViewIndex = 0
         self.inputHandlerIndex = 0
@@ -19,31 +19,31 @@ class GameObject:
         scene.addGameObject(self)
 
     def update(self, ms):
-        self.inputHandler[self.inputHandlerIndex].update(self, ms)
+        self.inputHandlerList[self.inputHandlerIndex].update(self, ms)
         self.yourLogic(ms)
-    
+
     def yourLogic(self, ms):
         pass
 
     def render(self, ms):
-        self.textureView[self.textureViewIndex].render(self, self.scene.camera)
+        self.textureViewList[self.textureViewIndex].render(self, self.scene.camera)
 
     def addTextureView(self, textureView):
-        self.textureView.append(textureView)
-        return len(self.textureView) - 1
+        self.textureViewList.append(textureView)
+        return len(self.textureViewList) - 1
 
     def addInputHandler(self, inputHandler):
-        self.inputHandler.append(inputHandler)
-        return len(self.inputHandler) - 1
+        self.inputHandlerList.append(inputHandler)
+        return len(self.inputHandlerList) - 1
 
     def useTextureView(self, textureViewIndex):
-        if 0 <= textureViewIndex < len(self.textureView):
+        if 0 <= textureViewIndex < len(self.textureViewList):
             self.textureViewIndex = textureViewIndex
         else:
             self.textureViewIndex = 0
 
     def useInputHandler(self, inputHandlerIndex):
-        if 0 <= inputHandlerIndex < len(self.inputHandler):
+        if 0 <= inputHandlerIndex < len(self.inputHandlerList):
             self.inputHandlerIndex = inputHandlerIndex
         else:
             self.inputHandlerIndex = 0
