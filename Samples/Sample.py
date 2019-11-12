@@ -66,6 +66,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
         self.button.rect.x = 150
         self.button.rect.y = -150
+        self.button.FSM.attachAnimationState(1, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
 
         self.textbox = EasyPygame.Components.GUI.TextBox(self)
         self.textbox.rect.x = 150
@@ -90,9 +91,7 @@ class Scene2(EasyPygame.Components.Scene):
     def onLoad(self):
         self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
         self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
-
-        self.textureViewList = [0, 1]
-        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, self.textureViewList))
+        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
 
     def postRender(self):
         EasyPygame.pprint("this is scene2", 0, 0)

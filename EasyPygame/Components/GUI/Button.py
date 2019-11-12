@@ -50,6 +50,7 @@ class Button(GameObject):
         self.FSM.addState(ButtonStateReleased())
         self.FSM.addState(ButtonStateHover())
         self.FSM.addState(ButtonStatePressed())
+        self.FSM.switchState(1, 0)
 
         self.useInputHandler(1)
 
