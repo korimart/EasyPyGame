@@ -46,6 +46,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.carrot.useTextureView(carrotTextureViewIndex)
         self.carrot.addInputHandler(carrotHandler())
         self.carrot.useInputHandler(1)
+        # carrot will switch between textureview 0 and 1 when moving left and right
         self.carrot.FSM.addState(wentLeft())
         self.carrot.FSM.addState(wentRight())
 
@@ -54,6 +55,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1.z = -1
         self.testObj1.addInputHandler(carrotHandler())
         self.testObj1.useInputHandler(1)
+        # this will have no effect because testObj1 does not have textureview 1
         self.testObj1.FSM.addState(wentLeft())
         self.testObj1.FSM.addState(wentRight())
 
@@ -66,7 +68,6 @@ class Scene1(EasyPygame.Components.Scene):
         self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
         self.button.rect.x = 150
         self.button.rect.y = -150
-        self.button.FSM.attachAnimationState(1, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
 
         self.textbox = EasyPygame.Components.GUI.TextBox(self)
         self.textbox.rect.x = 150
@@ -91,6 +92,11 @@ class Scene2(EasyPygame.Components.Scene):
     def onLoad(self):
         self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
         self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
+        # first parameter is gameObjectStateIndex to attach AnimationState to.
+        # second parameter is an AnimationState
+        # first parameter of the constructor is duration in miliseconds of the animation from start to end
+        # second parameter is a list of textureViewIndices of animation
+        # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
         self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
 
     def postRender(self):
