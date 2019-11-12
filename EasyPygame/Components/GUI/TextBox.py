@@ -16,7 +16,7 @@ class TextBoxInputHandlerFocused(InputHandler):
         else:
             keyList = EasyPygame.inputManager.thisInputList.copy()
             for key in keyList:
-                if key not in [1, 2, 3] and EasyPygame.isDown1stTime(key):
+                if 32 <= key <= 126 and EasyPygame.isDown1stTime(chr(key)): # ascii printables
                     gameObject.text += chr(key)
 
 class TextBox(GameObject):

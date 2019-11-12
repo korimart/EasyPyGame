@@ -19,10 +19,10 @@ class carrotHandler(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("d"):
             gameObject.rect.x += 100
-            gameObject.FSM.switchState("wentRight", ms)
+            gameObject.FSM.switchState(2, ms)
         elif EasyPygame.isDown1stTime("a"):
             gameObject.rect.x -= 100
-            gameObject.FSM.switchState("wentLeft", ms)
+            gameObject.FSM.switchState(1, ms)
         elif EasyPygame.isDown1stTime("w"):
             gameObject.rect.y += 100
         elif EasyPygame.isDown1stTime("s"):
@@ -77,7 +77,7 @@ class Scene1(EasyPygame.Components.Scene):
     def postRender(self):
         EasyPygame.pprint("postRender postRender postRender", 0, 100)
 
-    def unUnload(self):
+    def unload(self):
         EasyPygame.unload("Carrot.jpg")
 
     def testCallback(self):
@@ -86,6 +86,13 @@ class Scene1(EasyPygame.Components.Scene):
 class Scene2(EasyPygame.Components.Scene):
     def __init__(self):
         super().__init__()
+
+    def onLoad(self):
+        self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
+        self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
+
+        self.textureViewList = [0, 1]
+        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, self.textureViewList))
 
     def postRender(self):
         EasyPygame.pprint("this is scene2", 0, 0)
