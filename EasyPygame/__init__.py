@@ -100,9 +100,9 @@ def unloadFont(fontName, size):
     global resManager
     resManager.unloadFont(fontName, size)
 
-def createTextImage(fontName, size, color, imageName, text):
+def createTextImage(fontName, size, color, imageName, text, override=False):
     global resManager
-    resManager.createTextSurface(fontName, size, color, imageName, text)
+    resManager.createTextSurface(fontName, size, color, imageName, text, override)
 
 def pprint(text, x, y, center=False):
     surf = DEFAULT_FONT_OBJ.render(text, True, (0, 0, 0))
@@ -127,6 +127,11 @@ def unloadScene(sceneName):
     global sceneManager
     sceneManager.unloadScene(sceneName)
 
+def nextScene(fromSceneName, toSceneName):
+    loadScene(toSceneName)
+    switchScene(toSceneName)
+    unloadScene(fromSceneName)
+
 def isMouseOnObject(gameObject):
     screenRect = gameObject.rect.copy()
     screenRect.x, screenRect.y = gameObject.scene.camera.view((screenRect.x, screenRect.y))
@@ -144,4 +149,5 @@ sceneManager = SceneManager.SceneManager()
 
 DEFAULT_FONT = "comicsansms"
 DEFAULT_FONT_SIZE = 30
+loadFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
 DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)

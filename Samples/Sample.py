@@ -28,9 +28,8 @@ class carrotHandler(EasyPygame.Components.InputHandler):
         elif EasyPygame.isDown1stTime("s"):
             gameObject.rect.y -= 100
         elif EasyPygame.isDown1stTime("p"):
-            EasyPygame.loadScene("Scene2")
-            EasyPygame.switchScene("Scene2")
-            EasyPygame.unloadScene("Scene1")
+            EasyPygame.consume("p")
+            EasyPygame.nextScene("Scene1", "Scene2")
 
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
@@ -101,6 +100,10 @@ class Scene2(EasyPygame.Components.Scene):
 
     def postRender(self):
         EasyPygame.pprint("this is scene2", 0, 0)
+
+        if EasyPygame.isDown1stTime("p"):
+            EasyPygame.consume("p")
+            EasyPygame.nextScene("Scene2", "Scene1")
 
 if __name__ == "__main__":
     EasyPygame.initWindow(500, 500, "Sample", 75)
