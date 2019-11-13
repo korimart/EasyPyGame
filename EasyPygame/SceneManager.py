@@ -5,6 +5,9 @@ class SceneManager:
         self.sceneClassDict = dict()
         self.sceneInstanceDict = dict()
         self.currentScene = Components.DefaultScene()
+        self.loadSceneNameList = []
+        self.unloadSceneNameList = []
+        self.switchSceneName = ""
 
     def registerScene(self, sceneCls):
         if sceneCls.__name__ in self.sceneClassDict:
@@ -13,26 +16,35 @@ class SceneManager:
         self.sceneClassDict[sceneCls.__name__] = sceneCls
 
     def loadScene(self, sceneName):
-        if sceneName in self.sceneInstanceDict:
-            return
+        self.loadSceneNameList.append(sceneName)
 
-        try:
-            scene = self.sceneClassDict[sceneName]()
-        except:
-            raise Exception("Scene not defined")
-        scene.onLoad()
-        self.sceneInstanceDict[sceneName] = scene
+    def _loadScene(self):
+        for sceneName in self.loadSceneNameList:
+            if sceneName in self.sceneInstanceDict:
+                continue
+
+            try:
+                scene = self.sceneClassDict[sceneName]()
+            except:
+                raise Exception("Scene not defined")
+            scene.onLoad()
+            self.sceneInstanceDict[sceneName] = scene
+        
+        self.loadSceneNameList = []
 
     def unloadScene(self, sceneName):
-        if self.currentScene.__class__.__name__ == sceneName:
-            raise Exception("Trying to unload current scene")
+        self.unloadSceneNameList.append(sceneName)
 
-        try:
-            scene = self.sceneInstanceDict[sceneName]
-            scene.onUnload()
-            del self.sceneInstanceDict[sceneName]
-        except:
-            return
+    def _unloadScene(self):
+        for sceneName in self.unloadSceneNameList:
+            try:
+                scene = self.sceneInstanceDict[sceneName]
+                scene.onUnload()
+                del self.sceneInstanceDict[sceneName]
+            except:
+                continue
+        
+        self.unloadSceneNameList = []
 
     def getScene(self, sceneName):
         try:
@@ -41,7 +53,18 @@ class SceneManager:
             return None
 
     def switchScene(self, sceneName):
-        try:
-            self.currentScene = self.sceneInstanceDict[sceneName]
-        except:
-            raise Exception("Scene specified not loaded")
+        self.switchSceneName = sceneName
+
+    def update(self):
+        self._loadScene()
+        self._unloadScene()
+        self._switchScene()
+
+    def _switchScene(self):
+        if self.switchSceneName:
+            try:
+                self.currentScene = self.sceneInstanceDict[self.switchSceneName]
+            except:
+                raise Exception("Scene specified not loaded")
+            finally:
+                self.switchSceneName = ""

@@ -2,7 +2,7 @@ import EasyPygame
 from EasyPygame.Components import GameObject
 from EasyPygame.Components import InputHandler
 from EasyPygame.Components import DefaultTextureView, TextureView
-from EasyPygame.Components import GameObjectState
+from EasyPygame.Components import GameObjectState, SpriteAnimState
 
 class TextBoxInputHandlerUnfocused(InputHandler):
     def update(self, gameObject, ms):
@@ -18,20 +18,22 @@ class TextBoxInputHandlerFocused(InputHandler):
             for key in keyList:
                 if 32 <= key <= 126 and EasyPygame.isDown1stTime(chr(key)): # ascii printables
                     gameObject.text += chr(key)
-                    gameObject.curosrPos += 1
+                    gameObject.cursorPos += 1
 
 class TextBox(GameObject):
     def __init__(self, scene, name="TextBox"):
         super().__init__(scene, name)
-        self.text = ""
+        self.text = "abcdef"
         self.cursorPos = 0;
         self.addInputHandler(TextBoxInputHandlerUnfocused())
         self.addInputHandler(TextBoxInputHandlerFocused())
         self.useInputHandler(1)
-        self.charTextureView = TextureView("__KorimartChar")
+        self.charTextureView = TextureView("__KorimartChar", None, False, True, "left")
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
-        self._prepareTexture("TTTT")
+
+        #test
+        # self.FSM.attachAnimationState(0, SpriteAnimState(1000, [0, 1]))
 
     def getText(self):
         return self.text
@@ -40,8 +42,4 @@ class TextBox(GameObject):
         self.text = text
 
     def yourLogic(self, ms):
-        pass
-
-    def _prepareTexture(self, char):
-        EasyPygame.createTextImage(EasyPygame.DEFAULT_FONT, EasyPygame.DEFAULT_FONT_SIZE, (0, 0, 0), "__KorimartChar", char, True)
-        
+        EasyPygame.createTextImage(EasyPygame.DEFAULT_FONT, EasyPygame.DEFAULT_FONT_SIZE, (0, 0, 0), "__KorimartChar", self.text, True)

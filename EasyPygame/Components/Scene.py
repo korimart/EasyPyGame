@@ -15,6 +15,8 @@ class DefaultScene:
     def update(self, ms):
         for gobj in reversed(self.gameObjects):
             gobj.update(ms)
+        for gobj in reversed(self.gameObjects):
+            gobj.yourLogic(ms)            
 
     def preRender(self):
         pass

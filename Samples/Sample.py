@@ -68,10 +68,6 @@ class Scene1(EasyPygame.Components.Scene):
         self.button.rect.x = 150
         self.button.rect.y = -150
 
-        self.textbox = EasyPygame.Components.GUI.TextBox(self)
-        self.textbox.rect.x = 150
-        self.textbox.rect.y = 200
-
     def preRender(self):
         EasyPygame.pprint("preRender preRender preRender", 0, 0)
 
@@ -82,7 +78,7 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.unload("Carrot.jpg")
 
     def testCallback(self):
-        print(self.textbox.getText())
+        print("haha")
 
 class Scene2(EasyPygame.Components.Scene):
     def __init__(self):
@@ -97,6 +93,10 @@ class Scene2(EasyPygame.Components.Scene):
         # second parameter is a list of textureViewIndices of animation
         # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
         self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
+
+        self.textbox = EasyPygame.Components.GUI.TextBox(self)
+        self.textbox.rect.x = 0
+        self.textbox.rect.y = 100
 
     def postRender(self):
         EasyPygame.pprint("this is scene2", 0, 0)

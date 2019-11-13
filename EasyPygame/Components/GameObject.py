@@ -21,7 +21,6 @@ class GameObject:
     def update(self, ms):
         self.inputHandlerList[self.inputHandlerIndex].update(self, ms)
         self.FSM.update(ms)
-        self.yourLogic(ms)
 
     def yourLogic(self, ms):
         pass
