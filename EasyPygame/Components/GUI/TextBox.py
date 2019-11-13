@@ -23,7 +23,7 @@ class TextBoxInputHandlerFocused(InputHandler):
 class TextBox(GameObject):
     def __init__(self, scene, name="TextBox"):
         super().__init__(scene, name)
-        self.text = "abcdef"
+        self.text = "abc"
         self.cursorPos = 0;
         self.addInputHandler(TextBoxInputHandlerUnfocused())
         self.addInputHandler(TextBoxInputHandlerFocused())
@@ -31,9 +31,6 @@ class TextBox(GameObject):
         self.charTextureView = TextureView("__KorimartChar", None, False, True, "left")
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
-
-        #test
-        # self.FSM.attachAnimationState(0, SpriteAnimState(1000, [0, 1]))
 
     def getText(self):
         return self.text
@@ -43,3 +40,5 @@ class TextBox(GameObject):
 
     def yourLogic(self, ms):
         EasyPygame.createTextImage(EasyPygame.DEFAULT_FONT, EasyPygame.DEFAULT_FONT_SIZE, (0, 0, 0), "__KorimartChar", self.text, True)
+        surf = EasyPygame._getImageSurf("__KorimartChar")
+        self.charTextureView.align = "right" if surf.get_width() > self.rect.width else "left"

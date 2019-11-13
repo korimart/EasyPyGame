@@ -23,26 +23,44 @@ class TextureView:
         if not self.imageRect:
             imageRect = imageSurf.get_rect().copy()
 
-        if self.crop:
-            imageHalfWidth = imageSurf.get_width() / 2
-            imageHalfHeight = imageSurf.get_height() / 2
+        imageHalfWidth = imageSurf.get_width() / 2
+        imageHalfHeight = imageSurf.get_height() / 2
 
-            # convert to imageRect coordinate and translate
-            left = (rect.x - rect.width / 2) - rect.x + imageHalfWidth + self.relPos[0]
-            right = (rect.x + rect.width / 2) - rect.x + imageHalfWidth + self.relPos[0]
-            top = rect.y - (rect.y + rect.height / 2) + imageHalfHeight + self.relPos[1]
-            bottom = rect.y - (rect.y - rect.height / 2) + imageHalfHeight + self.relPos[1]
-            
-            # crop
+        # convert to imageRect coordinate and translate
+        if self.crop:
+            if self.align == "left":
+                left = 0
+                right = rect.width
+            elif self.align == "right":
+                right = imageHalfWidth * 2
+                left = right - rect.width
+            else:
+                left = imageHalfWidth - rect.width / 2
+                right = rect.width / 2 + imageHalfWidth
+
+            if imageSurf.get_width() < rect.width:
+                if self.align == "left":
+                    rect.x += imageHalfWidth - rect.width / 2
+                elif self.align == "right":
+                    rect.x += rect.width / 2 - imageHalfWidth
+
+            top = imageHalfHeight - rect.height / 2
+            bottom = rect.height / 2 + imageHalfHeight
+                
             imageRect.x = max(imageRect.x, left)
             imageRect.y = max(imageRect.y, top)
             imageRect.width = min(imageRect.right, right) - imageRect.x
             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
-
-        if self.crop:
-            EasyPygame.drawImage(self.texture, rect, imageRect)
         else:
-            EasyPygame.drawImage(self.texture, rect, self.imageRect)
+            if self.align == "left":
+                rect.x += imageHalfWidth - rect.width / 2
+            elif self.align == "right":
+                rect.x += rect.width / 2 - imageHalfWidth
+
+        rect.x += self.relPos[0]
+        rect.y -= self.relPos[1]
+             
+        EasyPygame.drawImage(self.texture, rect, imageRect)
                 
         
 
