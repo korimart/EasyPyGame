@@ -6,25 +6,30 @@ from EasyPygame.Components import GameObjectState, SpriteAnimState
 
 class TextBoxInputHandlerUnfocused(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime(1) and EasyPygame.isMouseOnObject(gameObject):
+        if EasyPygame.isDown1stTime("MOUSELEFT") and EasyPygame.isMouseOnObject(gameObject):
             gameObject.useInputHandler(2)
 
 class TextBoxInputHandlerFocused(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime(1) and not EasyPygame.isMouseOnObject(gameObject):
+        if EasyPygame.isDown1stTime("RETURN") or EasyPygame.isDown1stTime("MOUSELEFT") and not EasyPygame.isMouseOnObject(gameObject):
             gameObject.useInputHandler(1)
+        elif EasyPygame.isDown1stTime("BACKSPACE"):
+            gameObject.text = gameObject.text[:-1]
+            gameObject.cursorPos -= 1
         else:
-            keyList = EasyPygame.inputManager.thisInputList.copy()
-            for key in keyList:
-                if 32 <= key <= 126 and EasyPygame.isDown1stTime(chr(key)): # ascii printables
-                    gameObject.text += chr(key)
-                    gameObject.cursorPos += 1
+            printables = EasyPygame.inputManager.getPrintables()
+            gameObject.text += "".join(printables)
+            gameObject.cursorPos += len(printables)
 
 class TextBox(GameObject):
-    def __init__(self, scene, name="TextBox"):
+    def __init__(self, scene, name="TextBox", fontName="comicsansms", fontSize=30, color=(0,0,0)):
         super().__init__(scene, name)
         self.text = "abc"
         self.cursorPos = 0;
+        self.fontName = fontName
+        self.fontSize = fontSize
+        self.color = color
+
         self.addInputHandler(TextBoxInputHandlerUnfocused())
         self.addInputHandler(TextBoxInputHandlerFocused())
         self.useInputHandler(1)
@@ -39,6 +44,6 @@ class TextBox(GameObject):
         self.text = text
 
     def yourLogic(self, ms):
-        EasyPygame.createTextImage(EasyPygame.DEFAULT_FONT, EasyPygame.DEFAULT_FONT_SIZE, (0, 0, 0), "__KorimartChar", self.text, True)
+        EasyPygame.createTextImage(self.fontName, self.fontSize, self.color, "__KorimartChar", self.text, True)
         surf = EasyPygame._getImageSurf("__KorimartChar")
         self.charTextureView.align = "right" if surf.get_width() > self.rect.width else "left"

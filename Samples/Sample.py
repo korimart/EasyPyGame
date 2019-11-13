@@ -94,7 +94,7 @@ class Scene2(EasyPygame.Components.Scene):
         # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
         self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
 
-        self.textbox = EasyPygame.Components.GUI.TextBox(self)
+        self.textbox = EasyPygame.Components.GUI.TextBox(self, "textbox1")
         self.textbox.rect.x = 0
         self.textbox.rect.y = 100
 

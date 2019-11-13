@@ -11,13 +11,13 @@ class ButtonInputHandlerReleased(InputHandler):
 
 class ButtonInputHandlerPressed(InputHandler):
     def update(self, gameObject, ms):
-        if not EasyPygame.isDown(1):
+        if not EasyPygame.isDown("MOUSELEFT"):
             gameObject.FSM.switchState(1, ms)
 
 class ButtonInputHandlerHover(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime(1):
-            EasyPygame.consume(1)
+        if EasyPygame.isDown1stTime("MOUSELEFT"):
+            EasyPygame.consume("MOUSELEFT")
             gameObject.callback()
             gameObject.FSM.switchState(3, ms)
         elif not EasyPygame.isMouseOnObject(gameObject):
