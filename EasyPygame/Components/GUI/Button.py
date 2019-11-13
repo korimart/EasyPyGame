@@ -4,21 +4,6 @@ from EasyPygame.Components import InputHandler
 from EasyPygame.Components import DefaultTextureView
 from EasyPygame.Components import GameObjectState
 
-class ButtonStatePressed(GameObjectState):
-    def onEnter(self, gameObject, ms):
-        gameObject.useTextureView(gameObject.TVRed)
-        gameObject.useInputHandler(3)
-
-class ButtonStateReleased(GameObjectState):
-    def onEnter(self, gameObject, ms):
-        gameObject.useTextureView(0)
-        gameObject.useInputHandler(1)
-
-class ButtonStateHover(GameObjectState):
-    def onEnter(self, gameObject, ms):
-        gameObject.useTextureView(gameObject.TVGreen)
-        gameObject.useInputHandler(2)
-
 class ButtonInputHandlerReleased(InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isMouseOnObject(gameObject):
@@ -42,17 +27,20 @@ class Button(GameObject):
     def __init__(self, scene, buttonName="Button", callback=None):
         super().__init__(scene, buttonName)
         self.callback = callback
+
+        # handlers: 1, 2, 3
         self.addInputHandler(ButtonInputHandlerReleased())
         self.addInputHandler(ButtonInputHandlerHover())
         self.addInputHandler(ButtonInputHandlerPressed())
-        self.TVRed = self.addTextureView(DefaultTextureView((255, 0, 0)))
-        self.TVGreen = self.addTextureView(DefaultTextureView((0, 255, 0)))
-        self.FSM.addState(ButtonStateReleased())
-        self.FSM.addState(ButtonStateHover())
-        self.FSM.addState(ButtonStatePressed())
-        self.FSM.switchState(1, 0)
 
-        self.useInputHandler(1)
+        # texture views: 1, 2
+        self.addTextureView(DefaultTextureView((0, 255, 0)))
+        self.addTextureView(DefaultTextureView((255, 0, 0)))
+
+        self.FSM.addState(GameObjectState(1, 0))
+        self.FSM.addState(GameObjectState(2, 1))
+        self.FSM.addState(GameObjectState(3, 2))
+        self.FSM.switchState(1, 0)
 
     def setCallback(self, callback):
         self.callback = callback

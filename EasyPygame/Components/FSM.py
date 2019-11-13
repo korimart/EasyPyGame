@@ -26,6 +26,9 @@ class FSM:
             for animationState in self.animationStateDict[self.currentStateIndex]:
                 animationState.onEnter(self.gameObject, ms)
 
+    def getGameStateObject(self, index):
+        return self.gameObjectStateList[index]
+
     def update(self, ms):
         self.gameObjectStateList[self.currentStateIndex].update(self.gameObject, ms)
         if self.currentStateIndex in self.animationStateDict:
@@ -33,8 +36,14 @@ class FSM:
                 animationState.update(self.gameObject, ms)
 
 class GameObjectState:
+    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=-1):
+        self.inputHandlerIndex = inputHandlerIndex
+        self.staticTextureViewIndex = staticTextureViewIndex
+
     def onEnter(self, gameObject, ms):
-        pass
+        gameObject.useInputHandler(self.inputHandlerIndex)
+        if self.staticTextureViewIndex >= 0:
+            gameObject.useTextureView(self.staticTextureViewIndex)
 
     def update(self, gameObject, ms):
         pass
