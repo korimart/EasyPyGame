@@ -22,9 +22,9 @@ class TextBoxInputHandlerFocused(InputHandler):
             gameObject.cursorPos += len(printables)
 
 class TextBox(GameObject):
-    def __init__(self, scene, name="TextBox", fontName="comicsansms", fontSize=30, color=(0,0,0)):
+    def __init__(self, scene, name="TextBox", defaultText="", fontName="comicsansms", fontSize=30, color=(0,0,0)):
         super().__init__(scene, name)
-        self.text = "abc"
+        self.text = defaultText
         self.cursorPos = 0;
         self.fontName = fontName
         self.fontSize = fontSize

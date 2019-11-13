@@ -1,24 +1,26 @@
 import EasyPygame
 
 class TextureView:
-    def __init__(self, texture, imageRect=None, fitObject=True, crop=False, align="center", relPos=(0, 0)):
+    def __init__(self, texture, imageRect=None, fitObject=True, crop=False, halign="center", relPos=(0, 0)):
         self.texture = texture
         self.imageRect = imageRect
         self.fitObject = fitObject
         self.crop = crop
         self.relPos = relPos
-        self.align = align
+        self.halign = halign
 
     def render(self, gameObject, camera):
         rect = gameObject.rect.copy()
         x, y = camera.view([rect.x, rect.y])
-        rect.x = x
-        rect.y = y
+
+        # rect has been converted to screen space
+        rect.x = x + self.relPos[0]
+        rect.y = y - self.relPos[1]
 
         if self.fitObject:
             EasyPygame.drawStretchedImage(self.texture, rect, self.imageRect)
             return
-            
+
         imageSurf = EasyPygame._getImageSurf(self.texture)
         if not self.imageRect:
             imageRect = imageSurf.get_rect().copy()
@@ -38,31 +40,15 @@ class TextureView:
                 left = imageHalfWidth - rect.width / 2
                 right = rect.width / 2 + imageHalfWidth
 
-            if imageSurf.get_width() < rect.width:
-                if self.align == "left":
-                    rect.x += imageHalfWidth - rect.width / 2
-                elif self.align == "right":
-                    rect.x += rect.width / 2 - imageHalfWidth
-
             top = imageHalfHeight - rect.height / 2
             bottom = rect.height / 2 + imageHalfHeight
-                
+
             imageRect.x = max(imageRect.x, left)
             imageRect.y = max(imageRect.y, top)
             imageRect.width = min(imageRect.right, right) - imageRect.x
             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
-        else:
-            if self.align == "left":
-                rect.x += imageHalfWidth - rect.width / 2
-            elif self.align == "right":
-                rect.x += rect.width / 2 - imageHalfWidth
 
-        rect.x += self.relPos[0]
-        rect.y -= self.relPos[1]
-             
-        EasyPygame.drawImage(self.texture, rect, imageRect)
-                
-        
+        EasyPygame.drawImage(self.texture, rect, imageRect, self.halign)
 
 class DefaultTextureView:
     def __init__(self, color=(0, 0, 255)):

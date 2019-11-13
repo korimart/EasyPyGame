@@ -60,12 +60,20 @@ def _getImageSurf(imageName):
 
     return surf
 
-def drawImage(imageName, screenRect, imageRect=None):
+def drawImage(imageName, screenRect, imageRect=None, halign="center"):
     surf = _getImageSurf(imageName)
     if not imageRect:
         imageRect = surf.get_rect()
 
-    window.displaySurface.blit(surf, (screenRect.x - imageRect.width / 2, screenRect.y - imageRect.height / 2), imageRect)
+    y = screenRect.y - imageRect.height / 2
+    if halign == "left":
+        x = screenRect.x - screenRect.width / 2
+    elif halign == "right":
+        x = screenRect.x + screenRect.width / 2 - imageRect.width
+    else:
+        x = screenRect.x - imageRect.width / 2
+
+    window.displaySurface.blit(surf, (x, y), imageRect)
 
 def drawStretchedImage(imageName, screenRect, imageRect=None):
     surf = _getImageSurf(imageName)
