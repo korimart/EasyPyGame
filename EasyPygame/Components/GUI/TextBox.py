@@ -1,3 +1,5 @@
+import random
+
 import EasyPygame
 from EasyPygame.Components import GameObject
 from EasyPygame.Components import InputHandler
@@ -29,11 +31,12 @@ class TextBox(GameObject):
         self.fontName = fontName
         self.fontSize = fontSize
         self.color = color
+        self.textureName = "__Kori" + str(random.randint(0, 10000))
 
         self.addInputHandler(TextBoxInputHandlerUnfocused())
         self.addInputHandler(TextBoxInputHandlerFocused())
         self.useInputHandler(1)
-        self.charTextureView = TextureView("__KorimartChar", None, False, True, "left")
+        self.charTextureView = TextureView(self.textureName, None, False, True, "left")
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
 
@@ -44,6 +47,6 @@ class TextBox(GameObject):
         self.text = text
 
     def yourLogic(self, ms):
-        EasyPygame.createTextImage(self.fontName, self.fontSize, self.color, "__KorimartChar", self.text, True)
-        surf = EasyPygame._getImageSurf("__KorimartChar")
+        EasyPygame.createTextImage(self.fontName, self.fontSize, self.color, self.textureName, self.text, True)
+        surf = EasyPygame._getImageSurf(self.textureName)
         self.charTextureView.align = "right" if surf.get_width() > self.rect.width else "left"
