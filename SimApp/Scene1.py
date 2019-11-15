@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(THISDIR))
 
 import EasyPygame
 import ast
+import SimApp.Scene2
 
 class Scene1(EasyPygame.Components.Scene):
     ERRORMESSAGETIME = 2000
@@ -14,10 +15,16 @@ class Scene1(EasyPygame.Components.Scene):
         self.submitButton = None
         self.errorMessage = ""
         self.errorMessageTime = 0
+        self.width = 10
+        self.height = 10
+        self.startPos = [0, 0]
+        self.targetPosList = [[9, 9]]
+        self.knownHazardsList = [[4,4]]
 
     def onLoad(self):
+        data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
-            inputField = EasyPygame.Components.GUI.TextBox(self, "input" + str(i), "Type Here")
+            inputField = EasyPygame.Components.GUI.TextBox(self, "input" + str(i), data[i])
             inputField.rect.x = -100
             inputField.rect.y = 200 - 100 * i
             inputField.rect.width = 200
@@ -94,7 +101,14 @@ class Scene1(EasyPygame.Components.Scene):
             self.errorMessage = "Incorrect Hazard Locations"
             return
 
+        self.width = width
+        self.height = height
+        self.startPos = startPos
+        self.targetPosList = targetPosList
+        self.knownHazardsList = knownHazardsList
         EasyPygame.nextScene("Scene1", "Scene2")
+
+    def onUnLoad(self):
         scene2 = EasyPygame.getScene("Scene2")
         scene2.setInputData(width, height, startPos, targetPosList, knownHazardsList)
         
