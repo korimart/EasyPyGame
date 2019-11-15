@@ -37,6 +37,7 @@ class Window:
             ms = fpsClock.get_time()
 
             inputManager.enableInput()
+            sceneManager.update()
             sceneManager.currentScene.update(ms)
             sceneManager.currentScene.preRender()
             sceneManager.currentScene.render(ms)

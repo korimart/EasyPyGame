@@ -60,12 +60,20 @@ def _getImageSurf(imageName):
 
     return surf
 
-def drawImage(imageName, screenRect, imageRect=None):
+def drawImage(imageName, screenRect, imageRect=None, halign="center"):
     surf = _getImageSurf(imageName)
     if not imageRect:
         imageRect = surf.get_rect()
 
-    window.displaySurface.blit(surf, (screenRect.x - imageRect.width / 2, screenRect.y - imageRect.height / 2), imageRect)
+    y = screenRect.y - imageRect.height / 2
+    if halign == "left":
+        x = screenRect.x - screenRect.width / 2
+    elif halign == "right":
+        x = screenRect.x + screenRect.width / 2 - imageRect.width
+    else:
+        x = screenRect.x - imageRect.width / 2
+
+    window.displaySurface.blit(surf, (x, y), imageRect)
 
 def drawStretchedImage(imageName, screenRect, imageRect=None):
     surf = _getImageSurf(imageName)
@@ -100,9 +108,9 @@ def unloadFont(fontName, size):
     global resManager
     resManager.unloadFont(fontName, size)
 
-def createTextImage(fontName, size, color, imageName, text):
+def createTextImage(fontName, size, color, imageName, text, override=False):
     global resManager
-    resManager.createTextSurface(fontName, size, color, imageName, text)
+    resManager.createTextSurface(fontName, size, color, imageName, text, override)
 
 def pprint(text, x, y, center=False):
     surf = DEFAULT_FONT_OBJ.render(text, True, (0, 0, 0))
@@ -127,6 +135,19 @@ def unloadScene(sceneName):
     global sceneManager
     sceneManager.unloadScene(sceneName)
 
+def nextScene(fromSceneName, toSceneName):
+    loadScene(toSceneName)
+    switchScene(toSceneName)
+    unloadScene(fromSceneName)
+
+def isMouseOnObject(gameObject):
+    screenRect = gameObject.rect.copy()
+    screenRect.x, screenRect.y = gameObject.scene.camera.view((screenRect.x, screenRect.y))
+    screenRect.x -= screenRect.width / 2
+    screenRect.y -= screenRect.height / 2
+    mouseX, mouseY = getMousePos()
+    return screenRect.collidepoint(mouseX, mouseY)
+
 pygame.init()
 
 window = None # initialized in initWindow()
@@ -136,4 +157,5 @@ sceneManager = SceneManager.SceneManager()
 
 DEFAULT_FONT = "comicsansms"
 DEFAULT_FONT_SIZE = 30
+loadFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
 DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
