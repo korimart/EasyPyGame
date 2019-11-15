@@ -9,7 +9,7 @@ os.chdir(THISDIR)
 import EasyPygame
 
 class Robot(EasyPygame.Components.GameObject):
-    def __init__(self, scene, position=(0, 0), name='Robot', increment=100,
+    def __init__(self, scene, position=[0, 0], name='Robot', increment=100,
     errorRate=0.05):
         super().__init__(scene, name)
         self.direction = 0
@@ -19,13 +19,10 @@ class Robot(EasyPygame.Components.GameObject):
         self.errorNumSteps = [0, 2]
         self.updateRect()
 
-        EasyPygame.load('RobotChecking.png')
-        EasyPygame.load('RobotMoving.jpg')
-        EasyPygame.load('RobotStopped.jpg')
         
-        self.robot_TV_checking = self.addTextureView(EasyPygame.Components.TextureView("checking"))
-        self.robot_TV_moving = self.addTextureView(EasyPygame.Components.TextureView("moving"))
-        self.robot_TV_stopped = self.addTextureView(EasyPygame.Components.TextureView("stopped"))
+        self.robot_TV_checking = self.addTextureView(EasyPygame.Components.TextureView("RobotChecking.png"))
+        self.robot_TV_moving = self.addTextureView(EasyPygame.Components.TextureView("RobotMoving.jpg"))
+        self.robot_TV_stopped = self.addTextureView(EasyPygame.Components.TextureView("RobotStopped.jpg"))
         self.useTextureView(self.robot_TV_checking)
 
     #decides the number of steps Robot will take.
@@ -55,8 +52,8 @@ class Robot(EasyPygame.Components.GameObject):
         self.updateRect()
 
     def setCoordinates(self, x, y):
-        self.postion[0] = x
-        self.postion[1] = y
+        self.position[0] = x
+        self.position[1] = y
 
     def rotate(self):
         self.position[2] = (self.position[2] + 1) % 4        
@@ -105,7 +102,7 @@ class wentRight(EasyPygame.Components.GameObjectState):
 class robotHandler(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("d"):
-            gameObject.rect.x += 100
+            gameObject.FSM.switchState(1, ms)
         elif EasyPygame.isDown1stTime("a"):
             gameObject.rect.x -= 100
         elif EasyPygame.isDown1stTime("w"):
@@ -116,6 +113,8 @@ class robotHandler(EasyPygame.Components.InputHandler):
             EasyPygame.loadScene("Scene2")
             EasyPygame.switchScene("Scene2")
             EasyPygame.unloadScene("Scene1")
+        elif EasyPygame.isDown1stTime(" "):
+            gameObject.move()
 
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
@@ -134,9 +133,19 @@ class Scene1(EasyPygame.Components.Scene):
         self.robot = Robot(self)
         self.robot.addInputHandler(robotHandler())
         self.robot.useInputHandler(1)
+        self.robot.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [1, 2, 3]))
+        self.robot.FSM.addState(EasyPygame.Components.GameObjectState(1, 0))
 
-    def unUnload(self):
+    def onLoad(self):
+        EasyPygame.load('RobotChecking.png')
+        EasyPygame.load('RobotMoving.jpg')
+        EasyPygame.load('RobotStopped.jpg')
+
+    def unLoad(self):
         EasyPygame.unload("Carrot.jpg")
+        EasyPygame.unload('RobotChecking.png')
+        EasyPygame.unload('RobotMoving.jpg')
+        EasyPygame.unload('RobotStopped.jpg')
 
 class Scene2(EasyPygame.Components.Scene):
     def __init__(self):

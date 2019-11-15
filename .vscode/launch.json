@@ -10,6 +10,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/Samples/Sample.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Robot",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/SimApp/Robot.py",
+            "console": "integratedTerminal"
         }
     ]
 }
