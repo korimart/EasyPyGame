@@ -112,8 +112,8 @@ def createTextImage(fontName, size, color, imageName, text, override=False):
     global resManager
     resManager.createTextSurface(fontName, size, color, imageName, text, override)
 
-def pprint(text, x, y, center=False):
-    surf = DEFAULT_FONT_OBJ.render(text, True, (0, 0, 0))
+def pprint(text, x, y, center=False, color=(0, 0, 0)):
+    surf = DEFAULT_FONT_OBJ.render(text, True, color)
     if center:
         x -= surf.get_width() / 2
         y -= surf.get_height() / 2
