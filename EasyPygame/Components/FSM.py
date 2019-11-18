@@ -17,6 +17,11 @@ class FSM:
 
     def switchState(self, stateIndex, ms):
         if 0 <= stateIndex < len(self.gameObjectStateList):
+            if self.currentStateIndex in self.animationStateDict:
+                for animationState in self.animationStateDict[self.currentStateIndex]:
+                    animationState.onExit(self.gameObject, ms)
+            self.gameObjectStateList[self.currentStateIndex].onExit(self.gameObject, ms)
+
             self.currentStateIndex = stateIndex
         else:
             self.currentStateIndex = 0
