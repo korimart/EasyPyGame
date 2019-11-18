@@ -8,6 +8,7 @@ class SceneManager:
         self.loadSceneNameList = []
         self.unloadSceneNameList = []
         self.switchSceneName = ""
+        self.loadSceneCallOnLoad = []
 
     def registerScene(self, sceneCls):
         if sceneCls.__name__ in self.sceneClassDict:
@@ -30,7 +31,16 @@ class SceneManager:
             scene.onLoad()
             self.sceneInstanceDict[sceneName] = scene
         
+        for callInfo in self.loadSceneCallOnLoad:
+            try:
+                scene = self.getScene(callInfo[0])
+                func = getattr(scene, callInfo[1])
+                func(*callInfo[2])
+            except:
+                raise Exception("Wrong func or arg in nextSceneOnLoad")
+        
         self.loadSceneNameList = []
+        self.loadSceneCallOnLoad = []
 
     def unloadScene(self, sceneName):
         self.unloadSceneNameList.append(sceneName)
@@ -54,6 +64,9 @@ class SceneManager:
 
     def switchScene(self, sceneName):
         self.switchSceneName = sceneName
+
+    def loadSceneOnLoad(self, sceneName, funcName, argTuple):
+        self.loadSceneCallOnLoad.append((sceneName, funcName, argTuple))
 
     def update(self):
         self._loadScene()
