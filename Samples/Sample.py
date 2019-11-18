@@ -31,11 +31,12 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
         self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
+        self.carrot.addTextureView(EasyPygame.Components.DefaultTextureView())
         self.carrot.addInputHandler(carrotHandler())
 
         # carrot will switch between textureview 0 and 1 when moving left and right
-        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1, 0))
         self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1, 1))
+        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1, 2))
         self.carrot.FSM.switchState(2, 0)
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
@@ -58,15 +59,15 @@ class Scene1(EasyPygame.Components.Scene):
         self.button.rect.x = 150
         self.button.rect.y = -150
 
-    def preRender(self):
+    def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
 
-    def postRender(self):
+    def postRender(self, ms):
         if EasyPygame.isDown1stTime("p"):
             EasyPygame.consume("p")
             EasyPygame.nextScene("Scene1", "Scene2")
 
-    def unload(self):
+    def onUnLoad(self):
         EasyPygame.unload("Carrot.jpg")
 
     def testCallback(self):
@@ -92,7 +93,7 @@ class Scene2(EasyPygame.Components.Scene):
         self.textbox.rect.y = 100
         self.textbox.rect.width = 400
 
-    def postRender(self):
+    def postRender(self, ms):
         EasyPygame.pprint("This is Scene2", 0, 0)
 
         if EasyPygame.isDown1stTime("p"):

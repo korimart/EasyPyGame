@@ -1,7 +1,7 @@
 import EasyPygame
 from EasyPygame.Components import GameObject
 from EasyPygame.Components import InputHandler
-from EasyPygame.Components import DefaultTextureView
+from EasyPygame.Components import DefaultTextureView, InvisibleTextureView
 from EasyPygame.Components import GameObjectState
 
 class ButtonInputHandlerReleased(InputHandler):
@@ -33,13 +33,14 @@ class Button(GameObject):
         self.addInputHandler(ButtonInputHandlerHover())
         self.addInputHandler(ButtonInputHandlerPressed())
 
-        # texture views: 1, 2
+        # texture views: 1, 2, 3
+        self.addTextureView(DefaultTextureView((0, 0, 255)))
         self.addTextureView(DefaultTextureView((0, 255, 0)))
         self.addTextureView(DefaultTextureView((255, 0, 0)))
 
-        self.FSM.addState(GameObjectState(1, 0))
-        self.FSM.addState(GameObjectState(2, 1))
-        self.FSM.addState(GameObjectState(3, 2))
+        self.FSM.addState(GameObjectState(1, 1))
+        self.FSM.addState(GameObjectState(2, 2))
+        self.FSM.addState(GameObjectState(3, 3))
         self.FSM.switchState(1, 0)
 
     def setCallback(self, callback):

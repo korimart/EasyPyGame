@@ -41,7 +41,7 @@ class FSM:
                 animationState.update(self.gameObject, ms)
 
 class GameObjectState:
-    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=-1):
+    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=0):
         self.inputHandlerIndex = inputHandlerIndex
         self.staticTextureViewIndex = staticTextureViewIndex
 

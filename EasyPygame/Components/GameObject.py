@@ -7,7 +7,7 @@ class GameObject:
     def __init__(self, scene, name="GameObject"):
         self.rect = EasyPygame.Rect(0, 0, 100, 100)
 
-        self.textureViewList = [TextureView.DefaultTextureView()]
+        self.textureViewList = [TextureView.InvisibleTextureView()]
         self.inputHandlerList = [InputHandler.InputHandler()]
         self.FSM = FSM.FSM(self)
         self.textureViewIndex = 0
@@ -47,6 +47,12 @@ class GameObject:
             self.inputHandlerIndex = inputHandlerIndex
         else:
             self.inputHandlerIndex = 0
+
+    def disable(self):
+        self.FSM.switchState(0, 0)
+    
+    def enable(self, stateIndex):
+        self.FSM.switchState(stateIndex, 0)
 
     def __eq__(self, other):
         return self.z == other.z

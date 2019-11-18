@@ -140,9 +140,9 @@ def nextScene(fromSceneName, toSceneName):
     switchScene(toSceneName)
     unloadScene(fromSceneName)
 
-def nextSceneOnLoad(sceneName, funcName, argTuple):
+def nextSceneOnInit(sceneName, funcName, argTuple):
     global sceneManager
-    sceneManager.loadSceneOnLoad(sceneName, funcName, argTuple)
+    sceneManager.loadSceneOnInit(sceneName, funcName, argTuple)
 
 def isMouseOnObject(gameObject):
     screenRect = gameObject.rect.copy()
