@@ -41,9 +41,10 @@ class FSM:
                 animationState.update(self.gameObject, ms)
 
 class GameObjectState:
-    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=0):
+    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=0, name="GameObjectState"):
         self.inputHandlerIndex = inputHandlerIndex
         self.staticTextureViewIndex = staticTextureViewIndex
+        self.name = name
 
     def onEnter(self, gameObject, ms):
         gameObject.useInputHandler(self.inputHandlerIndex)

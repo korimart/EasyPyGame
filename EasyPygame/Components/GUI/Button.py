@@ -18,8 +18,8 @@ class ButtonInputHandlerHover(InputHandler):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT"):
             EasyPygame.consume("MOUSELEFT")
-            gameObject.callback()
             gameObject.FSM.switchState(3, ms)
+            gameObject.callback()
         elif not EasyPygame.isMouseOnObject(gameObject):
             gameObject.FSM.switchState(1, ms)
 
