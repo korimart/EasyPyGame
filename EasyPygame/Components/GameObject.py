@@ -54,6 +54,13 @@ class GameObject:
     def enable(self, stateIndex):
         self.FSM.switchState(stateIndex, 0)
 
+    def isMouseOn(self):
+        mouseX, mouseY = EasyPygame.getMousePos()
+        try:
+            return self.screenRect.collidepoint(mouseX, mouseY)
+        except AttributeError:
+            return False
+
     def __eq__(self, other):
         return self.z == other.z
 

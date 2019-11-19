@@ -10,7 +10,7 @@ class Renderer:
         targetRect = worldRect
 
         # view
-        targetRect.x, targetRect.y = camera.realView([worldRect.x, worldRect.y])
+        targetRect.x, targetRect.y = camera.view([worldRect.x, worldRect.y])
 
         # proj
         self._distanceDivision(camera.distance, targetRect)
@@ -21,6 +21,10 @@ class Renderer:
 
         self.drawRect(color, targetRect)
         self.pprint(name, targetRect.x, targetRect.y, True, scale=(1 / camera.distance, 1 / camera.distance))
+        
+        retRect = targetRect.copy()
+        retRect.center = (retRect.x, retRect.y)
+        return retRect
 
     def renderTextured(self, worldRect, camera, textureView):
         imageSurf = self.resManager.getLoaded(textureView.texture)
@@ -40,7 +44,7 @@ class Renderer:
         imageRect.height  *= scale[1]
 
         # view
-        targetRect.x, targetRect.y = camera.realView([worldRect.x, worldRect.y])
+        targetRect.x, targetRect.y = camera.view([worldRect.x, worldRect.y])
 
         # proj
         self._distanceDivision(camera.distance, targetRect)
@@ -83,6 +87,7 @@ class Renderer:
             imageSurf = pygame.transform.scale(imageSurf, (targetRect.width, targetRect.height))
             imageRect = imageSurf.get_rect()
 
+        # convert to left-top oriented screen space according to alignment
         y = targetRect.y - imageRect.height / 2
         if textureView.halign == "left":
             x = targetRect.x - targetRect.width / 2
@@ -92,6 +97,7 @@ class Renderer:
             x = targetRect.x - imageRect.width / 2
 
         self.surface.blit(imageSurf, (x, y), imageRect)
+        return pygame.Rect(x, y, targetRect.width, targetRect.height)
 
     def drawImage(self, imageName, screenRect, imageRect=None, halign="center"):
         surf = self.resManager.getLoaded(imageName)
@@ -140,3 +146,4 @@ class Renderer:
         rect.y      *= distanceFactor
         rect.width  *= distanceFactor
         rect.height *= distanceFactor
+

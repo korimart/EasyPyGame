@@ -6,7 +6,7 @@ from EasyPygame.Components import GameObjectState
 
 class ButtonInputHandlerReleased(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isMouseOnObject(gameObject):
+        if gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
 class ButtonInputHandlerPressed(InputHandler):
@@ -20,7 +20,7 @@ class ButtonInputHandlerHover(InputHandler):
             EasyPygame.consume("MOUSELEFT")
             gameObject.FSM.switchState(3, ms)
             gameObject.callback()
-        elif not EasyPygame.isMouseOnObject(gameObject):
+        elif not gameObject.isMouseOn():
             gameObject.FSM.switchState(1, ms)
 
 class Button(GameObject):

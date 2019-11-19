@@ -8,12 +8,12 @@ from EasyPygame.Components import GameObjectState, SpriteAnimState
 
 class TextBoxInputHandlerUnfocused(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime("MOUSELEFT") and EasyPygame.isMouseOnObject(gameObject):
+        if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
             gameObject.useInputHandler(2)
 
 class TextBoxInputHandlerFocused(InputHandler):
     def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime("RETURN") or EasyPygame.isDown1stTime("MOUSELEFT") and not EasyPygame.isMouseOnObject(gameObject):
+        if EasyPygame.isDown1stTime("RETURN") or EasyPygame.isDown1stTime("MOUSELEFT") and not gameObject.isMouseOn():
             gameObject.useInputHandler(1)
         elif EasyPygame.isDown1stTime("BACKSPACE"):
             gameObject.text = gameObject.text[:-1]
