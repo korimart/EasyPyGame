@@ -21,7 +21,7 @@ class Renderer:
 
         self.drawRect(color, targetRect)
         self.pprint(name, targetRect.x, targetRect.y, True, scale=(1 / camera.distance, 1 / camera.distance))
-        
+
         retRect = targetRect.copy()
         retRect.center = (retRect.x, retRect.y)
         return retRect
@@ -30,6 +30,8 @@ class Renderer:
         imageSurf = self.resManager.getLoaded(textureView.texture)
         if not textureView.imageRect:
             imageRect = imageSurf.get_rect().copy()
+        else:
+            imageRect = textureView.imageRect.copy()
 
         # world
         targetRect = worldRect
@@ -65,10 +67,10 @@ class Renderer:
 
         # convert targetRect to image space and get imageRect
         if textureView.crop:
-            if textureView.align == "left":
+            if textureView.halign == "left":
                 left = 0
                 right = targetRect.width
-            elif textureView.align == "right":
+            elif textureView.halign == "right":
                 right = imageRect.width
                 left = right - targetRect.width
             else:
@@ -83,9 +85,9 @@ class Renderer:
             imageRect.width = min(imageRect.right, right) - imageRect.x
             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
 
-        if textureView.fitObject:
-            imageSurf = pygame.transform.scale(imageSurf, (targetRect.width, targetRect.height))
-            imageRect = imageSurf.get_rect()
+        # if textureView.fitObject:
+        #     imageSurf = pygame.transform.scale(imageSurf, (targetRect.width, targetRect.height))
+        #     imageRect = imageSurf.get_rect()
 
         # convert to left-top oriented screen space according to alignment
         y = targetRect.y - imageRect.height / 2
@@ -122,7 +124,7 @@ class Renderer:
         surf = pygame.transform.scale(surf, (screenRect.width, screenRect.height))
         rt = screenRect.copy()
         rt.center = (screenRect.x, screenRect.y)
-            
+
         self.surface.blit(surf, (rt.x, rt.y), imageRect)
 
     def drawRect(self, color, rect):

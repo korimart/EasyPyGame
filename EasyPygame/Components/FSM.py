@@ -31,8 +31,11 @@ class FSM:
             for animationState in self.animationStateDict[self.currentStateIndex]:
                 animationState.onEnter(self.gameObject, ms)
 
-    def getGameStateObject(self, index):
+    def getGameObjectState(self, index):
         return self.gameObjectStateList[index]
+
+    def getCurrentState(self):
+        return self.gameObjectStateList[self.currentStateIndex]
 
     def update(self, ms):
         self.gameObjectStateList[self.currentStateIndex].update(self.gameObject, ms)

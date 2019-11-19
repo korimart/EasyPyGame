@@ -49,4 +49,4 @@ class TextBox(GameObject):
     def yourLogic(self, ms):
         EasyPygame.createTextImage(self.fontName, self.fontSize, self.color, self.textureName, self.text, True)
         surf = EasyPygame.resManager.getLoaded(self.textureName)
-        self.charTextureView.align = "right" if surf.get_width() > self.rect.width else "left"
+        self.charTextureView.halign = "right" if surf.get_width() > self.rect.width else "left"
