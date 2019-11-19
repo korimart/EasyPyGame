@@ -96,6 +96,8 @@ class Scene2(EasyPygame.Components.Scene):
     def onLoad(self):
         self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
         self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
+        self.obj1.addInputHandler(carrotHandler())
+        self.obj1.useInputHandler(1)
 
         # first parameter is gameObjectStateIndex to attach AnimationState to.
         # second parameter is an AnimationState
