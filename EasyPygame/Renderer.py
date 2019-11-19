@@ -30,6 +30,8 @@ class Renderer:
         imageSurf = self.resManager.getLoaded(textureView.texture)
         if not textureView.imageRect:
             imageRect = imageSurf.get_rect().copy()
+        else:
+            imageRect = textureView.imageRect.copy()
 
         # world
         targetRect = worldRect
@@ -65,10 +67,10 @@ class Renderer:
 
         # convert targetRect to image space and get imageRect
         if textureView.crop:
-            if textureView.align == "left":
+            if textureView.halign == "left":
                 left = 0
                 right = targetRect.width
-            elif textureView.align == "right":
+            elif textureView.halign == "right":
                 right = imageRect.width
                 left = right - targetRect.width
             else:

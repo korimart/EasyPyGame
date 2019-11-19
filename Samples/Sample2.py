@@ -51,7 +51,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.character.addInputHandler(inputRunning())
         for i in range(9):
             imageRect = EasyPygame.Rect((8 + i) * 16, 16, 16, 16)
-            self.character.addTextureView(EasyPygame.Components.TextureView("animated.png", imageRect))
+            self.character.addTextureView(EasyPygame.Components.TextureView("animated.png", None, fitObject=False, crop=True))
 
         self.character.FSM.addState(EasyPygame.Components.GameObjectState(1, 0, name="idle"))
         self.character.FSM.addState(EasyPygame.Components.GameObjectState(2, 0, name="running"))
