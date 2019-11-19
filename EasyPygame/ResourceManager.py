@@ -7,6 +7,9 @@ class ResourceManager:
         self.resourceDict = dict()
         self.supportedImageList = [".jpg", ".png", ".bmp"]
         self.fontNameDict = dict()
+        self.DEFAULT_FONT = "comicsansms"
+        self.DEFAULT_FONT_SIZE = 30
+        self.loadFont(self.DEFAULT_FONT, self.DEFAULT_FONT_SIZE)
 
     def load(self, fileName, override=False):
         _, extension = os.path.splitext(fileName)

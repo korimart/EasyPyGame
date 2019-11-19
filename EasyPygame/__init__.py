@@ -87,11 +87,8 @@ def createTextImage(fontName, size, color, imageName, text, override=False):
     resManager.createTextSurface(fontName, size, color, imageName, text, override)
 
 def pprint(text, x, y, center=False, color=(0, 0, 0)):
-    surf = DEFAULT_FONT_OBJ.render(text, True, color)
-    if center:
-        x -= surf.get_width() / 2
-        y -= surf.get_height() / 2
-    window.displaySurface.blit(surf, (x, y))
+    global renderer
+    renderer.pprint(text, x, y, center, color)
 
 def getScene(sceneName):
     global sceneManager
@@ -133,8 +130,3 @@ renderer = None
 resManager = ResourceManager.ResourceManager()
 inputManager = Input.Input()
 sceneManager = SceneManager.SceneManager()
-
-DEFAULT_FONT = "comicsansms"
-DEFAULT_FONT_SIZE = 30
-loadFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)
-DEFAULT_FONT_OBJ = pygame.font.SysFont(DEFAULT_FONT, DEFAULT_FONT_SIZE)

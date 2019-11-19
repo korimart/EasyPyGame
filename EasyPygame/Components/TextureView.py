@@ -19,11 +19,9 @@ class DefaultTextureView:
 
     def render(self, gameObject, camera):
         rect = gameObject.rect.copy()
-        x, y = camera.view([rect.x, rect.y])
-        rect.x = x
-        rect.y = y
+        rect.x, rect.y = camera.view([rect.x, rect.y])        
         EasyPygame.drawRect(self.color, rect)
-        EasyPygame.pprint(gameObject.name, x, y, True)
+        EasyPygame.pprint(gameObject.name, rect.x, rect.y, True)
 
 class InvisibleTextureView:
     def render(self, gameObject, camera):

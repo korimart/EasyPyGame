@@ -30,7 +30,7 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
+        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg", scale=(1.0, 2.0)))
         self.carrot.addTextureView(EasyPygame.Components.DefaultTextureView())
         self.carrot.addInputHandler(carrotHandler())
 
