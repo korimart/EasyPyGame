@@ -3,7 +3,7 @@ import EasyPygame
 class Camera:
     def __init__(self, initPos=[0, 0]):
         self.pos = initPos
-        self.distance = 1
+        self.distance = 2
 
     def view(self, pos):
         x = pos[0] - self.pos[0] + EasyPygame.getWindowWidth() / 2

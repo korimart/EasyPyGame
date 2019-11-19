@@ -5,7 +5,24 @@ class Renderer:
         self.surface = displaySurf
         self.resManager = resManager
 
-    def render(self, worldRect, camera, textureView):
+    def renderDefault(self, worldRect, camera, color, name):
+        # world
+        targetRect = worldRect
+
+        # view
+        targetRect.x, targetRect.y = camera.realView([worldRect.x, worldRect.y])
+
+        # proj
+        self._distanceDivision(camera.distance, targetRect)
+
+        # screen space
+        targetRect.x += self.surface.get_width() / 2
+        targetRect.y = self.surface.get_height() / 2 - targetRect.y
+
+        self.drawRect(color, targetRect)
+        self.pprint(name, targetRect.x, targetRect.y, True, scale=(1 / camera.distance, 1 / camera.distance))
+
+    def renderTextured(self, worldRect, camera, textureView):
         imageSurf = self.resManager.getLoaded(textureView.texture)
         if not textureView.imageRect:
             imageRect = imageSurf.get_rect().copy()
@@ -26,27 +43,23 @@ class Renderer:
         targetRect.x, targetRect.y = camera.realView([worldRect.x, worldRect.y])
 
         # proj
-        distanceFactor = 1 / camera.distance
-        targetRect.x      *= distanceFactor
-        targetRect.y      *= distanceFactor
-        targetRect.width  *= distanceFactor
-        targetRect.height *= distanceFactor
+        self._distanceDivision(camera.distance, targetRect)
 
         # if fitObject, image does not need to be scaled by distance and will be shrinked later
         if not textureView.fitObject:
-            imageRect.width   *= distanceFactor
-            imageRect.height  *= distanceFactor
+            imageRect.width   *= 1 / camera.distance
+            imageRect.height  *= 1 / camera.distance
             imageSurf = pygame.transform.scale(imageSurf, (imageRect.width, imageRect.height))
 
         # convert to screen space
+        # targetRect is in screen space but with x y being its center
         targetRect.x += self.surface.get_width() / 2
         targetRect.y = self.surface.get_height() / 2 - targetRect.y
 
-        # targetRect is in screen space but with x y being its center
         targetRect.x += textureView.relPos[0]
         targetRect.y -= textureView.relPos[1]
 
-        # convert to imageRect coordinate and translate
+        # convert targetRect to image space and get imageRect
         if textureView.crop:
             if textureView.align == "left":
                 left = 0
@@ -79,7 +92,6 @@ class Renderer:
             x = targetRect.x - imageRect.width / 2
 
         self.surface.blit(imageSurf, (x, y), imageRect)
-        # self.drawImage(textureView.texture, targetRect, imageRect, textureView.align)
 
     def drawImage(self, imageName, screenRect, imageRect=None, halign="center"):
         surf = self.resManager.getLoaded(imageName)
@@ -112,10 +124,19 @@ class Renderer:
         rt.center = (rect.x, rect.y)
         pygame.draw.rect(self.surface, color, rt)
 
-    def pprint(self, text, x, y, center=False, color=(0, 0, 0)):
+    def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         self.resManager.createTextSurface(self.resManager.DEFAULT_FONT, self.resManager.DEFAULT_FONT_SIZE, color, "__pprint", text, True)
         surf = self.resManager.getLoaded("__pprint")
+        rect = surf.get_rect()
+        surf = pygame.transform.scale(surf, (int(scale[0] * rect.width), int(scale[1] * rect.height)))
         if center:
             x -= surf.get_width() / 2
             y -= surf.get_height() / 2
         self.surface.blit(surf, (x, y))
+
+    def _distanceDivision(self, distance, rect):
+        distanceFactor = 1 / distance
+        rect.x      *= distanceFactor
+        rect.y      *= distanceFactor
+        rect.width  *= distanceFactor
+        rect.height *= distanceFactor
