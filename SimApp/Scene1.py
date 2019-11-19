@@ -19,16 +19,15 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
-            inputField = EasyPygame.Components.GUI.TextBox(self, "input" + str(i), data[i])
+            inputField = EasyPygame.Components.GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.rect.x = -100
             inputField.rect.y = 200 - 100 * i
             inputField.rect.width = 200
             self.inputFields.append(inputField)
 
-        self.submitButton = EasyPygame.Components.GUI.Button(self, "Submit")
+        self.submitButton = EasyPygame.Components.GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
         self.submitButton.rect.x = 150
         self.submitButton.rect.y = -100
-        self.submitButton.setCallback(lambda: self.checkInput())
 
     def postRender(self, ms):
         if self.errorMessage and not self.errorMessageTime:
