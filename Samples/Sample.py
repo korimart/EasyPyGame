@@ -19,6 +19,22 @@ class carrotHandler(EasyPygame.Components.InputHandler):
             gameObject.rect.y += 100
         elif EasyPygame.isDown1stTime("s"):
             gameObject.rect.y -= 100
+        if EasyPygame.isDown("KP9"):
+            gameObject.scene.camera.setDistanceDelta(0.001 * ms)
+        if EasyPygame.isDown("KP7"):
+            gameObject.scene.camera.setDistanceDelta(-0.001 * ms)
+        elif EasyPygame.isDown1stTime("KP5"):
+            gameObject.scene.camera.setDistance(1)
+            gameObject.scene.camera.moveTo(0, 0)
+        if EasyPygame.isDown("KP4"):
+            gameObject.scene.camera.move((-0.1 * ms, 0))
+        if EasyPygame.isDown("KP8"):
+            gameObject.scene.camera.move((0, 0.1 * ms))
+        if EasyPygame.isDown("KP6"):
+            gameObject.scene.camera.move((0.1 * ms, 0))
+        if EasyPygame.isDown("KP2"):
+            gameObject.scene.camera.move((0, -0.1 * ms))
+
 
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
@@ -86,7 +102,7 @@ class Scene2(EasyPygame.Components.Scene):
         # first parameter of the constructor is duration in miliseconds of the animation from start to end
         # second parameter is a list of textureViewIndices of animation
         # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
-        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(1000, [0, 1]))
+        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(100, [0, 1]))
 
         self.textbox = EasyPygame.Components.GUI.TextBox(self, "textbox1", "Click me to type:")
         self.textbox.rect.x = 0
