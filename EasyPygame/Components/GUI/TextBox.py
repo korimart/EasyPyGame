@@ -36,7 +36,7 @@ class TextBox(GameObject):
         self.addInputHandler(TextBoxInputHandlerUnfocused())
         self.addInputHandler(TextBoxInputHandlerFocused())
         self.useInputHandler(1)
-        self.charTextureView = TextureView(self.textureName, None, False, True, "left")
+        self.charTextureView = TextureView(self.textureName, fitObject=False, halign="left", crop=True)
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
 
@@ -48,5 +48,5 @@ class TextBox(GameObject):
 
     def yourLogic(self, ms):
         EasyPygame.createTextImage(self.fontName, self.fontSize, self.color, self.textureName, self.text, True)
-        surf = EasyPygame._getImageSurf(self.textureName)
+        surf = EasyPygame.resManager.getLoaded(self.textureName)
         self.charTextureView.align = "right" if surf.get_width() > self.rect.width else "left"

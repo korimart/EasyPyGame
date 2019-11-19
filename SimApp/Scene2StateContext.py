@@ -1,4 +1,5 @@
 import EasyPygame
+from EasyPygame.Components import GUI
 
 class ReadyState(EasyPygame.Components.GameObjectState):
     def __init__(self):
@@ -73,9 +74,9 @@ class Scene2StateContext(EasyPygame.Components.GameObject):
         self.FSM.switchState(self.ready, 0)
 
     def _makeButtons(self):
-        self.buttonList.append(EasyPygame.Components.GUI.Button(self.scene, "startButton", lambda: self.start()))
-        self.buttonList.append(EasyPygame.Components.GUI.Button(self.scene, "restartButton", lambda: self.restart()))
-        self.buttonList.append(EasyPygame.Components.GUI.Button(self.scene, "resetButton", lambda: self.reset()))
+        self.buttonList.append(GUI.Button(self.scene, name="startButton",   callback=lambda: self.start()))
+        self.buttonList.append(GUI.Button(self.scene, name="restartButton", callback=lambda: self.restart()))
+        self.buttonList.append(GUI.Button(self.scene, name="resetButton",   callback=lambda: self.reset()))
 
         for button in self.buttonList:
             button.disable()

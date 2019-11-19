@@ -38,7 +38,7 @@ class ResourceManager:
         if fileName in self.resourceDict:
             return self.resourceDict[fileName]
         else:
-            return None
+            raise Exception("File not loaded")
     
     def loadFont(self, fontName, size):
         fontName = "".join(fontName.split())

@@ -7,6 +7,7 @@ import EasyPygame.ResourceManager
 import EasyPygame.Window
 import EasyPygame.Input
 import EasyPygame.SceneManager
+import EasyPygame.Renderer
 import EasyPygame.Components
 
 class IApp(ABC):
@@ -19,8 +20,9 @@ class IApp(ABC):
         pass
 
 def initWindow(width, height, caption, FPS):
-    global window
+    global window, renderer, resManager
     window = Window.Window(width, height, caption, FPS)
+    renderer = Renderer.Renderer(window.displaySurface, resManager)
 
 def getWindowWidth():
     global window
@@ -46,44 +48,16 @@ def Rect(x, y, width, height):
     return pygame.Rect(x, y, width, height)
 
 def drawRect(color, rect):
-    # type: Window.Window
-    global window
-    rt = rect.copy()
-    rt.center = (rect.x, rect.y)
-    pygame.draw.rect(window.displaySurface, color, rt)
-
-def _getImageSurf(imageName):
-    global resManager, window
-    surf = resManager.getLoaded(imageName)
-    if not surf:
-        raise Exception("File not loaded")
-
-    return surf
+    global renderer
+    renderer.drawRect(color, rect)
 
 def drawImage(imageName, screenRect, imageRect=None, halign="center"):
-    surf = _getImageSurf(imageName)
-    if not imageRect:
-        imageRect = surf.get_rect()
-
-    y = screenRect.y - imageRect.height / 2
-    if halign == "left":
-        x = screenRect.x - screenRect.width / 2
-    elif halign == "right":
-        x = screenRect.x + screenRect.width / 2 - imageRect.width
-    else:
-        x = screenRect.x - imageRect.width / 2
-
-    window.displaySurface.blit(surf, (x, y), imageRect)
+    global renderer
+    renderer.drawImage(imageName, screenRect, imageRect, halign)
 
 def drawStretchedImage(imageName, screenRect, imageRect=None):
-    surf = _getImageSurf(imageName)
-    if not imageRect:
-        imageRect = surf.get_rect()
-
-    surf = pygame.transform.scale(surf, (screenRect.width, screenRect.height))
-    rt = screenRect.copy()
-    rt.center = (screenRect.x, screenRect.y)
-    window.displaySurface.blit(surf, (rt.x, rt.y), imageRect)
+    global renderer
+    renderer.drawStretchedImage(imageName, screenRect, imageRect)
 
 def isDown(inp):
     global inputManager
@@ -155,6 +129,7 @@ def isMouseOnObject(gameObject):
 pygame.init()
 
 window = None # initialized in initWindow()
+renderer = None
 resManager = ResourceManager.ResourceManager()
 inputManager = Input.Input()
 sceneManager = SceneManager.SceneManager()

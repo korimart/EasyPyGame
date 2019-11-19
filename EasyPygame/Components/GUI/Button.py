@@ -24,8 +24,8 @@ class ButtonInputHandlerHover(InputHandler):
             gameObject.FSM.switchState(1, ms)
 
 class Button(GameObject):
-    def __init__(self, scene, buttonName="Button", callback=None):
-        super().__init__(scene, buttonName)
+    def __init__(self, scene, name="Button", callback=None):
+        super().__init__(scene, name)
         self.callback = callback
 
         # handlers: 1, 2, 3
