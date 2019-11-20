@@ -12,18 +12,17 @@ class characterInput(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
         wasPressed = False
         if EasyPygame.isDown("d"):
-            gameObject.rect.x += 0.1 * ms
+            gameObject.rect.x += int(0.1 * ms)
             wasPressed = True
         if EasyPygame.isDown("a"):
             prev = gameObject.rect.x
-            gameObject.rect.x -= 0.1 * ms
-            print("diff =", gameObject.rect.x - prev)
+            gameObject.rect.x -= int(0.1 * ms)
             wasPressed = True
         if EasyPygame.isDown("w"):
-            gameObject.rect.y += 0.1 * ms
+            gameObject.rect.y += int(0.1 * ms)
             wasPressed = True
         if EasyPygame.isDown("s"):
-            gameObject.rect.y -= 0.1 * ms
+            gameObject.rect.y -= int(0.1 * ms)
             wasPressed = True
         
         if wasPressed:
@@ -42,17 +41,18 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.load("animated.png")
         self.character = GameObject(self, "Character")
         self.character.addInputHandler(characterInput())
-        self.character.addTextureView(DefaultTextureView())
-        self.character.addTextureView(DefaultTextureView((255, 0, 0)))
+        self.character.useInputHandler(1)
+        # self.character.addTextureView(DefaultTextureView())
+        # self.character.addTextureView(DefaultTextureView((255, 0, 0)))
 
         for i in range(9):
             imageRect = EasyPygame.Rect((8 + i) * 16, 16, 16, 16)
-            # self.character.addTextureView(EasyPygame.Components.TextureView("animated.png", None, fitObject=False, crop=True))
+            self.character.addTextureView(TextureView("animated.png", None, fitObject=False, crop=True))
 
-        # self.character.FSM.addState(SpriteAnimState(1000, [1, 2, 3, 4]))
-        # self.character.FSM.addState(SpriteAnimState(1000, [5, 6, 7, 8]))
-        self.character.FSM.addState(GameObjectState(1, 1))
-        self.character.FSM.addState(GameObjectState(1, 2))
+        self.character.FSM.addState(SpriteAnimState(1000, [1, 2, 3, 4]))
+        self.character.FSM.addState(SpriteAnimState(1000, [5, 6, 7, 8]))
+        # self.character.FSM.addState(GameObjectState(1, 1))
+        # self.character.FSM.addState(GameObjectState(1, 2))
 
         self.character.FSM.switchState(1, 0)
 
