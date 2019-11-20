@@ -16,6 +16,7 @@ class Window:
         fpsClock = pygame.time.Clock()
         while True:
             self.displaySurface.fill((255, 255, 255))
+            # self.displaySurface.fill((0, 0, 0))
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:

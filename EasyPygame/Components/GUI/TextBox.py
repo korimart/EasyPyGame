@@ -32,7 +32,7 @@ class TextBox(GameObject):
         self.color = color
         self.textureName = "__Kori" + str(random.randint(0, 10000))
 
-        self.charTextureView = TextureView(self.textureName, fitObject=False, halign="left", crop=True)
+        self.charTextureView = TextureView(self.textureName, stretchFit=False, halign="left", cropFit=True)
         self.addTextureView(self.charTextureView)
 
         self.FSM.addState(TextBoxUnfocused(1))

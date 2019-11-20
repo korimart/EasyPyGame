@@ -49,7 +49,7 @@ class run(GameObjectState):
             gameObject.FSM.switchState(self.idleIndex, ms)
         if EasyPygame.isDown(self.otherKey):
             gameObject.FSM.switchState(self.otherRunIndex, ms)
-        
+
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
         super().__init__()

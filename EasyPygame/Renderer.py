@@ -27,34 +27,40 @@ class Renderer:
         return retRect
 
     def renderTextured(self, worldRect, camera, textureView):
-        # +-----------+------+-------+-------------------+
-        # | FitObject | Crop | Scale |    Description    |
-        # +-----------+------+-------+-------------------+
-        # |     0     |   0  |   0   |       source      |
-        # +-----------+------+-------+-------------------+
-        # |     0     |   0  |   1   |   source scaled   |
-        # +-----------+------+-------+-------------------+
-        # |     0     |   1  |   0   |   source cropped  |
-        # +-----------+------+-------+-------------------+
-        # |     0     |   1  |   1   |     undefined     |
-        # +-----------+------+-------+-------------------+
-        # |     1     |   X  |   0   | fit to gameObject |
-        # +-----------+------+-------+-------------------+
-        # |     1     |   X  |   1   |   fit and scale   |
-        # +-----------+------+-------+-------------------+
+        # +------------+---------+-------+----------------+
+        # | StretchFit | CropFit | Scale |   Destination  |
+        # +------------+---------+-------+----------------+
+        # |      0     |    0    |   0   |     source     |
+        # +------------+---------+-------+----------------+
+        # |      0     |    0    |   1   |  source scaled |
+        # +------------+---------+-------+----------------+
+        # |      0     |    1    |   0   |   crop to fit  |
+        # +------------+---------+-------+----------------+
+        # |      0     |    1    |   1   |   crop to fit  |
+        # |            |         |       |    and scale   |
+        # +------------+---------+-------+----------------+
+        # |      1     |    X    |   0   | stretch to fit |
+        # +------------+---------+-------+----------------+
+        # |      1     |    X    |   1   | stretch to fit |
+        # |            |         |       |    and scale   |
+        # +------------+---------+-------+----------------+
 
         imageSurf = self.resManager.getLoaded(textureView.texture)
         imageSurf = pygame.transform.flip(imageSurf, textureView.flipX, textureView.flipY)
-        if not textureView.imageRect:
-            imageRect = imageSurf.get_rect().copy()
-        else:
+        if textureView.imageRect:
             imageRect = textureView.imageRect.copy()
+            tempSurf = pygame.Surface((imageRect.width, imageRect.height), pygame.SRCALPHA)
+            tempSurf.fill((255, 255, 255, 0))
+            tempSurf.blit(imageSurf, (0, 0), imageRect)
+            imageSurf = tempSurf
+        # imageRect x y are now 0
+        imageRect = imageSurf.get_rect()
 
         # world
         targetRect = worldRect
         scale = list(textureView.scale)
 
-        if not textureView.fitObject and not textureView.crop:
+        if not textureView.stretchFit and not textureView.cropFit:
             targetRect.width, targetRect.height = (imageRect.width, imageRect.height)
 
         # view
@@ -62,16 +68,14 @@ class Renderer:
 
         # proj
         self._distanceDivision(camera.distance, targetRect)
-        
-        # if fitObject, image does not need to be scaled to distance. 
-        # It will be fitted to gameOjbect later
-        if not textureView.fitObject:
+
+        # if stretchFit, image does not need to be scaled to distance.
+        # It will be stretched to gameOjbect later
+        if not textureView.stretchFit:
             targetRect.width  *= scale[0]
             targetRect.height *= scale[1]
             imageSurfFactor = [1 / imageRect.width, 1 / imageRect.height]
             self._distanceDivision(camera.distance, imageRect)
-            imageRect.x *= scale[0]
-            imageRect.y *= scale[1]
             imageRect.width *= scale[0]
             imageRect.height *= scale[1]
             imageSurfFactor[0] *= imageRect.width
@@ -87,8 +91,16 @@ class Renderer:
         targetRect.x += textureView.relPos[0]
         targetRect.y -= textureView.relPos[1]
 
-        # convert targetRect to image space and get imageRect
-        if textureView.crop:
+        if textureView.stretchFit:
+            thisScale = (targetRect.width / imageRect.width * scale[0], targetRect.height / imageRect.height * scale[1])
+            imageSurfRect = imageSurf.get_rect()
+            imageSurfRect.width *= thisScale[0]
+            imageSurfRect.height *= thisScale[1]
+            imageRect.width *= thisScale[0]
+            imageRect.height *= thisScale[1]
+            imageSurf = pygame.transform.scale(imageSurf, (imageSurfRect.width, imageSurfRect.height))
+        # convert targetRect to image space and find new imageRect for crop
+        elif textureView.cropFit:
             if textureView.halign == "left":
                 left = 0
                 right = targetRect.width
@@ -106,17 +118,6 @@ class Renderer:
             imageRect.y = max(imageRect.y, top)
             imageRect.width = min(imageRect.right, right) - imageRect.x
             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
-
-        if textureView.fitObject:
-            thisScale = (targetRect.width / imageRect.width * scale[0], targetRect.height / imageRect.height * scale[1])
-            imageSurfRect = imageSurf.get_rect()
-            imageSurfRect.width *= thisScale[0]
-            imageSurfRect.height *= thisScale[1]
-            imageRect.x *= thisScale[0]
-            imageRect.y *= thisScale[1]
-            imageRect.width *= thisScale[0]
-            imageRect.height *= thisScale[1]
-            imageSurf = pygame.transform.scale(imageSurf, (imageSurfRect.width, imageSurfRect.height))
 
         # convert to left-top oriented screen space according to alignment
         y = targetRect.y - imageRect.height / 2
