@@ -42,7 +42,7 @@ class ResourceManager:
             return self.resourceDict[fileName]
         else:
             raise Exception("File not loaded")
-    
+
     def loadFont(self, fontName, size):
         fontName = "".join(fontName.split())
         try:
@@ -63,7 +63,7 @@ class ResourceManager:
         except:
             pass
 
-    def createTextSurface(self, fontName, size, color, surfaceName, text, override=False):
+    def createTextSurface(self, fontName, size, color, surfaceName, text, override=False, background=None):
         fontName = "".join(fontName.split())
         if not override and surfaceName in self.resourceDict:
             raise Exception("imageName already exists")
@@ -73,7 +73,6 @@ class ResourceManager:
         except:
             raise Exception("font not loaded")
 
-        surf = font.render(text, True, color)
+        surf = font.render(text, True, color, background)
         self.resourceDict[surfaceName] = surf
 
-        

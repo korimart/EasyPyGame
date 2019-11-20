@@ -129,7 +129,7 @@ class Renderer:
             x = targetRect.x - imageRect.width / 2
 
         self.surface.blit(imageSurf, (x, y), imageRect)
-        return pygame.Rect(x, y, targetRect.width, targetRect.height)
+        return pygame.Rect(x, y, imageRect.width, imageRect.height)
 
     def drawImage(self, imageName, screenRect, imageRect=None, halign="center"):
         surf = self.resManager.getLoaded(imageName)
