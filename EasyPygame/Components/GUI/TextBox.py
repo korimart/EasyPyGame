@@ -2,19 +2,18 @@ import random
 
 import EasyPygame
 from EasyPygame.Components import GameObject
-from EasyPygame.Components import InputHandler
 from EasyPygame.Components import DefaultTextureView, TextureView
 from EasyPygame.Components import GameObjectState, SpriteAnimState
 
-class TextBoxInputHandlerUnfocused(InputHandler):
+class TextBoxUnfocused(GameObjectState):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
-            gameObject.useInputHandler(2)
+            gameObject.FSM.switchState(2, ms)
 
-class TextBoxInputHandlerFocused(InputHandler):
+class TextBoxFocused(GameObjectState):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("RETURN") or EasyPygame.isDown1stTime("MOUSELEFT") and not gameObject.isMouseOn():
-            gameObject.useInputHandler(1)
+            gameObject.FSM.switchState(1, ms)
         elif EasyPygame.isDown1stTime("BACKSPACE"):
             gameObject.text = gameObject.text[:-1]
             gameObject.cursorPos -= 1
@@ -33,12 +32,12 @@ class TextBox(GameObject):
         self.color = color
         self.textureName = "__Kori" + str(random.randint(0, 10000))
 
-        self.addInputHandler(TextBoxInputHandlerUnfocused())
-        self.addInputHandler(TextBoxInputHandlerFocused())
-        self.useInputHandler(1)
         self.charTextureView = TextureView(self.textureName, fitObject=False, halign="left", crop=True)
         self.addTextureView(self.charTextureView)
-        self.useTextureView(1)
+
+        self.FSM.addState(TextBoxUnfocused(1))
+        self.FSM.addState(TextBoxFocused(1))
+        self.FSM.switchState(1, 0)
 
     def getText(self):
         return self.text

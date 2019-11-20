@@ -6,35 +6,7 @@ sys.path.append(os.path.dirname(THISDIR))
 os.chdir(THISDIR)
 
 import EasyPygame
-
-class carrotHandler(EasyPygame.Components.InputHandler):
-    def update(self, gameObject, ms):
-        if EasyPygame.isDown1stTime("d"):
-            gameObject.rect.x += 100
-            gameObject.FSM.switchState(2, ms)
-        elif EasyPygame.isDown1stTime("a"):
-            gameObject.rect.x -= 100
-            gameObject.FSM.switchState(1, ms)
-        elif EasyPygame.isDown1stTime("w"):
-            gameObject.rect.y += 100
-        elif EasyPygame.isDown1stTime("s"):
-            gameObject.rect.y -= 100
-        if EasyPygame.isDown("KP9"):
-            gameObject.scene.camera.setDistanceDelta(0.001 * ms)
-        if EasyPygame.isDown("KP7"):
-            gameObject.scene.camera.setDistanceDelta(-0.001 * ms)
-        elif EasyPygame.isDown1stTime("KP5"):
-            gameObject.scene.camera.setDistance(1)
-            gameObject.scene.camera.moveTo(0, 0)
-        if EasyPygame.isDown("KP4"):
-            gameObject.scene.camera.move((-0.1 * ms, 0))
-        if EasyPygame.isDown("KP8"):
-            gameObject.scene.camera.move((0, 0.1 * ms))
-        if EasyPygame.isDown("KP6"):
-            gameObject.scene.camera.move((0.1 * ms, 0))
-        if EasyPygame.isDown("KP2"):
-            gameObject.scene.camera.move((0, -0.1 * ms))
-
+from EasyPygame.Components import *
 
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
@@ -47,25 +19,23 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
         self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg", scale=(1.0, 2.0)))
-        self.carrot.addTextureView(EasyPygame.Components.DefaultTextureView())
-        self.carrot.addInputHandler(carrotHandler())
 
         # carrot will switch between textureview 0 and 1 when moving left and right
-        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1, 1))
-        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1, 2))
-        self.carrot.FSM.switchState(2, 0)
+        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1))
+        self.carrot.FSM.switchState(1, 0)
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
-        self.testObj1.rect.x = 100
-        self.testObj1.z = -1
-        self.testObj1.addInputHandler(carrotHandler())
-
-        # this will have no effect because testObj1 does not have textureview 1
-        self.testObj1.FSM.addState(EasyPygame.Components.GameObjectState(1, 0))
-        self.testObj1.FSM.addState(EasyPygame.Components.GameObjectState(1, 1))
+        self.testObj1.addTextureView(DefaultTextureView())
+        self.testObj1.FSM.addState(GameObjectState(1))
         self.testObj1.FSM.switchState(1, 0)
+        self.testObj1.rect.x = -150
+        self.testObj1.rect.y = -100
+        self.testObj1.z = -1
 
         self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
+        self.testObj2.addTextureView(DefaultTextureView((255, 0, 0)))
+        self.testObj2.FSM.addState(GameObjectState(1))
+        self.testObj2.FSM.switchState(1, 0)
         self.testObj2.rect.x = -150
         self.testObj2.rect.y = -150
         self.testObj2.rect.width = 200
@@ -79,9 +49,24 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.pprint("This is Scene1", 0, 0)
 
     def postRender(self, ms):
-        if EasyPygame.isDown1stTime("p"):
-            EasyPygame.consume("p")
+        if EasyPygame.isDown1stTime("RETURN"):
+            EasyPygame.consume("RETURN")
             EasyPygame.nextScene("Scene1", "Scene2")
+        if EasyPygame.isDown("KP9"):
+            self.camera.setDistanceDelta(0.001 * ms)
+        if EasyPygame.isDown("KP7"):
+            self.camera.setDistanceDelta(-0.001 * ms)
+        if EasyPygame.isDown1stTime("KP5"):
+            self.camera.setDistance(1)
+            self.camera.moveTo(0, 0)
+        if EasyPygame.isDown("KP4"):
+            self.camera.move((-0.1 * ms, 0))
+        if EasyPygame.isDown("KP8"):
+            self.camera.move((0, 0.1 * ms))
+        if EasyPygame.isDown("KP6"):
+            self.camera.move((0.1 * ms, 0))
+        if EasyPygame.isDown("KP2"):
+            self.camera.move((0, -0.1 * ms))
 
     def onUnLoad(self):
         EasyPygame.unload("Carrot.jpg")
@@ -96,8 +81,6 @@ class Scene2(EasyPygame.Components.Scene):
     def onLoad(self):
         self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
         self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
-        self.obj1.addInputHandler(carrotHandler())
-        self.obj1.useInputHandler(1)
 
         # first parameter is gameObjectStateIndex to attach state to.
         # second parameter is an concurrent state
@@ -114,9 +97,24 @@ class Scene2(EasyPygame.Components.Scene):
     def postRender(self, ms):
         EasyPygame.pprint("This is Scene2", 0, 0)
 
-        if EasyPygame.isDown1stTime("p"):
-            EasyPygame.consume("p")
+        if EasyPygame.isDown1stTime("KP1"):
+            EasyPygame.consume("KP1")
             EasyPygame.nextScene("Scene2", "Scene1")
+        if EasyPygame.isDown("KP9"):
+            self.camera.setDistanceDelta(0.001 * ms)
+        if EasyPygame.isDown("KP7"):
+            self.camera.setDistanceDelta(-0.001 * ms)
+        if EasyPygame.isDown1stTime("KP5"):
+            self.camera.setDistance(1)
+            self.camera.moveTo(0, 0)
+        if EasyPygame.isDown("KP4"):
+            self.camera.move((-0.1 * ms, 0))
+        if EasyPygame.isDown("KP8"):
+            self.camera.move((0, 0.1 * ms))
+        if EasyPygame.isDown("KP6"):
+            self.camera.move((0.1 * ms, 0))
+        if EasyPygame.isDown("KP2"):
+            self.camera.move((0, -0.1 * ms))
 
 if __name__ == "__main__":
     EasyPygame.initWindow(500, 500, "Sample", 75)

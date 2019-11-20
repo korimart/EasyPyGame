@@ -8,29 +8,47 @@ os.chdir(THISDIR)
 import EasyPygame
 from EasyPygame.Components import *
 
-class characterInput(EasyPygame.Components.InputHandler):
+class idle(GameObjectState):
+    def __init__(self, key, otherKey, runIndex, otherRunIndex):
+        super().__init__(0, -1)
+        self.key = key
+        self.otherKey = otherKey
+        self.runIndex = runIndex
+        self.otherRunIndex = otherRunIndex
+
     def update(self, gameObject, ms):
-        wasPressed = False
-        if EasyPygame.isDown("d"):
-            gameObject.rect.x += int(0.1 * ms)
-            wasPressed = True
-        if EasyPygame.isDown("a"):
-            prev = gameObject.rect.x
-            gameObject.rect.x -= int(0.1 * ms)
-            wasPressed = True
-        if EasyPygame.isDown("w"):
-            gameObject.rect.y += int(0.1 * ms)
-            wasPressed = True
-        if EasyPygame.isDown("s"):
-            gameObject.rect.y -= int(0.1 * ms)
-            wasPressed = True
-        
-        if wasPressed:
-            if gameObject.FSM.currentStateIndex != 2:
-                gameObject.FSM.switchState(2, ms)
-        else:
-            if gameObject.FSM.currentStateIndex != 1:
-                gameObject.FSM.switchState(1, ms)
+        for key in [self.key, "s", "w"]:
+            if EasyPygame.isDown(key):
+                gameObject.FSM.switchState(self.runIndex, ms)
+        if EasyPygame.isDown(self.otherKey):
+            gameObject.FSM.switchState(self.otherRunIndex, ms)
+
+class run(GameObjectState):
+    DELTA = {
+        "w" : (0, 0.1),
+        "a" : (-0.1, 0),
+        "s" : (0, -0.1),
+        "d" : (0.1, 0)
+    }
+    def __init__(self, key, otherKey, idleIndex, otherRunIndex):
+        super().__init__(0, -1)
+        self.key = key
+        self.otherKey = otherKey
+        self.idleIndex = idleIndex
+        self.otherRunIndex = otherRunIndex
+
+    def update(self, gameObject, ms):
+        isIdle = True
+        for key in [self.key, "s", "w"]:
+            if EasyPygame.isDown(key):
+                gameObject.rect.x += int(self.DELTA[key][0] * ms)
+                gameObject.rect.y += int(self.DELTA[key][1] * ms)
+                isIdle = False
+
+        if isIdle:
+            gameObject.FSM.switchState(self.idleIndex, ms)
+        if EasyPygame.isDown(self.otherKey):
+            gameObject.FSM.switchState(self.otherRunIndex, ms)
         
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
@@ -43,21 +61,39 @@ class Scene1(EasyPygame.Components.Scene):
             EasyPygame.load("elf_f_run_anim_f" + str(i) + ".png")
 
         self.characters = []
-        for j in range(100):
+        for j in range(3):
             character = GameObject(self, "Character")
-            character.addInputHandler(characterInput())
-            character.useInputHandler(1)
 
             for i in range(4):
                 imageRect = EasyPygame.Rect(0, 12, 16, 16)
-                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", imageRect))
+                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
+                    imageRect, flipX=True))
+
+            for i in range(4):
+                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect, \
+                    flipX=True))
+
+            for i in range(4):
+                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
+                    imageRect))
 
             for i in range(4):
                 imageRect = EasyPygame.Rect(0, 12, 16, 16)
                 character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect))
 
-            character.FSM.addState(SpriteAnimState(500, [1, 2, 3, 4]))
-            character.FSM.addState(SpriteAnimState(500, [5, 6, 7, 8]))
+            # 1: leftIdle, 2: leftRun, 3:rightIdle, 4:rightRun
+            character.FSM.addState(idle("a", "d", 2, 4))
+            character.FSM.addState(run("a", "d", 1, 4))
+            character.FSM.addState(idle("d", "a", 4, 2))
+            character.FSM.addState(run("d", "a", 3, 2))
+
+            # 1234leftIdle, 5678leftRun, 9101112rightIdle, 13141516rightRun
+            character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 2, 3, 4]))
+            character.FSM.attachConcurrentState(2, SpriteAnimState(500, [5, 6, 7, 8]))
+            character.FSM.attachConcurrentState(3, SpriteAnimState(500, [9, 10, 11, 12]))
+            character.FSM.attachConcurrentState(4, SpriteAnimState(500, [13, 14, 15, 16]))
 
             character.FSM.switchState(1, 0)
             character.rect.x = 100 * j

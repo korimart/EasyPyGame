@@ -27,7 +27,24 @@ class Renderer:
         return retRect
 
     def renderTextured(self, worldRect, camera, textureView):
+        # +-----------+------+-------+-------------------+
+        # | FitObject | Crop | Scale |    Description    |
+        # +-----------+------+-------+-------------------+
+        # |     0     |   0  |   0   |       source      |
+        # +-----------+------+-------+-------------------+
+        # |     0     |   0  |   1   |   source scaled   |
+        # +-----------+------+-------+-------------------+
+        # |     0     |   1  |   0   |   source cropped  |
+        # +-----------+------+-------+-------------------+
+        # |     0     |   1  |   1   |     undefined     |
+        # +-----------+------+-------+-------------------+
+        # |     1     |   X  |   0   | fit to gameObject |
+        # +-----------+------+-------+-------------------+
+        # |     1     |   X  |   1   |   fit and scale   |
+        # +-----------+------+-------+-------------------+
+
         imageSurf = self.resManager.getLoaded(textureView.texture)
+        imageSurf = pygame.transform.flip(imageSurf, textureView.flipX, textureView.flipY)
         if not textureView.imageRect:
             imageRect = imageSurf.get_rect().copy()
         else:

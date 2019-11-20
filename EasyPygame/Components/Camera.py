@@ -6,11 +6,11 @@ class Camera:
         self.distance = 1
     
     def setDistanceDelta(self, delta):
-        if (self.distance + delta > 0.1):
+        if (self.distance + delta > 0.3):
             self.distance += delta
 
     def setDistance(self, distance):
-        if (distance > 0.1):
+        if (distance > 0.3):
             self.distance = distance
 
     def view(self, pos):

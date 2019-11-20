@@ -44,13 +44,11 @@ class FSM:
                 conState.update(self.gameObject, ms)
 
 class GameObjectState:
-    def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=0, name="GameObjectState"):
-        self.inputHandlerIndex = inputHandlerIndex
+    def __init__(self, staticTextureViewIndex=-1, name="GameObjectState"):
         self.staticTextureViewIndex = staticTextureViewIndex
         self.name = name
 
     def onEnter(self, gameObject, ms):
-        gameObject.useInputHandler(self.inputHandlerIndex)
         if self.staticTextureViewIndex >= 0:
             gameObject.useTextureView(self.staticTextureViewIndex)
 

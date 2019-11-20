@@ -1,6 +1,5 @@
 import EasyPygame
 from EasyPygame.Components import TextureView
-from EasyPygame.Components import InputHandler
 from EasyPygame.Components import FSM
 
 class GameObject:
@@ -8,10 +7,8 @@ class GameObject:
         self.rect = EasyPygame.Rect(0, 0, 100, 100)
 
         self.textureViewList = [TextureView.InvisibleTextureView()]
-        self.inputHandlerList = [InputHandler.InputHandler()]
         self.FSM = FSM.FSM(self)
         self.textureViewIndex = 0
-        self.inputHandlerIndex = 0
 
         self.scene = scene
         self.name = name
@@ -19,7 +16,6 @@ class GameObject:
         scene.addGameObject(self)
 
     def update(self, ms):
-        self.inputHandlerList[self.inputHandlerIndex].update(self, ms)
         self.FSM.update(ms)
 
     def yourLogic(self, ms):
@@ -32,21 +28,11 @@ class GameObject:
         self.textureViewList.append(textureView)
         return len(self.textureViewList) - 1
 
-    def addInputHandler(self, inputHandler):
-        self.inputHandlerList.append(inputHandler)
-        return len(self.inputHandlerList) - 1
-
     def useTextureView(self, textureViewIndex):
         if 0 <= textureViewIndex < len(self.textureViewList):
             self.textureViewIndex = textureViewIndex
         else:
             self.textureViewIndex = 0
-
-    def useInputHandler(self, inputHandlerIndex):
-        if 0 <= inputHandlerIndex < len(self.inputHandlerList):
-            self.inputHandlerIndex = inputHandlerIndex
-        else:
-            self.inputHandlerIndex = 0
 
     def disable(self):
         self.FSM.switchState(0, 0)
