@@ -40,22 +40,27 @@ class Renderer:
         if not textureView.fitObject and not textureView.crop:
             targetRect.width, targetRect.height = (imageRect.width, imageRect.height)
 
-        targetRect.width  *= scale[0]
-        targetRect.height *= scale[1]
-        imageRect.width   *= scale[0]
-        imageRect.height  *= scale[1]
-
         # view
         targetRect.x, targetRect.y = camera.view([worldRect.x, worldRect.y])
 
         # proj
         self._distanceDivision(camera.distance, targetRect)
-
-        # if fitObject, image does not need to be scaled by distance and will be shrinked later
+        
+        # if fitObject, image does not need to be scaled to distance. 
+        # It will be fitted to gameOjbect later
         if not textureView.fitObject:
-            imageRect.width   *= 1 / camera.distance
-            imageRect.height  *= 1 / camera.distance
-            imageSurf = pygame.transform.scale(imageSurf, (imageRect.width, imageRect.height))
+            targetRect.width  *= scale[0]
+            targetRect.height *= scale[1]
+            imageSurfFactor = [1 / imageRect.width, 1 / imageRect.height]
+            self._distanceDivision(camera.distance, imageRect)
+            imageRect.x *= scale[0]
+            imageRect.y *= scale[1]
+            imageRect.width *= scale[0]
+            imageRect.height *= scale[1]
+            imageSurfFactor[0] *= imageRect.width
+            imageSurfFactor[1] *= imageRect.height
+            imageSurfRect = imageSurf.get_rect()
+            imageSurf = pygame.transform.scale(imageSurf, (int(imageSurfRect.width * imageSurfFactor[0]), int(imageSurfRect.height * imageSurfFactor[1])))
 
         # convert to screen space
         # targetRect is in screen space but with x y being its center
@@ -86,8 +91,15 @@ class Renderer:
             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
 
         if textureView.fitObject:
-            imageSurf = pygame.transform.scale(imageSurf, (targetRect.width, targetRect.height))
-            imageRect = imageSurf.get_rect()
+            thisScale = (targetRect.width / imageRect.width * scale[0], targetRect.height / imageRect.height * scale[1])
+            imageSurfRect = imageSurf.get_rect()
+            imageSurfRect.width *= thisScale[0]
+            imageSurfRect.height *= thisScale[1]
+            imageRect.x *= thisScale[0]
+            imageRect.y *= thisScale[1]
+            imageRect.width *= thisScale[0]
+            imageRect.height *= thisScale[1]
+            imageSurf = pygame.transform.scale(imageSurf, (imageSurfRect.width, imageSurfRect.height))
 
         # convert to left-top oriented screen space according to alignment
         y = targetRect.y - imageRect.height / 2

@@ -38,23 +38,30 @@ class Scene1(EasyPygame.Components.Scene):
         self.character = None
 
     def onLoad(self):
-        EasyPygame.load("animated.png")
-        self.character = GameObject(self, "Character")
-        self.character.addInputHandler(characterInput())
-        self.character.useInputHandler(1)
-        # self.character.addTextureView(DefaultTextureView())
-        # self.character.addTextureView(DefaultTextureView((255, 0, 0)))
+        for i in range(4):
+            EasyPygame.load("elf_f_idle_anim_f" + str(i) + ".png")
+            EasyPygame.load("elf_f_run_anim_f" + str(i) + ".png")
 
-        for i in range(9):
-            imageRect = EasyPygame.Rect((8 + i) * 16, 16, 16, 16)
-            self.character.addTextureView(TextureView("animated.png", None, fitObject=False, crop=True))
+        self.characters = []
+        for j in range(100):
+            character = GameObject(self, "Character")
+            character.addInputHandler(characterInput())
+            character.useInputHandler(1)
 
-        self.character.FSM.addState(SpriteAnimState(1000, [1, 2, 3, 4]))
-        self.character.FSM.addState(SpriteAnimState(1000, [5, 6, 7, 8]))
-        # self.character.FSM.addState(GameObjectState(1, 1))
-        # self.character.FSM.addState(GameObjectState(1, 2))
+            for i in range(4):
+                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", imageRect, fitObject=False, crop=True, scale=(10, 10)))
 
-        self.character.FSM.switchState(1, 0)
+            for i in range(4):
+                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect))
+
+            character.FSM.addState(SpriteAnimState(500, [1, 2, 3, 4]))
+            character.FSM.addState(SpriteAnimState(500, [5, 6, 7, 8]))
+
+            character.FSM.switchState(1, 0)
+            character.rect.x = 100 * j
+            self.characters.append(character)
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
@@ -77,7 +84,10 @@ class Scene1(EasyPygame.Components.Scene):
             self.camera.move((0, -0.1 * ms))
 
     def onUnLoad(self):
-        EasyPygame.unload("animated.png")
+        for i in range(4):
+            EasyPygame.unLoad("elf_f_idle_anim_f" + str(i) + ".png")
+            EasyPygame.unLoad("elf_f_run_anim_f" + str(i) + ".png")
+
 
 if __name__ == "__main__":
     EasyPygame.initWindow(500, 500, "Sample", 75)
