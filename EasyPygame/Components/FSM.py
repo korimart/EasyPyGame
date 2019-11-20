@@ -44,7 +44,7 @@ class FSM:
                 conState.update(self.gameObject, ms)
 
 class GameObjectState:
-    def __init__(self, staticTextureViewIndex=-1, name="GameObjectState"):
+    def __init__(self, staticTextureViewIndex=0, name="GameObjectState"):
         self.staticTextureViewIndex = staticTextureViewIndex
         self.name = name
 

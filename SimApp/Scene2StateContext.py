@@ -1,9 +1,9 @@
 import EasyPygame
-from EasyPygame.Components import GUI
+from EasyPygame.Components import *
 
-class ReadyState(EasyPygame.Components.GameObjectState):
+class ReadyState(GameObjectState):
     def __init__(self):
-        super().__init__(0, 0, "Ready")
+        super().__init__(0, "Ready")
         self.wasRestart = False
 
     def onEnter(self, gameObject, ms):
@@ -19,9 +19,9 @@ class ReadyState(EasyPygame.Components.GameObjectState):
         super().onExit(gameObject, ms)
         gameObject.buttonList[0].disable()
 
-class SimulatingState(EasyPygame.Components.GameObjectState):
+class SimulatingState(GameObjectState):
     def __init__(self):
-        super().__init__(0, 0, "Simulating")
+        super().__init__(0, "Simulating")
 
     def onEnter(self, gameObject, ms):
         super().onEnter(gameObject, ms)
@@ -35,9 +35,9 @@ class SimulatingState(EasyPygame.Components.GameObjectState):
         # display "waiting calculation"
         pass
 
-class DoneState(EasyPygame.Components.GameObjectState):
+class DoneState(GameObjectState):
     def __init__(self):
-        super().__init__(0, 0, "Done")
+        super().__init__(0, "Done")
 
     def onEnter(self, gameObject, ms):
         super().onEnter(gameObject, ms)

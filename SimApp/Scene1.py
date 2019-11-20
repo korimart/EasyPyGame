@@ -4,6 +4,7 @@ THISDIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(THISDIR))
 
 import EasyPygame
+from EasyPygame.Components import *
 import ast
 import SimApp.Scene2
 
@@ -19,13 +20,13 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
-            inputField = EasyPygame.Components.GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
+            inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.rect.x = -100
             inputField.rect.y = 200 - 100 * i
             inputField.rect.width = 200
             self.inputFields.append(inputField)
 
-        self.submitButton = EasyPygame.Components.GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
+        self.submitButton = GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
         self.submitButton.rect.x = 150
         self.submitButton.rect.y = -100
 

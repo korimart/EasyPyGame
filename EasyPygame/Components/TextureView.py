@@ -1,7 +1,7 @@
 import EasyPygame
 
 class TextureView:
-    def __init__(self, texture, imageRect=None, fitObject=True, \
+    def __init__(self, texture, imageRect=None, fitObject=True,           \
             crop=False, halign="center", relPos=(0, 0), scale=(1.0, 1.0), \
             flipX=False, flipY=False):
         self.texture = texture
