@@ -6,39 +6,33 @@ sys.path.append(os.path.dirname(THISDIR))
 os.chdir(THISDIR)
 
 import EasyPygame
+from EasyPygame.Components import *
 
-class inputIdle(EasyPygame.Components.InputHandler):
+class characterInput(EasyPygame.Components.InputHandler):
     def update(self, gameObject, ms):
-        for key in ["d", "a", "w", "s"]:
-            if EasyPygame.isDown1stTime(key):
-                gameObject.lastStateKey = None
-                gameObject.currentKey = key
+        wasPressed = False
+        if EasyPygame.isDown("d"):
+            gameObject.rect.x += 0.1 * ms
+            wasPressed = True
+        if EasyPygame.isDown("a"):
+            prev = gameObject.rect.x
+            gameObject.rect.x -= 0.1 * ms
+            print("diff =", gameObject.rect.x - prev)
+            wasPressed = True
+        if EasyPygame.isDown("w"):
+            gameObject.rect.y += 0.1 * ms
+            wasPressed = True
+        if EasyPygame.isDown("s"):
+            gameObject.rect.y -= 0.1 * ms
+            wasPressed = True
+        
+        if wasPressed:
+            if gameObject.FSM.currentStateIndex != 2:
                 gameObject.FSM.switchState(2, ms)
-                break
-
-class inputRunning(EasyPygame.Components.InputHandler):
-    def update(self, gameObject, ms):
-        if EasyPygame.isDown(gameObject.currentKey):
-            if gameObject.currentKey == "d":
-                gameObject.rect.x += 0.1 * ms
-            elif gameObject.currentKey == "a":
-                gameObject.rect.x -= 0.1 * ms
-            elif gameObject.currentKey == "w":
-                gameObject.rect.y += 0.1 * ms
-            elif gameObject.currentKey == "s":
-                gameObject.rect.y -= 0.1 * ms
         else:
-            gameObject.lastStateKey = gameObject.currentKey
-            gameObject.currentKey = None
-            gameObject.FSM.switchState(1, ms)
-
-
-class Character(EasyPygame.Components.GameObject):
-    def __init__(self, scene, name):
-        super().__init__(scene, name)
-        self.lastStateKey = None
-        self.currentKey = None
-
+            if gameObject.FSM.currentStateIndex != 1:
+                gameObject.FSM.switchState(1, ms)
+        
 class Scene1(EasyPygame.Components.Scene):
     def __init__(self):
         super().__init__()
@@ -46,17 +40,19 @@ class Scene1(EasyPygame.Components.Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        self.character = Character(self, "Character")
-        self.character.addInputHandler(inputIdle())
-        self.character.addInputHandler(inputRunning())
+        self.character = GameObject(self, "Character")
+        self.character.addInputHandler(characterInput())
+        self.character.addTextureView(DefaultTextureView())
+        self.character.addTextureView(DefaultTextureView((255, 0, 0)))
+
         for i in range(9):
             imageRect = EasyPygame.Rect((8 + i) * 16, 16, 16, 16)
-            self.character.addTextureView(EasyPygame.Components.TextureView("animated.png", None, fitObject=False, crop=True))
+            # self.character.addTextureView(EasyPygame.Components.TextureView("animated.png", None, fitObject=False, crop=True))
 
-        self.character.FSM.addState(EasyPygame.Components.GameObjectState(1, 0, name="idle"))
-        self.character.FSM.addState(EasyPygame.Components.GameObjectState(2, 0, name="running"))
-        self.character.FSM.attachAnimationState(1, EasyPygame.Components.SpriteAnimState(1000, [1, 2, 3, 4]))
-        self.character.FSM.attachAnimationState(2, EasyPygame.Components.SpriteAnimState(1000, [5, 6, 7, 8]))
+        # self.character.FSM.addState(SpriteAnimState(1000, [1, 2, 3, 4]))
+        # self.character.FSM.addState(SpriteAnimState(1000, [5, 6, 7, 8]))
+        self.character.FSM.addState(GameObjectState(1, 1))
+        self.character.FSM.addState(GameObjectState(1, 2))
 
         self.character.FSM.switchState(1, 0)
 
@@ -68,7 +64,7 @@ class Scene1(EasyPygame.Components.Scene):
             self.camera.setDistanceDelta(0.001 * ms)
         if EasyPygame.isDown("KP7"):
             self.camera.setDistanceDelta(-0.001 * ms)
-        elif EasyPygame.isDown1stTime("KP5"):
+        if EasyPygame.isDown1stTime("KP5"):
             self.camera.setDistance(1)
             self.camera.moveTo(0, 0)
         if EasyPygame.isDown("KP4"):
