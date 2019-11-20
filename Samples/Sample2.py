@@ -50,7 +50,7 @@ class Scene1(EasyPygame.Components.Scene):
 
             for i in range(4):
                 imageRect = EasyPygame.Rect(0, 12, 16, 16)
-                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", imageRect, fitObject=False, crop=True, scale=(10, 10)))
+                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", imageRect))
 
             for i in range(4):
                 imageRect = EasyPygame.Rect(0, 12, 16, 16)

@@ -2,24 +2,24 @@ class FSM:
     def __init__(self, gameObject):
         self.currentStateIndex = 0
         self.gameObjectStateList = [GameObjectState()]
-        self.animationStateDict = dict()
+        self.concurrentStateDict = dict()
         self.gameObject = gameObject
 
     def addState(self, state):
         self.gameObjectStateList.append(state)
         return len(self.gameObjectStateList) - 1
 
-    def attachAnimationState(self, gameObjectStateIndex, animationState):
+    def attachConcurrentState(self, gameObjectStateIndex, state):
         try:
-            self.animationStateDict[gameObjectStateIndex].append(animationState)
+            self.concurrentStateDict[gameObjectStateIndex].append(state)
         except KeyError:
-            self.animationStateDict[gameObjectStateIndex] = [animationState]
+            self.concurrentStateDict[gameObjectStateIndex] = [state]
 
     def switchState(self, stateIndex, ms):
         if 0 <= stateIndex < len(self.gameObjectStateList):
-            if self.currentStateIndex in self.animationStateDict:
-                for animationState in self.animationStateDict[self.currentStateIndex]:
-                    animationState.onExit(self.gameObject, ms)
+            if self.currentStateIndex in self.concurrentStateDict:
+                for conState in self.concurrentStateDict[self.currentStateIndex]:
+                    conState.onExit(self.gameObject, ms)
             self.gameObjectStateList[self.currentStateIndex].onExit(self.gameObject, ms)
 
             self.currentStateIndex = stateIndex
@@ -27,9 +27,9 @@ class FSM:
             self.currentStateIndex = 0
 
         self.gameObjectStateList[self.currentStateIndex].onEnter(self.gameObject, ms)
-        if self.currentStateIndex in self.animationStateDict:
-            for animationState in self.animationStateDict[self.currentStateIndex]:
-                animationState.onEnter(self.gameObject, ms)
+        if self.currentStateIndex in self.concurrentStateDict:
+            for conState in self.concurrentStateDict[self.currentStateIndex]:
+                conState.onEnter(self.gameObject, ms)
 
     def getGameObjectState(self, index):
         return self.gameObjectStateList[index]
@@ -39,9 +39,9 @@ class FSM:
 
     def update(self, ms):
         self.gameObjectStateList[self.currentStateIndex].update(self.gameObject, ms)
-        if self.currentStateIndex in self.animationStateDict:
-            for animationState in self.animationStateDict[self.currentStateIndex]:
-                animationState.update(self.gameObject, ms)
+        if self.currentStateIndex in self.concurrentStateDict:
+            for conState in self.concurrentStateDict[self.currentStateIndex]:
+                conState.update(self.gameObject, ms)
 
 class GameObjectState:
     def __init__(self, inputHandlerIndex=0, staticTextureViewIndex=0, name="GameObjectState"):

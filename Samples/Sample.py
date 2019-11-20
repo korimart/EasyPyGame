@@ -99,12 +99,12 @@ class Scene2(EasyPygame.Components.Scene):
         self.obj1.addInputHandler(carrotHandler())
         self.obj1.useInputHandler(1)
 
-        # first parameter is gameObjectStateIndex to attach AnimationState to.
-        # second parameter is an AnimationState
+        # first parameter is gameObjectStateIndex to attach state to.
+        # second parameter is an concurrent state
         # first parameter of the constructor is duration in miliseconds of the animation from start to end
         # second parameter is a list of textureViewIndices of animation
         # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
-        self.obj1.FSM.attachAnimationState(0, EasyPygame.Components.SpriteAnimState(100, [0, 1]))
+        self.obj1.FSM.attachConcurrentState(0, EasyPygame.Components.SpriteAnimState(100, [0, 1]))
 
         self.textbox = EasyPygame.Components.GUI.TextBox(self, "textbox1", "Click me to type:")
         self.textbox.rect.x = 0
