@@ -1,21 +1,23 @@
 from abc import ABC, abstractmethod
+import sys
+from pympler import asizeof
 
 class AddOn:
-    def __init__(self,  map, size, hazards, searchPoints, robot):
-        self.map = (size, hazards, searchPoints, robot)
+    def __init__(self, size, hazards, searchPoints, robot):
+        self.map = Map(size, hazards, searchPoints, robot)
         self.pathFinder = bfsShortestFirst()
-        self.behavior = GoSlow()
+        self.behavior = GoSlow(self.map)
         self.robot = robot
-
+        
     def go(self, robot):
-        self.behavior.go(self.robot, self.map, self.pathFinder)
+        self.behavior.go(robot, self.map, self.pathFinder)
 
 
 class Behavior(ABC):
     def __init__(self, map):
         self.path = []
         self.pathNeedsUpdate = True
-        self.searchPoints = map.getSearchPoints()
+        self.searchPoints = map.getUnvisitedSearchPoints()
 
     @abstractmethod
     def go(self, robot, map, pathFinder):
@@ -33,16 +35,16 @@ class Behavior(ABC):
                     hazards.append(frontCoord)
         for i in range(3):
             robot.rotate()
-            direction = (direction + i) % 4
+            direction = (direction + 1) % 4
             if robot.senseHazard():
                 frontCoord = self.calculateCoordinates(coordinates, direction)
                 #I'm not sure why it needs to be checked
                 if self.sanityCheck(map.minPoints, map.size, frontCoord):
-                    hazards.append(frontCoord)
+                    hazards.append(tuple(frontCoord))
         return hazards
     
     def calculateCoordinates(self, coord, direction):
-        newCoord = coord.copy()
+        newCoord = list(coord)
         if direction == 0:
             newCoord[1] += 1 
         elif direction == 1:
@@ -51,10 +53,10 @@ class Behavior(ABC):
             newCoord[1] -= 1
         elif direction == 3:
             newCoord[0] -= 1
-        return newCoord
+        return tuple(newCoord)
 
     def sanityCheck(self, minInclusive, maxExclusive, location):
-            if (minInclusive[0] <= location < maxExclusive[0]) and (minInclusive[1] <= location < maxExclusive[1]):
+            if (minInclusive[0] <= location[0] < maxExclusive[0]) and (minInclusive[1] <= location[1] < maxExclusive[1]):
                 return True
             else:
                 return False
@@ -100,33 +102,34 @@ class Behavior(ABC):
     def posToDirection(self, position):
         return position[2]
 
-    def moveInDirection(self, robot, curLocation, direction):
-        nextLocation = self.path.pop(0)
-        while(nextLocation != self.calculateCoordinates(curLocation, direction)):
+    def moveInDirection(self, robot, curLocation, direction, destination):
+        #nextLocation = self.path.pop(0)
+        while(destination != self.calculateCoordinates(curLocation, direction)):
             robot.rotate()
+            direction = self.nextDirection(direction)
         robot.move()
 
 
 
 class GoSlow(Behavior):
-    def __init__(self):
-        super.__init__()
-    
-    def go(self, robot, map, pathfinder):
-        position = robot.getPos()
-        direction = self.posToCoord(position)
-        coordinates = self.posToDirection
-        map.pathTaken.append(coordinates)
-        if self.posToCoord(map.currentPos()) != coordinates:
-            self.pathNeedsUpdate = True
-        map.update(self.getHazardDataInAllDirections(robot, map, coordinates),
-            self.getBlobData(robot, position), robot.getPos())
-        
-        #checks if the path needs an update
-        if map.isOnPath or self.pathNeedsUpdate:
-            self.path = pathfinder.findPath(map)
-
-        self.moveInDirection(robot, coordinates, direction)
+    def go(self, robot, map, pathFinder):
+        while(len(map.getUnvisitedSearchPoints()) > 0):
+            position = robot.getPos()
+            direction = self.posToDirection(position)
+            coordinates = self.posToCoord(position)
+            map.pathTaken.append(coordinates)
+            if self.posToCoord(map.currentPos()) != coordinates:
+                self.pathNeedsUpdate = True
+            map.update(
+                coordinates,
+                self.getHazardDataInAllDirections(robot, map, position),
+                self.getBlobData(robot, position))
+            direction = (direction + 3) % 4
+            #checks if the path needs an update
+            if map.isOnPath or self.pathNeedsUpdate:
+                map.pathToBeTaken = pathFinder.findPath(map, coordinates)
+            if len(map.pathToBeTaken) > 0:
+                self.moveInDirection(robot, coordinates, direction, map.nextDestination())
             
 
 """
@@ -148,14 +151,29 @@ while the queue is not empty:
 """
 
 class PathFinder:
-    def __init__(self):
-        pass
-    
+    def __init__(self, path=[], paths=[], queue=[], print = lambda : None):
+        self.path = path
+        self.paths = paths
+        self.queue = queue
+        self.print = print
+
+    def empty(self):
+        del self.path[:]
+        del self.paths[:]
+        del self.queue[:]
+
     def sanitiyCheck(self, minInclusive, maxExclusive, forbidden, locations):
+        lst = []
+        for p in locations:
+            if p not in forbidden and minInclusive[0] <= p[0] < maxExclusive[0] and minInclusive[1] <= p[1] < maxExclusive[1]:
+                lst.append(p)
+        return lst
+        """
         return [p if p in forbidden and
             minInclusive[0] <= p[0] < maxExclusive[0] and
             minInclusive[1] <= p[1] < maxExclusive[1]
             else None for p in locations]
+        """
     
     def calculateCoordinates(self, coord, direction):
         newCoord = list(coord)
@@ -173,45 +191,124 @@ class PathFinder:
         positions = list()
         for dir in range(4):
             positions.append(self.calculateCoordinates(curPos, dir))
-        return self.sanitiyCheck(minInclusive, maxExclusive, forbidden, positions)
+        return self.sanitiyCheck(minInclusive, maxExclusive,
+            forbidden, positions)
         
     def bfs(self, minInclusive, maxExclusive, forbidden, start, end):
+        del self.queue[:]
         visited = set()
-        queue = [[start]]
-        while(len(queue) != 0):
-            path = queue.pop()
+        self.queue.append([start])
+        visited.add(start)
+        while(len(self.queue) != 0):
+            self.print()
+            path = self.queue.pop(0)
             current = path[-1]
             if end == current:
+                del self.queue[:]
                 return path
             possiblePositions = self.possiblePositions(minInclusive,
             maxExclusive, forbidden, current)
             for position in possiblePositions:
                 if position not in visited:
+                    visited.add(position)
                     copiedPath = path.copy()
                     copiedPath.append(position)
-                    queue.append(copiedPath)
-        return False
+                    self.queue.append(copiedPath)
+        del self.queue[:]
+        return [None]
     
-    def bfsShortestFirst(self, minInclusive, maxExclusive, forbidden,
-    start, searchPoints):
-        path = []
+    def adaptiveBfs(self, minInclusive, maxExclusive, forbidden, start, end, limit):
+        del self.queue[:]
+        visited = set()
+        self.queue.append([start])
+        visited.add(start)
+        sizeReached = 0
+        curSize = asizeof.asizeof(self.queue)
+        while(curSize < limit and len(self.queue) != 0):
+            if curSize > sizeReached:
+                sizeReached = curSize
+            self.print()
+            path = self.queue.pop(0)
+            current = path[-1]
+            if end == current:
+                del self.queue[:]
+                return [path, sizeReached]
+            possiblePositions = self.possiblePositions(minInclusive,
+            maxExclusive, forbidden, current)
+            for position in possiblePositions:
+                if position not in visited:
+                    visited.add(position)
+                    copiedPath = path.copy()
+                    copiedPath.append(position)
+                    self.queue.append(copiedPath)
+            curSize = asizeof.asizeof(self.queue)
+        if curSize > limit:
+            del self.queue[:]
+            raise MemoryError("curSize " + str(curSize) + " > " + "limit " + str(limit))
+        else:
+            del self.queue[:]
+            return [None, sizeReached]
+    
+    def adaptiveShortestFirst(self, minInclusive, maxExclusive, forbidden,
+    start, searchPoints, searchAlgorithm, limit):
+        maxSize = 0
         while(len(searchPoints) != 0):
-            paths = []
+            del self.paths[:]
+            del self.queue[:]
             for searchPoint in searchPoints:
-                paths.append(self.bfs(minInclusive, maxExclusive, forbidden,
-                start, searchPoint))
-            subPath = min(paths, key=len)
+                result = searchAlgorithm(minInclusive, maxExclusive,
+                forbidden, start, searchPoint, limit)
+                self.paths.append(result[0])
+                if result[1] > maxSize:
+                    maxSize = result[1]
+            subPath = min(self.paths, key=len)
             del subPath[0]
-            usedSearchPoint = subPath[-1]
-            searchPoints.remove(usedSearchPoint)
-            path += subPath
-        return path
+            start = subPath[-1]
+            searchPoints.remove(start)
+            self.path += subPath
+        pathToBeReturned = self.path.copy()
+        self.empty()
+        return [pathToBeReturned, maxSize]
+
+    def shortestFirst(self, minInclusive, maxExclusive, forbidden,
+    start, searchPoints, searchAlgorithm):
+        while(len(searchPoints) != 0):
+            del self.paths[:]
+            del self.queue[:]
+            for searchPoint in searchPoints:
+                self.paths.append(searchAlgorithm(minInclusive, maxExclusive,
+                forbidden, start, searchPoint))
+            subPath = min(self.paths, key=len)
+            del subPath[0]
+            if len(subPath) > 0:
+                start = subPath[-1]
+            searchPoints.remove(start)
+            self.path += subPath
+        pathToBeReturned = self.path.copy()
+        self.empty()
+        return pathToBeReturned
+
+class SimableAddOn(AddOn):
+    def __init__(self,  map, size, hazards, searchPoints, sim,
+        path, paths, queue):
+        super().__init__(self,  map, size, hazards, searchPoints, sim)
+        self.pathFinder = SIM_bfsShortestFirst(path, paths, queue, sim.printPaths)
 
 
-class bfsShortestFirst(PathFinder):
+class bfsShortestFirst(PathFinder):        
     def findPath(self, map, start):
-        self.bfsShortestFirst(map.minPoints, map.size,
-                    map.hazards, start, map.unvisitedSearchPoints)
+        return self.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.bfs)
+
+#there's really not much of a difference btw SIM_bfsShortest and bfsShortest
+class SIM_bfsShortestFirst(PathFinder):
+    def __init__(self, path, paths, queue, print):
+        super().__init__(path, paths, queue, print)
+
+    def findPath(self, map, start):
+        return self.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.bfs)
+
 
     """ kept just in case 
     def findPath(self, map, start):
@@ -258,7 +355,7 @@ class Map:
         for p in points:
             l[p[0]][p[1]] = 1
         
-    def update(self, hazards, blobs, robot, searchPoint):
+    def update(self, robot, hazards=[], blobs=[]):
         for h in hazards:
             self.hazards[h] = 1
         for b in blobs:
@@ -267,16 +364,19 @@ class Map:
             else:
                 self.blobs.append()
         self.robot = robot
-        if searchPoint != None:
-            self.visitedSearchPoints.add(searchPoint)
-            self.unvisitedSearchPoints.remove(searchPoint)
+        if robot in self.searchPoints:
+            self.visitedSearchPoints.add(robot)
+            self.unvisitedSearchPoints.remove(robot)
     
-    def isOnPath(self, path):
-        for p in path:
+    def isOnPath(self):
+        for p in self.pathToBeTaken:
             if p in self.hazards:
                 return True
             else:
                 return False
+
+    def nextDestination(self):
+        return self.pathToBeTaken.pop(0)
 
     def currentPos(self):
         return self.robot
@@ -287,4 +387,6 @@ class Map:
     def setVisitedSearchPoints(self, location):
         self.visitedSearchPoints.add(location)
     
-    
+    def getUnvisitedSearchPoints(self):
+        return self.unvisitedSearchPoints.copy()
+
