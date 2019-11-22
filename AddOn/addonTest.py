@@ -14,31 +14,39 @@ class Scene1(EasyPygame.Components.Scene):
   
 
 if __name__ == "__main__":
-    hazards = [(1, 0), (1, 1), (1, 3)]
-    size = (3, 4)
-    searchPoints = [(2, 0), (0, 3)]
-    robotLocation = (0, 0)
-
+    hazards = [(1, 4), (2, 2), (2, 3), (3, 4), (4, 3), (4, 2), (5, 1), (3, 1)]
+    size = (6, 7)
+    searchPoints = [(3, 2), (3, 3), (3, 6), (5, 4), (5, 0)]
+    robotLocation = (1, 2)
+    robotPosition = list(robotLocation)
+    robotPosition.append(0)
+    
     hazardsForSim = hazards.copy()
-    hazardsForSim.append((2, 3))
+    hazardsForSim += [(1, 5), (2, 1), (1, 3)]
     searchPointsForSim = searchPoints.copy()
-    searchPointsForSim.append((2, 2))
+    searchPointsForSim += [(2, 1), (2, 5), (4, 0), (4, 2), (4, 4)]
    
     map = Map(hazards = hazards, size=size, searchPoints=searchPoints,
-        robot=robotLocation)
+        robotLocation=robotLocation)
     mapForSim = Map(hazards = hazardsForSim, size=size, searchPoints=searchPointsForSim,
-        robot=robotLocation)
+        robotLocation=robotLocation)
+    
     
     pf = bfsShortestFirst()
-    print(pf.adaptiveShortestFirst(map.minPoints, map.size, map.hazards, map.robot,
-        map.searchPoints, pf.adaptiveBfs, 10000))
-    print(pf.findPath(map, (0, 0)))
+    print(pf.adaptiveShortestFirst(map.minPoints, map.size, map.hazards,
+       map.robotLocation, map.searchPoints, pf.adaptiveBfs, 1000000))
+    print(pf.findPath(map, robotLocation))
+    
 
-    robotdebug = RobotForDebug.RobotForDebug(mapForSim, scene=Scene1())
+    robotdebug = RobotForDebug.RobotForDebug(mapForSim, scene=Scene1(),
+        position=robotPosition)
     addon = AddOn(hazards = hazards, size=size, searchPoints=searchPoints,
-        robot=robotLocation)
+        robotLocation=robotLocation)
     addon.go(robot=robotdebug)
-    print(addon.map.pathTaken, robotdebug.position, addon.map.blobs)
+    print("Path Taken :: ", addon.map.pathTaken)
+    print("Robot Position :: ", robotdebug.position)
+    print("Blobs Found :: ", addon.map.blobs)
+    print(set(searchPoints) <= addon.map.blobs <= set(searchPointsForSim))
 
     
     

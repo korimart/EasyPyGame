@@ -3,11 +3,11 @@ import sys
 from pympler import asizeof
 
 class AddOn:
-    def __init__(self, size, hazards, searchPoints, robot):
-        self.map = Map(size, hazards, searchPoints, robot)
+    def __init__(self, size, hazards, searchPoints, robotLocation):
+        self.map = Map(size, hazards, searchPoints, robotLocation)
         self.pathFinder = bfsShortestFirst()
         self.behavior = GoSlow(self.map)
-        self.robot = robot
+        self.robotLocation = robotLocation
         
     def go(self, robot):
         self.behavior.go(robot, self.map, self.pathFinder)
@@ -128,6 +128,8 @@ class GoSlow(Behavior):
             #checks if the path needs an update
             if map.isOnPath or self.pathNeedsUpdate:
                 map.pathToBeTaken = pathFinder.findPath(map, coordinates)
+            if map.pathToBeTaken == None:
+                raise RuntimeError("map.pathToBeTaken == None")
             if len(map.pathToBeTaken) > 0:
                 self.moveInDirection(robot, coordinates, direction, map.nextDestination())
             
@@ -215,7 +217,7 @@ class PathFinder:
                     copiedPath.append(position)
                     self.queue.append(copiedPath)
         del self.queue[:]
-        return [None]
+        return None
     
     def adaptiveBfs(self, minInclusive, maxExclusive, forbidden, start, end, limit):
         del self.queue[:]
@@ -258,6 +260,9 @@ class PathFinder:
             for searchPoint in searchPoints:
                 result = searchAlgorithm(minInclusive, maxExclusive,
                 forbidden, start, searchPoint, limit)
+                if result[0] == None:
+                    self.empty()
+                    return None
                 self.paths.append(result[0])
                 if result[1] > maxSize:
                     maxSize = result[1]
@@ -278,6 +283,9 @@ class PathFinder:
             for searchPoint in searchPoints:
                 self.paths.append(searchAlgorithm(minInclusive, maxExclusive,
                 forbidden, start, searchPoint))
+                if self.paths[-1] == None:
+                    self.empty()
+                    return None
             subPath = min(self.paths, key=len)
             del subPath[0]
             if len(subPath) > 0:
@@ -329,13 +337,13 @@ class SIM_bfsShortestFirst(PathFinder):
 
 
 class Map:
-    def __init__(self, size, hazards, searchPoints, robot, minPoints=(0,0)):
+    def __init__(self, size, hazards, searchPoints, robotLocation, minPoints=(0,0)):
         self.hazards = self.initHazards(hazards)
         self.searchPoints = set(searchPoints)
         self.visitedSearchPoints = set()
         self.unvisitedSearchPoints = set(searchPoints)
         self.blobs = set()
-        self.robot = robot
+        self.robotLocation = robotLocation
         self.size = size
         self.pathTaken = []
         self.pathToBeTaken = []
@@ -355,7 +363,7 @@ class Map:
         for p in points:
             l[p[0]][p[1]] = 1
         
-    def update(self, robot, hazards=[], blobs=[]):
+    def update(self, robotLocation, hazards=[], blobs=[]):
         for h in hazards:
             self.hazards[h] = 1
         for b in blobs:
@@ -363,10 +371,11 @@ class Map:
                 pass
             else:
                 self.blobs.add(b)
-        self.robot = robot
-        if robot in self.searchPoints:
-            self.visitedSearchPoints.add(robot)
-            self.unvisitedSearchPoints.remove(robot)
+        self.robotLocation = robotLocation
+        if robotLocation in self.searchPoints:
+            self.visitedSearchPoints.add(robotLocation)
+            if robotLocation in self.unvisitedSearchPoints:
+                self.unvisitedSearchPoints.remove(robotLocation)
     
     def isOnPath(self):
         for p in self.pathToBeTaken:
@@ -379,7 +388,7 @@ class Map:
         return self.pathToBeTaken.pop(0)
 
     def currentPos(self):
-        return self.robot
+        return self.robotLocation
     
     def getVisitedSearchPoints(self):
         return self.visitedSearchPoints

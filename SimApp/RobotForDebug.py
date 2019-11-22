@@ -10,8 +10,8 @@ import AddOn
 class RobotForDebug(Robot.Robot):
     def __init__(self, map, scene=None, rect=(0, 0), position=[0, 0, 0], name='Robot',
         increment=100, errorRate=0.05, delay = 0):
-        super().__init__(scene=scene, rect=(0, 0), position=[0, 0, 0], name='Robot',
-        increment=100, errorRate=0.05, delay = 0)
+        super().__init__(scene=scene, rect=rect, position=position, name=name,
+        increment=increment, errorRate=errorRate, delay = delay)
         self.map = map
         self.MaybeIShouldHavePutThisMethodInMap = AddOn.GoSlow(self.map).calculateCoordinates
         self.MaybeIShouldHavePutThisMethodInMap2 = AddOn.GoSlow(self.map).sanityCheck
