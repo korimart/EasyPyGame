@@ -334,7 +334,7 @@ class Map:
         self.searchPoints = set(searchPoints)
         self.visitedSearchPoints = set()
         self.unvisitedSearchPoints = set(searchPoints)
-        self.blobs = []
+        self.blobs = set()
         self.robot = robot
         self.size = size
         self.pathTaken = []
@@ -362,7 +362,7 @@ class Map:
             if b in self.blobs:
                 pass
             else:
-                self.blobs.append()
+                self.blobs.add(b)
         self.robot = robot
         if robot in self.searchPoints:
             self.visitedSearchPoints.add(robot)

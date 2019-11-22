@@ -19,21 +19,26 @@ if __name__ == "__main__":
     searchPoints = [(2, 0), (0, 3)]
     robotLocation = (0, 0)
 
-    
-    
+    hazardsForSim = hazards.copy()
+    hazardsForSim.append((2, 3))
+    searchPointsForSim = searchPoints.copy()
+    searchPointsForSim.append((2, 2))
+   
     map = Map(hazards = hazards, size=size, searchPoints=searchPoints,
-        robot=(0,0))
+        robot=robotLocation)
+    mapForSim = Map(hazards = hazardsForSim, size=size, searchPoints=searchPointsForSim,
+        robot=robotLocation)
     
     pf = bfsShortestFirst()
     print(pf.adaptiveShortestFirst(map.minPoints, map.size, map.hazards, map.robot,
         map.searchPoints, pf.adaptiveBfs, 10000))
     print(pf.findPath(map, (0, 0)))
 
-    robotdebug = RobotForDebug.RobotForDebug(map, scene=Scene1())
+    robotdebug = RobotForDebug.RobotForDebug(mapForSim, scene=Scene1())
     addon = AddOn(hazards = hazards, size=size, searchPoints=searchPoints,
         robot=robotLocation)
     addon.go(robot=robotdebug)
-    print(addon.map.pathTaken, robotdebug.position)
+    print(addon.map.pathTaken, robotdebug.position, addon.map.blobs)
 
     
     
