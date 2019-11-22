@@ -1,87 +1,96 @@
 import multiprocessing
+import queue
 
-class SIM:
-    MAXWAITTIME = 3000
-    def __init__(self, addOn):
-        self.addOn = addOn
-        # init robot and pass SIM for addOn interface
+class Message:
+    MOVE = 0
+    ROTATE = 1
+    GETPOS = 2
+    SENSEBLOB = 3
+    SENSEHAZARD = 4
+
+class SIMProgramSide:
+    def __init__(self, addOnCls, patience=3000):
         self.robot = None
-        self.process = None
-        self.queue = multiprocessing.Queue(maxsize=1)
-        self.message = ""
-        self.ms = 0
-        self.isWaitingForAddOn = False
+        self.floor = None
+        self.addOnCls = addOnCls
+        self.sendingQueue = None
+        self.receivingQueue = None
+        self.patience = patience
+        self.patienceMeter = 0
 
-    def update(self, ms, takingSoLong):
-        if self.isWaitingForAddOn:
-            self._waitForAddOn(ms, takingSoLong)
-        else:
-            self._waitForRobot(ms)
+    def update(self, ms, cwal):
+        self.robot.update(ms)
+        if self.robot.isWorking():
+            return
 
-    def _waitForRobot(self, ms):
-        # if robot.FSM.getState == waiting
-        #   self.isWaitingForAddOn = True
-        # else
-        #   if accelerate:
-        #       force robot state switch      
-        pass
+        self.patienceMeter += ms
+        self._handleMessage()
 
-    def _waitForAddOn(self, ms, takingSoLong):
-        try:
-            self.message = self.queue.get(block=False)
-        except:
-            self.message = ""
+        if self.patienceMeter > self.patience:
+            cwal()
 
-        if self.message:
-            self.ms = 0
-            self._handleAddOnMessage()
-            self.isWaitingForAddOn = False
-        else:
-            self.ms += ms
-            if self.ms > self.MAXWAITTIME:
-                takingSoLong(self.ms)
-
-    def _handleAddOnMessage(self):
-        if self.message == "move":
-            self.robot.move()
-        elif self.message == "rotate":
-            self.robot.rotate()
-        elif self.message == "getPos":
-            self.robot.getPos()
-        elif self.message == "senseBlob":
-            # ask floor
-            pass
-        elif self.message == "senseHazard":
-            # ask floor
-            pass
-        else:
-            self.message = ""
-            raise Exception("Unknown message from addOn")
-
-        self.message = ""
-
-    def move(self):
-        self.message = "move"
-
-    def rotate(self):
-        self.message = "rotate"
-
-    def getPos(self):
-        self.message = "getPos"
-
-    def senseBlob(self):
-        self.message = "senseBlob"
-
-    def senseHazard(self):
-        self.message = "senseHazard"
-
-    def go(self, robot):
-        self.process = multiprocessing.Process(target=self._go, args=tuple(self.addOn, self.queue))
-        self.process.start()
+    def go(self):
+        self.sendingQueue = multiprocessing.Queue(maxsize=1)
+        self.receivingQueue = multiprocessing.Queue(maxsize=1)
+        process = multiprocessing.Process(target=self._go, args=(self.addOnCls, self.receivingQueue, self.sendingQueue))
+        process.start()
 
     @staticmethod
-    def _go(addOn, queue):
-        sim = SIM()
+    def _go(addOnCls, sendingQueueForAddOn, receivingQueueForAddOn):
+        sim = SIMAddOnSide(sendingQueueForAddOn, receivingQueueForAddOn)
+        addOn = addOnCls()
         addOn.go(sim)
-        queue.put(sim.message)
-        
+
+    def _handleMessage(self):
+        try:
+            message = self.receivingQueue.get(block=False)
+        except queue.Empty:
+            return
+
+        if self.message == Message.MOVE:
+            self.robot.move()
+        elif self.message == Message.ROTATE:
+            self.robot.rotate()
+        elif self.message == Message.GETPOS:
+            self.robot.getPos()
+        elif self.message == Message.SENSEBLOB:
+            # ask floor
+            pass
+        elif self.message == Message.SENSEHAZARD:
+            # ask floor
+            pass
+        else:
+            raise Exception("Unknown message from addOn")
+
+        self.patienceMeter = 0
+
+    def robotReturn(self, ret):
+        self.sendingQueue.put(ret)
+
+class SIMAddOnSide:
+    def __init__(self, sendingQueue, receivingQueue):
+        self.sendingQueue = sendingQueue
+        self.receivingQueue = receivingQueue
+
+    def move(self):
+        self.sendingQueue.put(Message.MOVE)
+        return self._returnRobotMessage()
+
+    def rotate(self):
+        self.sendingQueue.put(Message.ROTATE)
+        return self._returnRobotMessage()
+
+    def getPos(self):
+        self.sendingQueue.put(Message.GETPOS)
+        return self._returnRobotMessage()
+
+    def senseBlob(self):
+        self.sendingQueue.put(Message.SENSEBLOB)
+        return self._returnRobotMessage()
+
+    def senseHazard(self):
+        self.sendingQueue.put(Message.SENSEHAZARD)
+        return self._returnRobotMessage()
+
+    def _returnRobotMessage(self):
+        return self.receivingQueue.get()

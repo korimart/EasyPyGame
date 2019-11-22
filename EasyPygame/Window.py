@@ -15,7 +15,6 @@ class Window:
     def run(self, inputManager, sceneManager):
         fpsClock = pygame.time.Clock()
         while True:
-            self.displaySurface.fill((255, 255, 255))
             # self.displaySurface.fill((0, 0, 0))
             events = pygame.event.get()
             for event in events:
@@ -41,6 +40,7 @@ class Window:
             sceneManager.update()
             sceneManager.currentScene.update(ms)
             sceneManager.currentScene.preRender(ms)
+            self.displaySurface.fill((255, 255, 255))
             sceneManager.currentScene.render(ms)
             sceneManager.currentScene.postRender(ms)
             pygame.display.update()

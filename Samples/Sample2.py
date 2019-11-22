@@ -91,9 +91,9 @@ class Scene1(EasyPygame.Components.Scene):
 
             # 1234leftIdle, 5678leftRun, 9101112rightIdle, 13141516rightRun
             character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 2, 3, 4]))
-            character.FSM.attachConcurrentState(2, SpriteAnimState(500, [5, 6, 7, 8]))
+            character.FSM.attachConcurrentState(2, SpriteAnimState(250, [5, 6, 7, 8]))
             character.FSM.attachConcurrentState(3, SpriteAnimState(500, [9, 10, 11, 12]))
-            character.FSM.attachConcurrentState(4, SpriteAnimState(500, [13, 14, 15, 16]))
+            character.FSM.attachConcurrentState(4, SpriteAnimState(250, [13, 14, 15, 16]))
 
             character.FSM.switchState(1, 0)
             character.rect.x = 100 * j
