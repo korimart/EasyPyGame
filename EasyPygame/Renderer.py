@@ -1,13 +1,68 @@
 from OpenGL.GL import *
+import glm
+import numpy as np
+
+VSHADER = """
+#version 330
+
+layout(location=0) in vec4 pos;
+
+uniform mat4 mvp;
+
+void main(){
+    gl_Position = mvp * pos;
+}
+"""
+
+FSHADER_COLOR = """
+#version 330
+
+out vec4 fColor;
+
+uniform vec4 color;
+
+void main(){
+    fColor = color;
+}
+"""
+
+quadPositions = np.array([
+    1.0, 1.0,
+    1.0, -1.0,
+    -1.0, 1.0,
+    -1.0, -1.0
+], dtype='float32')
 
 class RendererOpenGL:
     def __init__(self, displaySurf, resManager):
         self.surface = displaySurf
         self.resManager = resManager
+        self.colorProgram = None
+        self.quadVBO = None
+
         glClearColor(1.0, 1.0, 1.0, 1.0)
+        self._initPrograms()
+        self.colorMVPIndex = glGetUniformLocation(self.colorProgram, "mvp")
+        self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
+
+
+        self._initBuffers()
 
     def renderDefault(self, worldRect, camera, color, name):
-        pass
+        glUseProgram(self.colorProgram)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+
+        mvpMat = glm.mat4()
+        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x / 50, worldRect.y / 50, 0))
+        vMat = glm.lookAt(glm.vec3(camera.pos[0], camera.pos[1], camera.distance), glm.vec3(camera.pos[0], camera.pos[1], 0), glm.vec3(0, 1, 0))
+        pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
+        mvpMat = pMat * vMat * mvpMat
+
+        glUniformMatrix4fv(self.colorMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        glUniform4f(self.colorColorIndex, color[0] / 255, color[1] / 255, color[2] / 255, 1.0)
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     def renderTextured(self, worldRect, camera, textureView):
         pass
@@ -26,6 +81,39 @@ class RendererOpenGL:
 
     def clear(self):
         glClear(GL_COLOR_BUFFER_BIT)
+
+    @staticmethod
+    def _createShader(shaderType, source):
+        shader = glCreateShader(shaderType)
+        glShaderSource(shader, source)
+        glCompileShader(shader)
+        return shader
+
+    @staticmethod
+    def _createProgram(vshader, fshader):
+        program = glCreateProgram()
+        glAttachShader(program, vshader)
+        glAttachShader(program, fshader)
+        glLinkProgram(program)
+        glDetachShader(program, vshader)
+        glDetachShader(program, fshader)
+        return program
+
+    def _initPrograms(self):
+        vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
+        fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
+
+        self.colorProgram = self._createProgram(vshader, fshader_color)
+        glDeleteShader(vshader)
+        glDeleteShader(fshader_color)
+
+    def _initBuffers(self):
+        self.quadVBO = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_STATIC_DRAW)
+        glEnableVertexAttribArray(0)
+
+
 
 # class Renderer:
 #     def __init__(self, displaySurf, resManager):

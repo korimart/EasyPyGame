@@ -53,11 +53,11 @@ class Scene1(EasyPygame.Components.Scene):
             EasyPygame.consume("RETURN")
             EasyPygame.nextScene("Scene1", "Scene2")
         if EasyPygame.isDown("KP9"):
-            self.camera.setDistanceDelta(0.001 * ms)
+            self.camera.setDistanceDelta(0.005 * ms)
         if EasyPygame.isDown("KP7"):
-            self.camera.setDistanceDelta(-0.001 * ms)
+            self.camera.setDistanceDelta(-0.005 * ms)
         if EasyPygame.isDown1stTime("KP5"):
-            self.camera.setDistance(1)
+            self.camera.setDistance(5)
             self.camera.moveTo(0, 0)
         if EasyPygame.isDown("KP4"):
             self.camera.move((-0.1 * ms, 0))

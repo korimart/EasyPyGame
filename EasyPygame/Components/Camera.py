@@ -3,8 +3,8 @@ import EasyPygame
 class Camera:
     def __init__(self, initPos=[0, 0]):
         self.pos = initPos
-        self.distance = 1
-    
+        self.distance = 5
+
     def setDistanceDelta(self, delta):
         if (self.distance + delta > 0.3):
             self.distance += delta
