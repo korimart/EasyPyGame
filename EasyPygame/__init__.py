@@ -22,7 +22,7 @@ class IApp(ABC):
 def initWindow(width, height, caption, FPS):
     global window, renderer, resManager
     window = Window.Window(width, height, caption, FPS)
-    renderer = Renderer.Renderer(window.displaySurface, resManager)
+    renderer = Renderer.RendererOpenGL(window.displaySurface, resManager)
 
 def getWindowWidth():
     global window
@@ -33,8 +33,8 @@ def getWindowHeight():
     return window.height
 
 def run():
-    global window, inputManager, sceneManager
-    window.run(inputManager, sceneManager)
+    global window, inputManager, sceneManager, renderer
+    window.run(inputManager, sceneManager, renderer)
 
 def load(fileName):
     global resManager
