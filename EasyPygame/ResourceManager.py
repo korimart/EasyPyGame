@@ -1,10 +1,12 @@
 import os.path
 import json
 import pygame
+from OpenGL.GL import *
 
 class ResourceManager:
     def __init__(self):
         self.resourceDict = dict()
+        self.textureDict = dict()
         self.supportedImageList = [".jpg", ".png", ".bmp"]
         self.fontNameDict = dict()
         self.DEFAULT_FONT = "comicsansms"
@@ -20,6 +22,11 @@ class ResourceManager:
 
         if extension.lower() in self.supportedImageList:
             data = pygame.image.load(fileName)
+            textureData = pygame.image.tostring(data, "RGBA")
+            texture = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, texture)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.get_width(), data.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData)
+            self.textureDict[fileName] = texture
 
         if extension.lower() == ".json":
             with open(fileName, "r") as f:
@@ -42,6 +49,12 @@ class ResourceManager:
             return self.resourceDict[fileName]
         else:
             raise Exception("File not loaded")
+
+    def getTexture(self, fileName):
+        if fileName in self.textureDict:
+            return self.textureDict[fileName]
+        else:
+            raise Exception("Texture not loaded")
 
     def loadFont(self, fontName, size):
         fontName = "".join(fontName.split())

@@ -6,11 +6,15 @@ VSHADER = """
 #version 330
 
 layout(location=0) in vec4 pos;
+layout(location=1) in vec2 texCoord;
 
 uniform mat4 mvp;
 
+out vec2 fragTexCoord;
+
 void main(){
     gl_Position = mvp * pos;
+    fragTexCoord = texCoord;
 }
 """
 
@@ -26,11 +30,25 @@ void main(){
 }
 """
 
+FSHADER_TEXTURE = """
+#version 330
+
+in vec2 fragTexCoord;
+out vec4 fColor;
+
+uniform sampler2D sampler;
+
+void main(){
+    vec4 sampled = texture(sampler, fragTexCoord);
+    fColor = sampled;
+}
+"""
+
 quadPositions = np.array([
-    1.0, 1.0,
-    1.0, -1.0,
-    -1.0, 1.0,
-    -1.0, -1.0
+    0.5, 0.5,
+    0.5, -0.5,
+    -0.5, 0.5,
+    -0.5, -0.5
 ], dtype='float32')
 
 class RendererOpenGL:
@@ -38,13 +56,17 @@ class RendererOpenGL:
         self.surface = displaySurf
         self.resManager = resManager
         self.colorProgram = None
+        self.textureProgram = None
         self.quadVBO = None
+        self.quadTexCoords = None
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
         self._initPrograms()
         self.colorMVPIndex = glGetUniformLocation(self.colorProgram, "mvp")
         self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
-
+        self.textureMVPIndex = glGetUniformLocation(self.textureProgram, "mvp")
+        self.textureSamplerIndex = glGetUniformLocation(self.textureProgram, "sampler")
+        glUseProgram(self.textureProgram)
 
         self._initBuffers()
 
@@ -52,29 +74,51 @@ class RendererOpenGL:
         glUseProgram(self.colorProgram)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+        glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
         mvpMat = glm.mat4()
-        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x / 50, worldRect.y / 50, 0))
+        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x, worldRect.y, 0))
+        mvpMat = glm.scale(mvpMat, glm.vec3(worldRect.width, worldRect.height, 1))
         vMat = glm.lookAt(glm.vec3(camera.pos[0], camera.pos[1], camera.distance), glm.vec3(camera.pos[0], camera.pos[1], 0), glm.vec3(0, 1, 0))
         pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
         mvpMat = pMat * vMat * mvpMat
 
         glUniformMatrix4fv(self.colorMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
-        glUniform4f(self.colorColorIndex, color[0] / 255, color[1] / 255, color[2] / 255, 1.0)
+        glUniform4f(self.colorColorIndex, color[0], color[1], color[2], 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     def renderTextured(self, worldRect, camera, textureView):
-        pass
+        texture = self.resManager.getTexture(textureView.texture)
+        glUseProgram(self.textureProgram)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        texCoords = np.array([
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            0.0, 1.0
+        ], dtype='float32')
+        glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)
+        glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
-    def drawImage(self, imageName, screenRect, imageRect=None, halign="center"):
-        pass
+        mvpMat = glm.mat4()
+        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x, worldRect.y, 0))
+        mvpMat = glm.scale(mvpMat, glm.vec3(worldRect.width, worldRect.height, 1))
+        vMat = glm.lookAt(glm.vec3(camera.pos[0], camera.pos[1], camera.distance), glm.vec3(camera.pos[0], camera.pos[1], 0), glm.vec3(0, 1, 0))
+        pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
+        mvpMat = pMat * vMat * mvpMat
 
-    def drawStretchedImage(self, imageName, screenRect, imageRect=None):
-        pass
+        glUniformMatrix4fv(self.textureMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        glBindTexture(GL_TEXTURE_2D, texture)
 
-    def drawRect(self, color, rect):
-        pass
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass
@@ -102,10 +146,13 @@ class RendererOpenGL:
     def _initPrograms(self):
         vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
         fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
+        fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
 
         self.colorProgram = self._createProgram(vshader, fshader_color)
+        self.textureProgram = self._createProgram(vshader, fshader_texture)
         glDeleteShader(vshader)
         glDeleteShader(fshader_color)
+        glDeleteShader(fshader_texture)
 
     def _initBuffers(self):
         self.quadVBO = glGenBuffers(1)
@@ -113,6 +160,10 @@ class RendererOpenGL:
         glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_STATIC_DRAW)
         glEnableVertexAttribArray(0)
 
+        self.quadTexCoords = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_DYNAMIC_DRAW)
+        glEnableVertexAttribArray(1)
 
 
 # class Renderer:

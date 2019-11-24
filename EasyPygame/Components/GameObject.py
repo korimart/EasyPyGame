@@ -4,7 +4,7 @@ from EasyPygame.Components import FSM
 
 class GameObject:
     def __init__(self, scene, name="GameObject"):
-        self.rect = EasyPygame.Rect(0, 0, 100, 100)
+        self.rect = EasyPygame.Rect(0, 0, 1, 1)
 
         self.textureViewList = [TextureView.InvisibleTextureView()]
         self.FSM = FSM.FSM(self)
@@ -36,7 +36,7 @@ class GameObject:
 
     def disable(self):
         self.FSM.switchState(0, 0)
-    
+
     def enable(self, stateIndex):
         self.FSM.switchState(stateIndex, 0)
 

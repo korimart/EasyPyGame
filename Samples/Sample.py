@@ -28,22 +28,22 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1.addTextureView(DefaultTextureView())
         self.testObj1.FSM.addState(GameObjectState(1))
         self.testObj1.FSM.switchState(1, 0)
-        self.testObj1.rect.x = -150
-        self.testObj1.rect.y = -100
+        self.testObj1.rect.x = -1
+        self.testObj1.rect.y = -1
         self.testObj1.z = -1
 
         self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
-        self.testObj2.addTextureView(DefaultTextureView((255, 0, 0)))
+        self.testObj2.addTextureView(DefaultTextureView((1, 0, 0)))
         self.testObj2.FSM.addState(GameObjectState(1))
         self.testObj2.FSM.switchState(1, 0)
-        self.testObj2.rect.x = -150
-        self.testObj2.rect.y = -150
-        self.testObj2.rect.width = 200
+        self.testObj2.rect.x = -1
+        self.testObj2.rect.y = -2
+        self.testObj2.rect.width = 2
         self.testObj2.z = 1
 
         self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
-        self.button.rect.x = 150
-        self.button.rect.y = -150
+        self.button.rect.x = 2
+        self.button.rect.y = -2
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
@@ -57,16 +57,15 @@ class Scene1(EasyPygame.Components.Scene):
         if EasyPygame.isDown("KP7"):
             self.camera.setDistanceDelta(-0.005 * ms)
         if EasyPygame.isDown1stTime("KP5"):
-            self.camera.setDistance(5)
-            self.camera.moveTo(0, 0)
+            self.camera.reset()
         if EasyPygame.isDown("KP4"):
-            self.camera.move((-0.1 * ms, 0))
+            self.camera.move((-0.01 * ms, 0))
         if EasyPygame.isDown("KP8"):
-            self.camera.move((0, 0.1 * ms))
+            self.camera.move((0, 0.01 * ms))
         if EasyPygame.isDown("KP6"):
-            self.camera.move((0.1 * ms, 0))
+            self.camera.move((0.01 * ms, 0))
         if EasyPygame.isDown("KP2"):
-            self.camera.move((0, -0.1 * ms))
+            self.camera.move((0, -0.01 * ms))
 
     def onUnLoad(self):
         EasyPygame.unload("Carrot.jpg")
@@ -80,7 +79,7 @@ class Scene2(EasyPygame.Components.Scene):
 
     def onLoad(self):
         self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
-        self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((255, 0, 0)))
+        self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((1, 0, 0)))
 
         # first parameter is gameObjectStateIndex to attach state to.
         # second parameter is an concurrent state
@@ -91,8 +90,8 @@ class Scene2(EasyPygame.Components.Scene):
 
         self.textbox = EasyPygame.Components.GUI.TextBox(self, "textbox1", "Click me to type:")
         self.textbox.rect.x = 0
-        self.textbox.rect.y = 100
-        self.textbox.rect.width = 400
+        self.textbox.rect.y = 1
+        self.textbox.rect.width = 4
 
     def postRender(self, ms):
         EasyPygame.pprint("This is Scene2", 0, 0)

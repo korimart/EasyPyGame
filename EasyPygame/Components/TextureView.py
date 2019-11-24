@@ -19,7 +19,7 @@ class TextureView:
             gameObject.rect.copy(), camera, self)
 
 class DefaultTextureView:
-    def __init__(self, color=(0, 0, 255)):
+    def __init__(self, color=(0, 0, 1.0)):
         self.color = color
 
     def render(self, gameObject, camera):
