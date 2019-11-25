@@ -164,7 +164,7 @@ class RendererOpenGL:
             glBindTexture(GL_TEXTURE_2D, texture)
             self.currBoundTex = texture
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
@@ -177,15 +177,15 @@ class RendererOpenGL:
             texRect.x, texRect.y + texRect.height
         ]
 
-        texCoords = array('f', a).tobytes()
-
         if textureView.flipX:
-            texCoords[0], texCoords[1], texCoords[4], texCoords[5] = texCoords[4], texCoords[5], texCoords[0], texCoords[1]
-            texCoords[2], texCoords[3], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[2], texCoords[3]
+            a[0], a[1], a[4], a[5] = a[4], a[5], a[0], a[1]
+            a[2], a[3], a[6], a[7] = a[6], a[7], a[2], a[3]
 
         if textureView.flipY:
-            texCoords[0], texCoords[1], texCoords[2], texCoords[3] = texCoords[2], texCoords[3], texCoords[0], texCoords[1]
-            texCoords[4], texCoords[5], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[4], texCoords[5]
+            a[0], a[1], a[2], a[3] = a[2], a[3], a[0], a[1]
+            a[4], a[5], a[6], a[7] = a[6], a[7], a[4], a[5]
+
+        texCoords = array('f', a).tobytes()
 
         glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
         glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)

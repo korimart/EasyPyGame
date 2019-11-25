@@ -33,7 +33,7 @@ class TileTextureView(TextureView):
         x = round((camPos[0] - self.pivot[0]) / rt.width) * rt.width + self.pivot[0]
         y = round((camPos[1] - self.pivot[1]) / rt.height) * rt.height + self.pivot[1]
         dd = 2 * gameObject.scene.camera.distance
-        n = max(dd / rt.width, dd / rt.height) + 2
+        n = max(dd / rt.width, dd / rt.height) + 3
         EasyPygame.renderer.renderTexInstancedCluster((x, y), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
     def setN(self, n):
