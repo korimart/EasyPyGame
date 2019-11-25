@@ -25,10 +25,10 @@ class idle(GameObjectState):
 
 class run(GameObjectState):
     DELTA = {
-        "w" : (0, 0.1),
-        "a" : (-0.1, 0),
-        "s" : (0, -0.1),
-        "d" : (0.1, 0)
+        "w" : (0, 0.01),
+        "a" : (-0.01, 0),
+        "s" : (0, -0.01),
+        "d" : (0.01, 0)
     }
     def __init__(self, key, otherKey, idleIndex, otherRunIndex):
         super().__init__(0, -1)
@@ -41,8 +41,8 @@ class run(GameObjectState):
         isIdle = True
         for key in [self.key, "s", "w"]:
             if EasyPygame.isDown(key):
-                gameObject.rect.x += int(self.DELTA[key][0] * ms)
-                gameObject.rect.y += int(self.DELTA[key][1] * ms)
+                gameObject.rect.x += self.DELTA[key][0] * ms
+                gameObject.rect.y += self.DELTA[key][1] * ms
                 isIdle = False
 
         if isIdle:
@@ -65,22 +65,22 @@ class Scene1(EasyPygame.Components.Scene):
             character = GameObject(self, "Character")
 
             for i in range(4):
-                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
                 character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
                     imageRect, flipX=True))
 
             for i in range(4):
-                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
                 character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect, \
                     flipX=True))
 
             for i in range(4):
-                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
                 character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
                     imageRect))
 
             for i in range(4):
-                imageRect = EasyPygame.Rect(0, 12, 16, 16)
+                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
                 character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect))
 
             # 1: leftIdle, 2: leftRun, 3:rightIdle, 4:rightRun
@@ -96,7 +96,7 @@ class Scene1(EasyPygame.Components.Scene):
             character.FSM.attachConcurrentState(4, SpriteAnimState(250, [13, 14, 15, 16]))
 
             character.FSM.switchState(1, 0)
-            character.rect.x = 100 * j
+            character.rect.x = j
             self.characters.append(character)
 
     def preRender(self, ms):

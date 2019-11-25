@@ -40,6 +40,8 @@ uniform sampler2D sampler;
 
 void main(){
     vec4 sampled = texture(sampler, fragTexCoord);
+    if (sampled.a < 1.0)
+        discard;
     fColor = sampled;
 }
 """
@@ -94,12 +96,22 @@ class RendererOpenGL:
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
-        texCoords = np.array([
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            0.0, 1.0
-        ], dtype='float32')
+
+        texRect = textureView.imageRect
+
+        a = [
+            texRect.x + texRect.width, texRect.y,
+            texRect.x + texRect.width, texRect.y + texRect.height,
+            texRect.x, texRect.y,
+            texRect.x, texRect.y + texRect.height
+        ]
+
+        texCoords = np.array(a, dtype='float32')
+
+        if textureView.flipX:
+            texCoords[0], texCoords[1], texCoords[4], texCoords[5] = texCoords[4], texCoords[5], texCoords[0], texCoords[1]
+            texCoords[2], texCoords[3], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[2], texCoords[3]
+
         glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)
         glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 

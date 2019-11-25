@@ -5,7 +5,10 @@ class TextureView:
             cropFit=False, halign="center", relPos=(0, 0), scale=(1.0, 1.0), \
             flipX=False, flipY=False):
         self.texture = texture
-        self.imageRect = imageRect
+        if not imageRect:
+            self.imageRect = EasyPygame.Rect(0, 0, 1, 1)
+        else:
+            self.imageRect = imageRect
         self.stretchFit = stretchFit
         self.cropFit = cropFit
         self.relPos = relPos

@@ -19,6 +19,16 @@ class IApp(ABC):
     def render(self, ms):
         pass
 
+class EasyPygameRect:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def copy(self):
+        return EasyPygameRect(self.x, self.y, self.width, self.height)
+
 def initWindow(width, height, caption, FPS):
     global window, renderer, resManager
     window = Window.Window(width, height, caption, FPS)
@@ -45,7 +55,7 @@ def unload(fileName):
     resManager.unload(fileName)
 
 def Rect(x, y, width, height):
-    return pygame.Rect(x, y, width, height)
+    return EasyPygameRect(x, y, width, height)
 
 def drawRect(color, rect):
     global renderer
