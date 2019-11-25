@@ -18,6 +18,30 @@ void main(){
 }
 """
 
+VSHADER_INSTANCEDPOS = """
+#version 330
+
+layout(location=0) in vec4 pos;
+layout(location=1) in vec2 texCoord;
+
+uniform mat4 m;
+uniform mat4 vp;
+uniform float width;
+uniform float height;
+uniform uint numInRow;
+
+out vec2 fragTexCoord;
+
+void main(){
+    vec4 leftTop = m * pos;
+    leftTop.x += (gl_InstanceID % numInRow) * width;
+    leftTop.y += (gl_InstanceID / numInRow) * height;
+
+    gl_Position = vp * leftTop;
+    fragTexCoord = texCoord;
+}
+"""
+
 FSHADER_COLOR = """
 #version 330
 
@@ -57,10 +81,19 @@ class RendererOpenGL:
     def __init__(self, displaySurf, resManager):
         self.surface = displaySurf
         self.resManager = resManager
-        self.currBoundTex = None
-        self.currBoundProg = None
+
+        self.toRenderDefaults = []
+        self.toRenderTextured = []
+        self.toRenderTexInstancedPos = []
+
+        self.pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
+        self.vpMat = None
+        
         self.colorProgram = None
         self.textureProgram = None
+        self.texInstancedPosProgram = None
+
+        self.currBoundTex = None
         self.quadVBO = None
         self.quadTexCoords = None
 
@@ -70,6 +103,12 @@ class RendererOpenGL:
         self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
         self.textureMVPIndex = glGetUniformLocation(self.textureProgram, "mvp")
         self.textureSamplerIndex = glGetUniformLocation(self.textureProgram, "sampler")
+        self.TIPmIndex = glGetUniformLocation(self.texInstancedPosProgram, "m")
+        self.TIPvpIndex = glGetUniformLocation(self.texInstancedPosProgram, "vp")
+        self.TIPwidthIndex = glGetUniformLocation(self.texInstancedPosProgram, "width")
+        self.TIPheightIndex = glGetUniformLocation(self.texInstancedPosProgram, "height")
+        self.TIPnumInRowIndex = glGetUniformLocation(self.texInstancedPosProgram, "numInRow")
+        self.TIPsamplerIndex = glGetUniformLocation(self.texInstancedPosProgram, "sampler")
 
         self._initBuffers()
         glUseProgram(self.colorProgram)
@@ -79,23 +118,47 @@ class RendererOpenGL:
         glUseProgram(self.textureProgram)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+        glUseProgram(self.texInstancedPosProgram)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
 
-    def renderDefault(self, worldRect, camera, color, name):
-        if self.currBoundProg != self.colorProgram:
+    def render(self, camera):
+        self.vpMat = self.pMat * self._calcVMat(camera)
+
+        if self.toRenderTexInstancedPos:
+            glUseProgram(self.texInstancedPosProgram)
+            glUniformMatrix4fv(self.TIPvpIndex, 1, GL_FALSE, glm.value_ptr(self.vpMat))
+            for obj in self.toRenderTexInstancedPos:
+                self._renderTexInstancedPos(*obj)
+                self.toRenderTexInstancedPos = []
+        
+        if self.toRenderDefaults:
             glUseProgram(self.colorProgram)
-            self.currBoundProg = self.colorProgram
+            for obj in self.toRenderDefaults:
+                self._renderDefault(*obj)
+            self.toRenderDefaults = []
+        
+        if self.toRenderTextured:
+            glUseProgram(self.textureProgram)
+            for obj in self.toRenderTextured:
+                self._renderTextured(*obj)
+            self.toRenderTextured = []
 
-        mvpMat = self._calcMVPMat(worldRect, camera)
+    def _renderDefault(self, worldRect, color, name):
+        worldMat = self._calcWorldMat(worldRect)
+        mvpMat = self.vpMat * worldMat
         glUniformMatrix4fv(self.colorMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
         glUniform4f(self.colorColorIndex, color[0], color[1], color[2], 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-    def renderTextured(self, worldRect, camera, textureView):
-        if self.currBoundProg != self.textureProgram:
-            glUseProgram(self.textureProgram)
-            self.currBoundProg = self.textureProgram
+    def renderDefault(self, worldRect, color, name):
+        self.toRenderDefaults.append((worldRect, color, name))
 
+    def renderTextured(self, worldRect, textureView):
+        self.toRenderTextured.append((worldRect, textureView))
+
+    def _textureUploadAttributes(self, textureView):
         texture = self.resManager.getTexture(textureView.texture)
         if texture != self.currBoundTex:
             glBindTexture(GL_TEXTURE_2D, texture)
@@ -120,14 +183,42 @@ class RendererOpenGL:
             texCoords[0], texCoords[1], texCoords[4], texCoords[5] = texCoords[4], texCoords[5], texCoords[0], texCoords[1]
             texCoords[2], texCoords[3], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[2], texCoords[3]
 
+        if textureView.flipY:
+            texCoords[0], texCoords[1], texCoords[2], texCoords[3] = texCoords[2], texCoords[3], texCoords[0], texCoords[1]
+            texCoords[4], texCoords[5], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[4], texCoords[5]
+
         glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
         glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)
         glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
-        mvpMat = self._calcMVPMat(worldRect, camera)
+    def _renderTextured(self, worldRect, textureView):
+        self._textureUploadAttributes(textureView)
+
+        mvpMat = self.vpMat * self._calcWorldMat(worldRect)
         glUniformMatrix4fv(self.textureMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+
+    def renderTexInstancedPos(self, center, width, height, textureView, n):
+        self.toRenderTexInstancedPos.append((center, width, height, textureView, n))
+
+    def _renderTexInstancedPos(self, center, width, height, textureView, n):
+        self._textureUploadAttributes(textureView)
+        
+        if n < 1:
+            return
+        tilePos = n // 2
+
+        x = center[0] - width * tilePos
+        y = center[1] + height * tilePos
+        m = glm.translate(glm.mat4(), glm.vec3(x, y, 0))
+        
+        glUniformMatrix4fv(self.TIPmIndex, 1, GL_FALSE, glm.value_ptr(m))
+        glUniform1f(self.TIPwidthIndex, width)
+        glUniform1f(self.TIPheightIndex, height)
+        glUniform1ui(self.TIPnumInRowIndex, n)
+
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, n * n)
 
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass
@@ -154,12 +245,15 @@ class RendererOpenGL:
 
     def _initPrograms(self):
         vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
+        vshader_insPos = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCEDPOS)
         fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
         fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
 
         self.colorProgram = self._createProgram(vshader, fshader_color)
         self.textureProgram = self._createProgram(vshader, fshader_texture)
+        self.texInstancedPosProgram = self._createProgram(vshader_insPos, fshader_texture)
         glDeleteShader(vshader)
+        glDeleteShader(vshader_insPos)
         glDeleteShader(fshader_color)
         glDeleteShader(fshader_texture)
 
@@ -182,6 +276,15 @@ class RendererOpenGL:
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
         pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
         return pMat * vMat * mvpMat
+
+    def _calcWorldMat(self, worldRect):
+        worldMat = glm.mat4()
+        worldMat = glm.translate(worldMat, glm.vec3(worldRect.x, worldRect.y, 0))
+        return glm.scale(worldMat, glm.vec3(worldRect.width, worldRect.height, 1))
+
+    def _calcVMat(self, constCamera):
+        return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
+            glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
 
 
 # class Renderer:

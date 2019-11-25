@@ -42,6 +42,7 @@ class Window:
             sceneManager.currentScene.preRender(ms)
             renderer.clear()
             sceneManager.currentScene.render(ms)
+            renderer.render(sceneManager.currentScene.camera)
             sceneManager.currentScene.postRender(ms)
             pygame.display.flip()
             inputManager.tick()

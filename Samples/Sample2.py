@@ -56,48 +56,43 @@ class Scene1(EasyPygame.Components.Scene):
         self.character = None
 
     def onLoad(self):
-        for i in range(4):
-            EasyPygame.load("elf_f_idle_anim_f" + str(i) + ".png")
-            EasyPygame.load("elf_f_run_anim_f" + str(i) + ".png")
+        EasyPygame.load("animated.png")
 
         self.characters = []
-        for j in range(3):
-            character = GameObject(self, "Character")
+        self.tileMap = GameObject(self, "TileMap")
+        imageRect = EasyPygame.Rect(0.25, 0.03125, 0.03125, 0.03125)
+        self.tileMap.addTextureView(TileTextureView("animated.png", imageRect, n=3))
+        self.tileMap.FSM.addState(GameObjectState(1))
+        self.tileMap.FSM.switchState(1, 0)
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
-                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
-                    imageRect, flipX=True))
+        # for j in range(3):
+        #     character = GameObject(self, "Character")
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
-                character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect, \
-                    flipX=True))
+        #     for i in range(4):
+        #         imageRect = EasyPygame.Rect(0.25 + 0.03125 * i, 0.03125, 0.03125, 0.03125)
+        #         character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
+        #         character.addTextureView(TextureView("animated.png", imageRect))
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
-                character.addTextureView(TextureView("elf_f_idle_anim_f" + str(i) + ".png", \
-                    imageRect))
+        #     for i in range(4):
+        #         imageRect = EasyPygame.Rect(0.25 + 0.03125 * (i + 4), 0.03125, 0.03125, 0.03125)
+        #         character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
+        #         character.addTextureView(TextureView("animated.png", imageRect))
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(0, 0.25, 1, 0.75)
-                character.addTextureView(TextureView("elf_f_run_anim_f" + str(i) + ".png", imageRect))
+        #     # 1: leftIdle, 2: rightIdle, 3:leftRun, 4:rightRun
+        #     character.FSM.addState(idle("a", "d", 3, 4))
+        #     character.FSM.addState(idle("d", "a", 4, 3))
+        #     character.FSM.addState(run("a", "d", 1, 4))
+        #     character.FSM.addState(run("d", "a", 2, 3))
 
-            # 1: leftIdle, 2: leftRun, 3:rightIdle, 4:rightRun
-            character.FSM.addState(idle("a", "d", 2, 4))
-            character.FSM.addState(run("a", "d", 1, 4))
-            character.FSM.addState(idle("d", "a", 4, 2))
-            character.FSM.addState(run("d", "a", 3, 2))
+        #     # 1357LeftIdle, 2468RightIdle, 9111315LeftRun, 10121416RightRun
+        #     character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 3, 5, 7]))
+        #     character.FSM.attachConcurrentState(2, SpriteAnimState(500, [2, 4, 6, 8]))
+        #     character.FSM.attachConcurrentState(3, SpriteAnimState(250, [9, 11, 13, 15]))
+        #     character.FSM.attachConcurrentState(4, SpriteAnimState(250, [10, 12, 14, 16]))
 
-            # 1234leftIdle, 5678leftRun, 9101112rightIdle, 13141516rightRun
-            character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 2, 3, 4]))
-            character.FSM.attachConcurrentState(2, SpriteAnimState(250, [5, 6, 7, 8]))
-            character.FSM.attachConcurrentState(3, SpriteAnimState(500, [9, 10, 11, 12]))
-            character.FSM.attachConcurrentState(4, SpriteAnimState(250, [13, 14, 15, 16]))
-
-            character.FSM.switchState(1, 0)
-            character.rect.x = j
-            self.characters.append(character)
+        #     character.FSM.switchState(1, 0)
+        #     character.rect.x = j
+        #     self.characters.append(character)
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
@@ -120,9 +115,7 @@ class Scene1(EasyPygame.Components.Scene):
             self.camera.move((0, -0.01 * ms))
 
     def onUnLoad(self):
-        for i in range(4):
-            EasyPygame.unLoad("elf_f_idle_anim_f" + str(i) + ".png")
-            EasyPygame.unLoad("elf_f_run_anim_f" + str(i) + ".png")
+        EasyPygame.unload("animated.png")
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ class GameObject:
         pass
 
     def render(self, ms):
-        self.textureViewList[self.textureViewIndex].render(self, self.scene.camera)
+        self.textureViewList[self.textureViewIndex].render(self)
 
     def addTextureView(self, textureView):
         self.textureViewList.append(textureView)

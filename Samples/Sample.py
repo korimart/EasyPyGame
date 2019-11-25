@@ -18,7 +18,7 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
         self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg", scale=(1.0, 2.0)))
+        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
 
         # carrot will switch between textureview 0 and 1 when moving left and right
         self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1))
