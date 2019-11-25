@@ -57,6 +57,8 @@ class RendererOpenGL:
     def __init__(self, displaySurf, resManager):
         self.surface = displaySurf
         self.resManager = resManager
+        self.currBoundTex = None
+        self.currBoundProg = None
         self.colorProgram = None
         self.textureProgram = None
         self.quadVBO = None
@@ -68,34 +70,40 @@ class RendererOpenGL:
         self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
         self.textureMVPIndex = glGetUniformLocation(self.textureProgram, "mvp")
         self.textureSamplerIndex = glGetUniformLocation(self.textureProgram, "sampler")
-        glUseProgram(self.textureProgram)
 
         self._initBuffers()
-
-    def renderDefault(self, worldRect, camera, color, name):
         glUseProgram(self.colorProgram)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
         glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
+        glUseProgram(self.textureProgram)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
 
-        mvpMat = glm.mat4()
-        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x, worldRect.y, 0))
-        mvpMat = glm.scale(mvpMat, glm.vec3(worldRect.width, worldRect.height, 1))
-        vMat = glm.lookAt(glm.vec3(camera.pos[0], camera.pos[1], camera.distance), glm.vec3(camera.pos[0], camera.pos[1], 0), glm.vec3(0, 1, 0))
-        pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
-        mvpMat = pMat * vMat * mvpMat
+    def renderDefault(self, worldRect, camera, color, name):
+        if self.currBoundProg != self.colorProgram:
+            glUseProgram(self.colorProgram)
+            self.currBoundProg = self.colorProgram
 
+        mvpMat = self._calcMVPMat(worldRect, camera)
         glUniformMatrix4fv(self.colorMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
         glUniform4f(self.colorColorIndex, color[0], color[1], color[2], 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     def renderTextured(self, worldRect, camera, textureView):
+        if self.currBoundProg != self.textureProgram:
+            glUseProgram(self.textureProgram)
+            self.currBoundProg = self.textureProgram
+
         texture = self.resManager.getTexture(textureView.texture)
-        glUseProgram(self.textureProgram)
-        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
-        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
-        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        if texture != self.currBoundTex:
+            glBindTexture(GL_TEXTURE_2D, texture)
+            self.currBoundTex = texture
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
         texRect = textureView.imageRect
 
@@ -112,23 +120,12 @@ class RendererOpenGL:
             texCoords[0], texCoords[1], texCoords[4], texCoords[5] = texCoords[4], texCoords[5], texCoords[0], texCoords[1]
             texCoords[2], texCoords[3], texCoords[6], texCoords[7] = texCoords[6], texCoords[7], texCoords[2], texCoords[3]
 
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
         glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)
         glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
-        mvpMat = glm.mat4()
-        mvpMat = glm.translate(mvpMat, glm.vec3(worldRect.x, worldRect.y, 0))
-        mvpMat = glm.scale(mvpMat, glm.vec3(worldRect.width, worldRect.height, 1))
-        vMat = glm.lookAt(glm.vec3(camera.pos[0], camera.pos[1], camera.distance), glm.vec3(camera.pos[0], camera.pos[1], 0), glm.vec3(0, 1, 0))
-        pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
-        mvpMat = pMat * vMat * mvpMat
-
+        mvpMat = self._calcMVPMat(worldRect, camera)
         glUniformMatrix4fv(self.textureMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
-        glBindTexture(GL_TEXTURE_2D, texture)
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
@@ -176,6 +173,15 @@ class RendererOpenGL:
         glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
         glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(1)
+
+    def _calcMVPMat(self, cosntRect, constCamera):
+        mvpMat = glm.mat4()
+        mvpMat = glm.translate(mvpMat, glm.vec3(cosntRect.x, cosntRect.y, 0))
+        mvpMat = glm.scale(mvpMat, glm.vec3(cosntRect.width, cosntRect.height, 1))
+        vMat = glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
+            glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
+        pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
+        return pMat * vMat * mvpMat
 
 
 # class Renderer:

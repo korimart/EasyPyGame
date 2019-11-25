@@ -2,7 +2,7 @@ import EasyPygame
 
 class TextureView:
     def __init__(self, texture, imageRect=None, stretchFit=True,           \
-            cropFit=False, halign="center", relPos=(0, 0), scale=(1.0, 1.0), \
+            cropFit=False, halign="center", \
             flipX=False, flipY=False):
         self.texture = texture
         if not imageRect:
@@ -11,9 +11,7 @@ class TextureView:
             self.imageRect = imageRect
         self.stretchFit = stretchFit
         self.cropFit = cropFit
-        self.relPos = relPos
         self.halign = halign
-        self.scale = scale
         self.flipX = flipX
         self.flipY = flipY
 
