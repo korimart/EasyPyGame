@@ -12,7 +12,6 @@ class GameObject:
 
         self.scene = scene
         self.name = name
-        self.z = 0
         scene.addGameObject(self)
 
     def update(self, ms):
@@ -48,7 +47,7 @@ class GameObject:
             return False
 
     def __eq__(self, other):
-        return self.z == other.z
+        return self.rect.z == other.rect.z
 
     def __lt__(self, other):
-        return self.z < other.z
+        return self.rect.z < other.rect.z

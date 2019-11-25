@@ -1,6 +1,6 @@
+from array import array
 from OpenGL.GL import *
 import glm
-import numpy as np
 
 VSHADER = """
 #version 330
@@ -28,14 +28,14 @@ uniform mat4 m;
 uniform mat4 vp;
 uniform float width;
 uniform float height;
-uniform uint numInRow;
+uniform int numInRow;
 
 out vec2 fragTexCoord;
 
 void main(){
     vec4 leftTop = m * pos;
     leftTop.x += (gl_InstanceID % numInRow) * width;
-    leftTop.y += (gl_InstanceID / numInRow) * height;
+    leftTop.y -= (gl_InstanceID / numInRow) * height;
 
     gl_Position = vp * leftTop;
     fragTexCoord = texCoord;
@@ -70,12 +70,12 @@ void main(){
 }
 """
 
-quadPositions = np.array([
+quadPositions = array('f', [
     0.5, 0.5,
     0.5, -0.5,
     -0.5, 0.5,
     -0.5, -0.5
-], dtype='float32')
+]).tobytes()
 
 class RendererOpenGL:
     def __init__(self, displaySurf, resManager):
@@ -84,11 +84,11 @@ class RendererOpenGL:
 
         self.toRenderDefaults = []
         self.toRenderTextured = []
-        self.toRenderTexInstancedPos = []
+        self.toRenderTexInstancedCluster = []
 
         self.pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
         self.vpMat = None
-        
+
         self.colorProgram = None
         self.textureProgram = None
         self.texInstancedPosProgram = None
@@ -125,19 +125,19 @@ class RendererOpenGL:
     def render(self, camera):
         self.vpMat = self.pMat * self._calcVMat(camera)
 
-        if self.toRenderTexInstancedPos:
+        if self.toRenderTexInstancedCluster:
             glUseProgram(self.texInstancedPosProgram)
             glUniformMatrix4fv(self.TIPvpIndex, 1, GL_FALSE, glm.value_ptr(self.vpMat))
-            for obj in self.toRenderTexInstancedPos:
-                self._renderTexInstancedPos(*obj)
-                self.toRenderTexInstancedPos = []
-        
+            for obj in self.toRenderTexInstancedCluster:
+                self._renderTexInstancedCluster(*obj)
+                self.toRenderTexInstancedCluster = []
+
         if self.toRenderDefaults:
             glUseProgram(self.colorProgram)
             for obj in self.toRenderDefaults:
                 self._renderDefault(*obj)
             self.toRenderDefaults = []
-        
+
         if self.toRenderTextured:
             glUseProgram(self.textureProgram)
             for obj in self.toRenderTextured:
@@ -177,7 +177,7 @@ class RendererOpenGL:
             texRect.x, texRect.y + texRect.height
         ]
 
-        texCoords = np.array(a, dtype='float32')
+        texCoords = array('f', a).tobytes()
 
         if textureView.flipX:
             texCoords[0], texCoords[1], texCoords[4], texCoords[5] = texCoords[4], texCoords[5], texCoords[0], texCoords[1]
@@ -199,12 +199,12 @@ class RendererOpenGL:
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-    def renderTexInstancedPos(self, center, width, height, textureView, n):
-        self.toRenderTexInstancedPos.append((center, width, height, textureView, n))
+    def renderTexInstancedCluster(self, center, width, height, textureView, n):
+        self.toRenderTexInstancedCluster.append((center, width, height, textureView, n))
 
-    def _renderTexInstancedPos(self, center, width, height, textureView, n):
+    def _renderTexInstancedCluster(self, center, width, height, textureView, n):
         self._textureUploadAttributes(textureView)
-        
+
         if n < 1:
             return
         tilePos = n // 2
@@ -212,11 +212,11 @@ class RendererOpenGL:
         x = center[0] - width * tilePos
         y = center[1] + height * tilePos
         m = glm.translate(glm.mat4(), glm.vec3(x, y, 0))
-        
+
         glUniformMatrix4fv(self.TIPmIndex, 1, GL_FALSE, glm.value_ptr(m))
         glUniform1f(self.TIPwidthIndex, width)
         glUniform1f(self.TIPheightIndex, height)
-        glUniform1ui(self.TIPnumInRowIndex, n)
+        glUniform1i(self.TIPnumInRowIndex, n)
 
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, n * n)
 
@@ -231,6 +231,8 @@ class RendererOpenGL:
         shader = glCreateShader(shaderType)
         glShaderSource(shader, source)
         glCompileShader(shader)
+        error = glGetShaderInfoLog(shader)
+        print(error)
         return shader
 
     @staticmethod

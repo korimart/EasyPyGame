@@ -61,7 +61,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.characters = []
         self.tileMap = GameObject(self, "TileMap")
         imageRect = EasyPygame.Rect(0.25, 0.03125, 0.03125, 0.03125)
-        self.tileMap.addTextureView(TileTextureView("animated.png", imageRect, n=3))
+        self.tileMap.addTextureView(TileTextureView("animated.png", imageRect))
         self.tileMap.FSM.addState(GameObjectState(1))
         self.tileMap.FSM.switchState(1, 0)
 
@@ -103,8 +103,7 @@ class Scene1(EasyPygame.Components.Scene):
         if EasyPygame.isDown("KP7"):
             self.camera.setDistanceDelta(-0.005 * ms)
         if EasyPygame.isDown1stTime("KP5"):
-            self.camera.setDistance(1)
-            self.camera.moveTo(0, 0)
+            self.camera.reset()
         if EasyPygame.isDown("KP4"):
             self.camera.move((-0.01 * ms, 0))
         if EasyPygame.isDown("KP8"):

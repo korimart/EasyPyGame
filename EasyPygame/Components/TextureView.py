@@ -23,13 +23,18 @@ class TextureView:
 class TileTextureView(TextureView):
     def __init__(self, texture, imageRect=None, stretchFit=True, \
             cropFit=False, halign="center", \
-            flipX=False, flipY=False, n=1):
+            flipX=False, flipY=False, pivot=(0, 0)):
             super().__init__(texture, imageRect, stretchFit, cropFit, halign, flipX, flipY)
-            self.n = n
+            self.pivot = pivot
 
     def render(self, gameObject):
-        cam = gameObject.scene.camera
-        EasyPygame.renderer.renderTexInstancedPos(cam.pos, gameObject.rect.width, gameObject.rect.height, self, self.n)
+        camPos = gameObject.scene.camera.pos
+        rt = gameObject.rect
+        x = round((camPos[0] - self.pivot[0]) / rt.width) * rt.width + self.pivot[0]
+        y = round((camPos[1] - self.pivot[1]) / rt.height) * rt.height + self.pivot[1]
+        dd = 2 * gameObject.scene.camera.distance
+        n = max(dd / rt.width, dd / rt.height) + 2
+        EasyPygame.renderer.renderTexInstancedCluster((x, y), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
     def setN(self, n):
         if n > 0:

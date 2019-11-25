@@ -30,7 +30,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj1.FSM.switchState(1, 0)
         self.testObj1.rect.x = -1
         self.testObj1.rect.y = -1
-        self.testObj1.z = -1
+        self.testObj1.rect.z = -1
 
         self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
         self.testObj2.addTextureView(DefaultTextureView((1, 0, 0)))
@@ -39,7 +39,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.testObj2.rect.x = -1
         self.testObj2.rect.y = -2
         self.testObj2.rect.width = 2
-        self.testObj2.z = 1
+        self.testObj2.rect.z = 1
 
         self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
         self.button.rect.x = 2

@@ -23,6 +23,7 @@ class EasyPygameRect:
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
+        self.z = 0
         self.width = width
         self.height = height
 
