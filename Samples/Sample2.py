@@ -59,13 +59,24 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.load("animated.png")
 
         self.characters = []
+
         self.tileMap = GameObject(self, "TileMap")
         imageRect = EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)
         self.tileMap.addTextureView(TileTextureView("animated.png", imageRect))
         self.tileMap.FSM.addState(GameObjectState(1))
         self.tileMap.FSM.switchState(1, 0)
 
-        for j in range(100):
+        self.characterInstanced = GameObject(self, "Instancing")
+        imageRect = EasyPygame.Rect(128 / 512 + 16 / 512, 16 / 512, 16 / 512, 16 / 512)
+        self.characterInstanced.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
+        self.characterInstanced.FSM.addState(GameObjectState(1))
+        self.characterInstanced.FSM.switchState(1, 0)
+        self.characterInstanced.worldRectList = []
+        for i in range(700):
+            rect = EasyPygame.Rect(i*2, 0, 1, 1)
+            self.characterInstanced.worldRectList.append(rect)
+
+        for j in range(0):
             character = GameObject(self, "Character")
 
             for i in range(4):

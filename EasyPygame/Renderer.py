@@ -1,6 +1,7 @@
 from array import array
 from OpenGL.GL import *
 import glm
+from ctypes import c_void_p
 
 MVPINDEX = 0
 MINDEX = 0
@@ -63,6 +64,7 @@ layout(location=1) uniform mat4 vp;
 out vec2 fragTexCoord;
 
 void main(){
+    // mat4 s = m;
     gl_Position = vp * m * pos;
     fragTexCoord = texCoord;
 }
@@ -111,6 +113,7 @@ class RendererOpenGL:
         self.toRenderDefaults = []
         self.toRenderTextured = []
         self.toRenderTexInstancedCluster = []
+        self.toRenderTexInstIndivi = []
 
         self.pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
         self.vpMat = None
@@ -123,6 +126,7 @@ class RendererOpenGL:
         self.currBoundTex = None
         self.quadVBO = None
         self.quadTexCoords = None
+        self.instIndiviWorlds = None
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
         self._initPrograms()
@@ -150,7 +154,14 @@ class RendererOpenGL:
             glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
             for obj in self.toRenderTexInstancedCluster:
                 self._renderTexInstancedCluster(*obj)
-                self.toRenderTexInstancedCluster = []
+            self.toRenderTexInstancedCluster = []
+
+        if self.toRenderTexInstIndivi:
+            glUseProgram(self.texInsIndiviProg)
+            glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
+            for obj in self.toRenderTexInstIndivi:
+                self._renderTexInstancedIndivi(*obj)
+            self.toRenderTexInstIndivi = []
 
         if self.toRenderDefaults:
             glUseProgram(self.colorProgram)
@@ -242,7 +253,34 @@ class RendererOpenGL:
 
     def _renderTexInstancedIndivi(self, worldRectList, textureView):
         self._textureUploadAttributes(textureView)
-        # todo
+        a = []
+        for worldRect in worldRectList[:1000]:
+            worldMat = self._calcWorldMat(worldRect)
+            for i in range(4):
+                for j in range(4):
+                    a.append(worldMat[i][j])
+
+        data = array('f', a).tobytes()
+        
+        glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, None, data)
+    
+        size = min(len(worldRectList), 1000)
+
+        glVertexAttribPointer(2, 4, GL_FLOAT, False, 16 * 4, c_void_p(0))
+        glVertexAttribPointer(3, 4, GL_FLOAT, False, 16 * 4, c_void_p(16))
+        glVertexAttribPointer(4, 4, GL_FLOAT, False, 16 * 4, c_void_p(32))
+        glVertexAttribPointer(5, 4, GL_FLOAT, False, 16 * 4, c_void_p(48))
+
+        glVertexAttribDivisor(2, 1)
+        glVertexAttribDivisor(3, 1)
+        glVertexAttribDivisor(4, 1)
+        glVertexAttribDivisor(5, 1)
+
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, size)
+
+    def renderTexInstancedIndivi(self, worldRectList, textureView):
+        self.toRenderTexInstIndivi.append((worldRectList, textureView))
 
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass
@@ -299,8 +337,12 @@ class RendererOpenGL:
 
         self.instIndiviWorlds = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
-        glBufferData(GL_ARRAY_BUFFER, GL_FLOAT_MAT4 * 1000, None, GL_DYNAMIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, 16 * 4 * 1000, None, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(2)
+        glEnableVertexAttribArray(3)
+        glEnableVertexAttribArray(4)
+        glEnableVertexAttribArray(5)
+
 
     @staticmethod
     def _calcMVPMat(cosntRect, constCamera):
