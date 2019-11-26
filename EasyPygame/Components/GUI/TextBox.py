@@ -1,11 +1,9 @@
 import random
 
 import EasyPygame
-from EasyPygame.Components import GameObject
-from EasyPygame.Components import DefaultTextureView, TextureView
-from EasyPygame.Components import GameObjectState, SpriteAnimState
+from EasyPygame.Components import *
 
-class TextBoxUnfocused(GameObjectState):
+class TextBoxUnfocused(StaticTextureState):
     def onEnter(self, gameObject, ms):
         super().onEnter(gameObject, ms)
         EasyPygame.createTextImage(gameObject.fontName, gameObject.fontSize, \
@@ -16,7 +14,7 @@ class TextBoxUnfocused(GameObjectState):
         if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
-class TextBoxFocused(GameObjectState):
+class TextBoxFocused(StaticTextureState):
     def update(self, gameObject, ms):
         EasyPygame.createTextImage(gameObject.fontName, gameObject.fontSize, \
             gameObject.color, gameObject.textureName, gameObject.text, True, \

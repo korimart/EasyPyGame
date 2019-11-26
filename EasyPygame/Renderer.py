@@ -143,6 +143,11 @@ class RendererOpenGL:
     def render(self, camera):
         self.vpMat = self.pMat * self._calcVMat(camera)
 
+        glEnableVertexAttribArray(2)
+        glEnableVertexAttribArray(3)
+        glEnableVertexAttribArray(4)
+        glEnableVertexAttribArray(5)
+
         if self.toRenderTexInstancedCluster:
             if not self.currProgram == self.texInsClusProg:
                 self.currProgram = self.texInsClusProg
@@ -160,6 +165,11 @@ class RendererOpenGL:
             for obj in self.toRenderTexInstIndivi:
                 self._renderTexInstancedIndivi(*obj)
             self.toRenderTexInstIndivi = []
+
+        glDisableVertexAttribArray(2)
+        glDisableVertexAttribArray(3)
+        glDisableVertexAttribArray(4)
+        glDisableVertexAttribArray(5)
 
         if self.toRenderDefaults:
             if not self.currProgram == self.colorProgram:
@@ -180,8 +190,8 @@ class RendererOpenGL:
     def _renderDefault(self, worldRect, color, name):
         worldMat = self._calcWorldMat(worldRect)
         mvpMat = self.vpMat * worldMat
-        # glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
-        # glUniform4f(COLORINDEX, *color, 1.0)
+        glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        glUniform4f(COLORINDEX, *color, 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
@@ -340,10 +350,6 @@ class RendererOpenGL:
         self.instIndiviWorlds = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
         glBufferData(GL_ARRAY_BUFFER, 16 * 4 * 1000, None, GL_DYNAMIC_DRAW)
-        glEnableVertexAttribArray(2)
-        glEnableVertexAttribArray(3)
-        glEnableVertexAttribArray(4)
-        glEnableVertexAttribArray(5)
 
 
     @staticmethod
