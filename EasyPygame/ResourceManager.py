@@ -54,7 +54,7 @@ class ResourceManager:
         if fileName in self.textureDict:
             return self.textureDict[fileName]
         else:
-            raise Exception("Texture not loaded")
+            raise Exception("Texture not loaded: " + fileName)
 
     def loadFont(self, fontName, size):
         fontName = "".join(fontName.split())

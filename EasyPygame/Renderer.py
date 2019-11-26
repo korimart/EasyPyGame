@@ -18,7 +18,7 @@ void main(){
 }
 """
 
-VSHADER_INSTANCEDPOS = """
+VSHADER_INSTANCED_CLUSTER = """
 #version 330
 
 layout(location=0) in vec4 pos;
@@ -38,6 +38,23 @@ void main(){
     leftTop.y -= (gl_InstanceID / numInRow) * height;
 
     gl_Position = vp * leftTop;
+    fragTexCoord = texCoord;
+}
+"""
+
+VSHADER_INSTANCED_INDIVI = """
+#version 330
+
+layout(location=0) in vec4 pos;
+layout(location=1) in vec2 texCoord;
+layout(location=2) in mat4 m; // vertexattribdivisor
+
+uniform mat4 vp;
+
+out vec2 fragTexCoord;
+
+void main(){
+    gl_Position = vp * m * pos;
     fragTexCoord = texCoord;
 }
 """
@@ -91,7 +108,8 @@ class RendererOpenGL:
 
         self.colorProgram = None
         self.textureProgram = None
-        self.texInstancedPosProgram = None
+        self.texInsClusProg = None
+        self.texInsIndiviProg = None
 
         self.currBoundTex = None
         self.quadVBO = None
@@ -99,16 +117,21 @@ class RendererOpenGL:
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
         self._initPrograms()
+        # 1
         self.colorMVPIndex = glGetUniformLocation(self.colorProgram, "mvp")
         self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
+        # 2
         self.textureMVPIndex = glGetUniformLocation(self.textureProgram, "mvp")
         self.textureSamplerIndex = glGetUniformLocation(self.textureProgram, "sampler")
-        self.TIPmIndex = glGetUniformLocation(self.texInstancedPosProgram, "m")
-        self.TIPvpIndex = glGetUniformLocation(self.texInstancedPosProgram, "vp")
-        self.TIPwidthIndex = glGetUniformLocation(self.texInstancedPosProgram, "width")
-        self.TIPheightIndex = glGetUniformLocation(self.texInstancedPosProgram, "height")
-        self.TIPnumInRowIndex = glGetUniformLocation(self.texInstancedPosProgram, "numInRow")
-        self.TIPsamplerIndex = glGetUniformLocation(self.texInstancedPosProgram, "sampler")
+        # 3
+        self.TIPmIndex = glGetUniformLocation(self.texInsClusProg, "m")
+        self.TIPvpIndex = glGetUniformLocation(self.texInsClusProg, "vp")
+        self.TIPwidthIndex = glGetUniformLocation(self.texInsClusProg, "width")
+        self.TIPheightIndex = glGetUniformLocation(self.texInsClusProg, "height")
+        self.TIPnumInRowIndex = glGetUniformLocation(self.texInsClusProg, "numInRow")
+        self.TIPsamplerIndex = glGetUniformLocation(self.texInsClusProg, "sampler")
+        # 4
+        self.TIIvpIndex = glGetUniformLocation(self.texInsIndiviProg, "vp")
 
         self._initBuffers()
         glUseProgram(self.colorProgram)
@@ -118,15 +141,19 @@ class RendererOpenGL:
         glUseProgram(self.textureProgram)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
-        glUseProgram(self.texInstancedPosProgram)
+        glUseProgram(self.texInsClusProg)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
         glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+        glUseProgram(self.texInsIndiviProg)
+        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+
+        # print(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS))
 
     def render(self, camera):
         self.vpMat = self.pMat * self._calcVMat(camera)
 
         if self.toRenderTexInstancedCluster:
-            glUseProgram(self.texInstancedPosProgram)
+            glUseProgram(self.texInsClusProg)
             glUniformMatrix4fv(self.TIPvpIndex, 1, GL_FALSE, glm.value_ptr(self.vpMat))
             for obj in self.toRenderTexInstancedCluster:
                 self._renderTexInstancedCluster(*obj)
@@ -220,6 +247,10 @@ class RendererOpenGL:
 
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, n * n)
 
+    def _renderTexInstancedIndivi(self, worldRectList, textureView):
+        self._textureUploadAttributes(textureView)
+        # todo
+
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass
 
@@ -247,15 +278,18 @@ class RendererOpenGL:
 
     def _initPrograms(self):
         vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
-        vshader_insPos = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCEDPOS)
+        vshader_insClus = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCED_CLUSTER)
+        vshader_insIndivi = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCED_INDIVI)
         fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
         fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
 
         self.colorProgram = self._createProgram(vshader, fshader_color)
         self.textureProgram = self._createProgram(vshader, fshader_texture)
-        self.texInstancedPosProgram = self._createProgram(vshader_insPos, fshader_texture)
+        self.texInsClusProg = self._createProgram(vshader_insClus, fshader_texture)
+        self.texInsIndiviProg = self._createProgram(vshader_insIndivi, fshader_texture)
         glDeleteShader(vshader)
-        glDeleteShader(vshader_insPos)
+        glDeleteShader(vshader_insClus)
+        glDeleteShader(vshader_insIndivi)
         glDeleteShader(fshader_color)
         glDeleteShader(fshader_texture)
 
@@ -270,7 +304,12 @@ class RendererOpenGL:
         glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_DYNAMIC_DRAW)
         glEnableVertexAttribArray(1)
 
-    def _calcMVPMat(self, cosntRect, constCamera):
+        self.instIndiviWorlds = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
+        # todo
+
+    @staticmethod
+    def _calcMVPMat(cosntRect, constCamera):
         mvpMat = glm.mat4()
         mvpMat = glm.translate(mvpMat, glm.vec3(cosntRect.x, cosntRect.y, 0))
         mvpMat = glm.scale(mvpMat, glm.vec3(cosntRect.width, cosntRect.height, 1))
@@ -279,12 +318,14 @@ class RendererOpenGL:
         pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
         return pMat * vMat * mvpMat
 
-    def _calcWorldMat(self, worldRect):
+    @staticmethod
+    def _calcWorldMat(worldRect):
         worldMat = glm.mat4()
         worldMat = glm.translate(worldMat, glm.vec3(worldRect.x, worldRect.y, 0))
         return glm.scale(worldMat, glm.vec3(worldRect.width, worldRect.height, 1))
 
-    def _calcVMat(self, constCamera):
+    @staticmethod
+    def _calcVMat(constCamera):
         return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
 

@@ -1,5 +1,8 @@
 import EasyPygame
 
+# 좌표계:
+# 카메라의 거리가 k일때 x, y 방향으로 [-k, k]만큼 보인다.
+
 class Camera:
     def __init__(self, initPos=[0, 0]):
         self.pos = initPos
