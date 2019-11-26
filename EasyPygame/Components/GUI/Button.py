@@ -1,19 +1,19 @@
 import EasyPygame
 from EasyPygame.Components import GameObject
-from EasyPygame.Components import DefaultTextureView, InvisibleTextureView
+from EasyPygame.Components import DefaultTextureView, InvisibleTextureView, StaticTextureState
 from EasyPygame.Components import GameObjectState
 
-class ButtonReleased(GameObjectState):
+class ButtonReleased(StaticTextureState):
     def update(self, gameObject, ms):
         if gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
-class ButtonPressed(GameObjectState):
+class ButtonPressed(StaticTextureState):
     def update(self, gameObject, ms):
         if not EasyPygame.isDown("MOUSELEFT"):
             gameObject.FSM.switchState(1, ms)
 
-class ButtonHover(GameObjectState):
+class ButtonHover(StaticTextureState):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT"):
             EasyPygame.consume("MOUSELEFT")

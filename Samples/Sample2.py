@@ -10,7 +10,6 @@ from EasyPygame.Components import *
 
 class idle(GameObjectState):
     def __init__(self, key, otherKey, runIndex, otherRunIndex):
-        super().__init__(0, -1)
         self.key = key
         self.otherKey = otherKey
         self.runIndex = runIndex
@@ -31,7 +30,6 @@ class run(GameObjectState):
         "d" : (0.01, 0)
     }
     def __init__(self, key, otherKey, idleIndex, otherRunIndex):
-        super().__init__(0, -1)
         self.key = key
         self.otherKey = otherKey
         self.idleIndex = idleIndex
@@ -63,47 +61,39 @@ class Scene1(EasyPygame.Components.Scene):
         self.tileMap = GameObject(self, "TileMap")
         imageRect = EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)
         self.tileMap.addTextureView(TileTextureView("animated.png", imageRect))
-        self.tileMap.FSM.addState(GameObjectState(1))
-        self.tileMap.FSM.switchState(1, 0)
+        self.tileMap.useTextureView(1)
 
-        self.characterInstanced = GameObject(self, "Instancing")
-        imageRect = EasyPygame.Rect(128 / 512 + 16 / 512, 16 / 512, 16 / 512, 16 / 512)
-        self.characterInstanced.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
-        self.characterInstanced.FSM.addState(GameObjectState(1))
-        self.characterInstanced.FSM.switchState(1, 0)
-        self.characterInstanced.worldRectList = []
-        for i in range(700):
+        character = GameObject(self, "Character")
+        character.rect.z = -1
+        character.worldRectList = [character.rect]
+        for i in range(1, 1000):
             rect = EasyPygame.Rect(i*2, 0, 1, 1)
-            self.characterInstanced.worldRectList.append(rect)
+            character.worldRectList.append(rect)
 
-        for j in range(0):
-            character = GameObject(self, "Character")
+        for i in range(4):
+            imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512)
+            character.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
+            character.addTextureView(InstancedTextureView("animated.png", imageRect))
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512)
-                character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
-                character.addTextureView(TextureView("animated.png", imageRect))
+        for i in range(4):
+            imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512)
+            character.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
+            character.addTextureView(InstancedTextureView("animated.png", imageRect))
 
-            for i in range(4):
-                imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512)
-                character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
-                character.addTextureView(TextureView("animated.png", imageRect))
+        # 1: leftIdle, 2: rightIdle, 3:leftRun, 4:rightRun
+        character.FSM.addState(idle("a", "d", 3, 4))
+        character.FSM.addState(idle("d", "a", 4, 3))
+        character.FSM.addState(run("a", "d", 1, 4))
+        character.FSM.addState(run("d", "a", 2, 3))
 
-            # 1: leftIdle, 2: rightIdle, 3:leftRun, 4:rightRun
-            character.FSM.addState(idle("a", "d", 3, 4))
-            character.FSM.addState(idle("d", "a", 4, 3))
-            character.FSM.addState(run("a", "d", 1, 4))
-            character.FSM.addState(run("d", "a", 2, 3))
+        # 1357LeftIdle, 2468RightIdle, 9111315LeftRun, 10121416RightRun
+        character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 3, 5, 7]))
+        character.FSM.attachConcurrentState(2, SpriteAnimState(500, [2, 4, 6, 8]))
+        character.FSM.attachConcurrentState(3, SpriteAnimState(250, [9, 11, 13, 15]))
+        character.FSM.attachConcurrentState(4, SpriteAnimState(250, [10, 12, 14, 16]))
 
-            # 1357LeftIdle, 2468RightIdle, 9111315LeftRun, 10121416RightRun
-            character.FSM.attachConcurrentState(1, SpriteAnimState(500, [1, 3, 5, 7]))
-            character.FSM.attachConcurrentState(2, SpriteAnimState(500, [2, 4, 6, 8]))
-            character.FSM.attachConcurrentState(3, SpriteAnimState(250, [9, 11, 13, 15]))
-            character.FSM.attachConcurrentState(4, SpriteAnimState(250, [10, 12, 14, 16]))
-
-            character.FSM.switchState(1, 0)
-            character.rect.x = j
-            self.characters.append(character)
+        character.FSM.switchState(1, 0)
+        self.characters.append(character)
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
@@ -129,7 +119,7 @@ class Scene1(EasyPygame.Components.Scene):
 
 
 if __name__ == "__main__":
-    EasyPygame.initWindow(500, 500, "Sample", 75)
+    EasyPygame.initWindow(800, 800, "Sample", 75)
     EasyPygame.loadScene("Scene1")
     EasyPygame.switchScene("Scene1")
     EasyPygame.run()

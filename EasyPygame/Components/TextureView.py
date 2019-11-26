@@ -17,8 +17,7 @@ class TextureView:
         self.flipY = flipY
 
     def render(self, gameObject):
-        gameObject.screenRect = EasyPygame.renderer.renderTextured( \
-            gameObject.rect.copy(), self)
+        EasyPygame.renderer.renderTextured(gameObject.rect.copy(), self)
 
 class TileTextureView(TextureView):
     def __init__(self, texture, imageRect=None, stretchFit=True, \
@@ -50,9 +49,8 @@ class DefaultTextureView:
         self.color = color
 
     def render(self, gameObject):
-        gameObject.screenRect = EasyPygame.renderer.renderDefault( \
-            gameObject.rect.copy(), self.color, gameObject.name)
+        EasyPygame.renderer.renderDefault(gameObject.rect.copy(), self.color, gameObject.name)
 
 class InvisibleTextureView:
     def render(self, gameObject):
-        gameObject.screenRect = None
+        pass

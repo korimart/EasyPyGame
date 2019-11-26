@@ -8,7 +8,7 @@ os.chdir(THISDIR)
 import EasyPygame
 from EasyPygame.Components import *
 
-class Scene1(EasyPygame.Components.Scene):
+class Scene1(Scene):
     def __init__(self):
         super().__init__()
         self.carrot = None
@@ -17,31 +17,28 @@ class Scene1(EasyPygame.Components.Scene):
 
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
-        self.carrot = EasyPygame.Components.GameObject(self, "Carrot")
-        self.carrot.addTextureView(EasyPygame.Components.TextureView("Carrot.jpg"))
+        self.carrot = GameObject(self, "Carrot")
+        self.carrot.addTextureView(TextureView("Carrot.jpg"))
 
         # carrot will switch between textureview 0 and 1 when moving left and right
-        self.carrot.FSM.addState(EasyPygame.Components.GameObjectState(1))
-        self.carrot.FSM.switchState(1, 0)
+        self.carrot.useTextureView(1)
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
         self.testObj1.addTextureView(DefaultTextureView())
-        self.testObj1.FSM.addState(GameObjectState(1))
-        self.testObj1.FSM.switchState(1, 0)
+        self.testObj1.useTextureView(1)
         self.testObj1.rect.x = -1
         self.testObj1.rect.y = -1
         self.testObj1.rect.z = -1
 
-        self.testObj2 = EasyPygame.Components.GameObject(self, "Test2")
+        self.testObj2 = GameObject(self, "Test2")
         self.testObj2.addTextureView(DefaultTextureView((1, 0, 0)))
-        self.testObj2.FSM.addState(GameObjectState(1))
-        self.testObj2.FSM.switchState(1, 0)
+        self.testObj2.useTextureView(1)
         self.testObj2.rect.x = -1
         self.testObj2.rect.y = -2
         self.testObj2.rect.width = 2
         self.testObj2.rect.z = 1
 
-        self.button = EasyPygame.Components.GUI.Button(self, "Button", lambda: self.testCallback())
+        self.button = GUI.Button(self, "Button", lambda: self.testCallback())
         self.button.rect.x = 2
         self.button.rect.y = -2
 
@@ -73,22 +70,22 @@ class Scene1(EasyPygame.Components.Scene):
     def testCallback(self):
         print("haha")
 
-class Scene2(EasyPygame.Components.Scene):
+class Scene2(Scene):
     def __init__(self):
         super().__init__()
 
     def onLoad(self):
-        self.obj1 = EasyPygame.Components.GameObject(self, "obj1")
-        self.obj1.addTextureView(EasyPygame.Components.DefaultTextureView((1, 0, 0)))
+        self.obj1 = GameObject(self, "obj1")
+        self.obj1.addTextureView(DefaultTextureView((1, 0, 0)))
 
         # first parameter is gameObjectStateIndex to attach state to.
         # second parameter is an concurrent state
         # first parameter of the constructor is duration in miliseconds of the animation from start to end
         # second parameter is a list of textureViewIndices of animation
         # in this case, animates between textureView 0 and 1 each with duration of 0.5 seconds and total of 1 second
-        self.obj1.FSM.attachConcurrentState(0, EasyPygame.Components.SpriteAnimState(100, [0, 1]))
+        self.obj1.FSM.attachConcurrentState(0, SpriteAnimState(100, [0, 1]))
 
-        self.textbox = EasyPygame.Components.GUI.TextBox(self, "textbox1", "Click me to type:")
+        self.textbox = GUI.TextBox(self, "textbox1", "Click me to type:")
         self.textbox.rect.x = 0
         self.textbox.rect.y = 1
         self.textbox.rect.width = 4

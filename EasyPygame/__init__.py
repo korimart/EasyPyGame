@@ -33,7 +33,7 @@ class EasyPygameRect:
 def initWindow(width, height, caption, FPS):
     global window, renderer, resManager
     window = Window.Window(width, height, caption, FPS)
-    renderer = Renderer.RendererOpenGL(window.displaySurface, resManager)
+    renderer = Renderer.RendererOpenGL(window, resManager)
 
 def getWindowWidth():
     global window

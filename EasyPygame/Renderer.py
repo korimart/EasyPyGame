@@ -64,7 +64,6 @@ layout(location=1) uniform mat4 vp;
 out vec2 fragTexCoord;
 
 void main(){
-    // mat4 s = m;
     gl_Position = vp * m * pos;
     fragTexCoord = texCoord;
 }
@@ -106,8 +105,8 @@ quadPositions = array('f', [
 ]).tobytes()
 
 class RendererOpenGL:
-    def __init__(self, displaySurf, resManager):
-        self.surface = displaySurf
+    def __init__(self, window, resManager):
+        self.surface = window.displaySurface
         self.resManager = resManager
 
         self.toRenderDefaults = []
@@ -115,13 +114,16 @@ class RendererOpenGL:
         self.toRenderTexInstancedCluster = []
         self.toRenderTexInstIndivi = []
 
-        self.pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
+        self.pMat = glm.perspectiveFovRH(glm.radians(90), window.width, window.height, 0.1, 100)
         self.vpMat = None
 
         self.colorProgram = None
         self.textureProgram = None
         self.texInsClusProg = None
         self.texInsIndiviProg = None
+        self._initPrograms()
+        self.programs = [self.colorProgram, self.textureProgram, self.texInsClusProg, self.texInsIndiviProg]
+        self.currProgram = None
 
         self.currBoundTex = None
         self.quadVBO = None
@@ -129,20 +131,12 @@ class RendererOpenGL:
         self.instIndiviWorlds = None
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
-        self._initPrograms()
         self._initBuffers()
-        glUseProgram(self.colorProgram)
-        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
-        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
-        glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
-        glUseProgram(self.textureProgram)
-        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
-        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
-        glUseProgram(self.texInsClusProg)
-        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
-        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
-        glUseProgram(self.texInsIndiviProg)
-        glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+        for program in self.programs:
+            glUseProgram(program)
+            glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+            glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+            glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
         # print(glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS))
 
@@ -150,27 +144,35 @@ class RendererOpenGL:
         self.vpMat = self.pMat * self._calcVMat(camera)
 
         if self.toRenderTexInstancedCluster:
-            glUseProgram(self.texInsClusProg)
+            if not self.currProgram == self.texInsClusProg:
+                self.currProgram = self.texInsClusProg
+                glUseProgram(self.texInsClusProg)
             glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
             for obj in self.toRenderTexInstancedCluster:
                 self._renderTexInstancedCluster(*obj)
             self.toRenderTexInstancedCluster = []
 
         if self.toRenderTexInstIndivi:
-            glUseProgram(self.texInsIndiviProg)
+            if not self.currProgram == self.texInsIndiviProg:
+                self.currProgram = self.texInsIndiviProg
+                glUseProgram(self.texInsIndiviProg)
             glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
             for obj in self.toRenderTexInstIndivi:
                 self._renderTexInstancedIndivi(*obj)
             self.toRenderTexInstIndivi = []
 
         if self.toRenderDefaults:
-            glUseProgram(self.colorProgram)
+            if not self.currProgram == self.colorProgram:
+                self.currProgram = self.colorProgram
+                glUseProgram(self.colorProgram)
             for obj in self.toRenderDefaults:
                 self._renderDefault(*obj)
             self.toRenderDefaults = []
 
         if self.toRenderTextured:
-            glUseProgram(self.textureProgram)
+            if not self.currProgram == self.textureProgram:
+                self.currProgram = self.textureProgram
+                glUseProgram(self.textureProgram)
             for obj in self.toRenderTextured:
                 self._renderTextured(*obj)
             self.toRenderTextured = []
@@ -178,8 +180,8 @@ class RendererOpenGL:
     def _renderDefault(self, worldRect, color, name):
         worldMat = self._calcWorldMat(worldRect)
         mvpMat = self.vpMat * worldMat
-        glUniformMatrix4fv(COLORINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
-        glUniform4f(COLORINDEX, color[0], color[1], color[2], 1.0)
+        # glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        # glUniform4f(COLORINDEX, *color, 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
@@ -261,10 +263,10 @@ class RendererOpenGL:
                     a.append(worldMat[i][j])
 
         data = array('f', a).tobytes()
-        
+
         glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
         glBufferSubData(GL_ARRAY_BUFFER, 0, None, data)
-    
+
         size = min(len(worldRectList), 1000)
 
         glVertexAttribPointer(2, 4, GL_FLOAT, False, 16 * 4, c_void_p(0))
@@ -293,8 +295,7 @@ class RendererOpenGL:
         shader = glCreateShader(shaderType)
         glShaderSource(shader, source)
         glCompileShader(shader)
-        error = glGetShaderInfoLog(shader)
-        print(error)
+        print(glGetShaderInfoLog(shader))
         return shader
 
     @staticmethod
@@ -303,6 +304,7 @@ class RendererOpenGL:
         glAttachShader(program, vshader)
         glAttachShader(program, fshader)
         glLinkProgram(program)
+        print(glGetProgramInfoLog(program))
         glDetachShader(program, vshader)
         glDetachShader(program, fshader)
         return program

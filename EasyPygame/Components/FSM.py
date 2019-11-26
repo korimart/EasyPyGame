@@ -44,19 +44,22 @@ class FSM:
                 conState.update(self.gameObject, ms)
 
 class GameObjectState:
-    def __init__(self, staticTextureViewIndex=0, name="GameObjectState"):
-        self.staticTextureViewIndex = staticTextureViewIndex
-        self.name = name
-
     def onEnter(self, gameObject, ms):
-        if self.staticTextureViewIndex >= 0:
-            gameObject.useTextureView(self.staticTextureViewIndex)
+        pass
 
     def update(self, gameObject, ms):
         pass
 
     def onExit(self, gameObject, ms):
         pass
+
+class StaticTextureState(GameObjectState):
+    def __init__(self, staticTextureViewIndex):
+        self.staticTextureViewIndex = staticTextureViewIndex
+
+    def onEnter(self, gameObject, ms):
+        if self.staticTextureViewIndex >= 0:
+            gameObject.useTextureView(self.staticTextureViewIndex)
 
 class SpriteAnimState(GameObjectState):
     def __init__(self, duration, textureViewIndexList):
