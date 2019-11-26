@@ -2,13 +2,22 @@ from array import array
 from OpenGL.GL import *
 import glm
 
+MVPINDEX = 0
+MINDEX = 0
+VPINDEX = 1
+WIDTHINDEX = 2
+HEIGHTINDEX = 3
+NUMINROWINDEX = 4
+COLORINDEX = 7
+SAMPLERINDEX = 7
+
 VSHADER = """
-#version 330
+#version 430
 
 layout(location=0) in vec4 pos;
 layout(location=1) in vec2 texCoord;
 
-uniform mat4 mvp;
+layout(location=0) uniform mat4 mvp;
 
 out vec2 fragTexCoord;
 
@@ -19,16 +28,16 @@ void main(){
 """
 
 VSHADER_INSTANCED_CLUSTER = """
-#version 330
+#version 430
 
 layout(location=0) in vec4 pos;
 layout(location=1) in vec2 texCoord;
 
-uniform mat4 m;
-uniform mat4 vp;
-uniform float width;
-uniform float height;
-uniform int numInRow;
+layout(location=0) uniform mat4 m;
+layout(location=1) uniform mat4 vp;
+layout(location=2) uniform float width;
+layout(location=3) uniform float height;
+layout(location=4) uniform int numInRow;
 
 out vec2 fragTexCoord;
 
@@ -43,13 +52,13 @@ void main(){
 """
 
 VSHADER_INSTANCED_INDIVI = """
-#version 330
+#version 430
 
 layout(location=0) in vec4 pos;
 layout(location=1) in vec2 texCoord;
 layout(location=2) in mat4 m; // vertexattribdivisor
 
-uniform mat4 vp;
+layout(location=1) uniform mat4 vp;
 
 out vec2 fragTexCoord;
 
@@ -60,11 +69,11 @@ void main(){
 """
 
 FSHADER_COLOR = """
-#version 330
+#version 430
 
 out vec4 fColor;
 
-uniform vec4 color;
+layout(location=7) uniform vec4 color;
 
 void main(){
     fColor = color;
@@ -72,12 +81,12 @@ void main(){
 """
 
 FSHADER_TEXTURE = """
-#version 330
+#version 430
 
 in vec2 fragTexCoord;
 out vec4 fColor;
 
-uniform sampler2D sampler;
+layout(location=7) uniform sampler2D sampler;
 
 void main(){
     vec4 sampled = texture(sampler, fragTexCoord);
@@ -117,22 +126,6 @@ class RendererOpenGL:
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
         self._initPrograms()
-        # 1
-        self.colorMVPIndex = glGetUniformLocation(self.colorProgram, "mvp")
-        self.colorColorIndex = glGetUniformLocation(self.colorProgram, "color")
-        # 2
-        self.textureMVPIndex = glGetUniformLocation(self.textureProgram, "mvp")
-        self.textureSamplerIndex = glGetUniformLocation(self.textureProgram, "sampler")
-        # 3
-        self.TIPmIndex = glGetUniformLocation(self.texInsClusProg, "m")
-        self.TIPvpIndex = glGetUniformLocation(self.texInsClusProg, "vp")
-        self.TIPwidthIndex = glGetUniformLocation(self.texInsClusProg, "width")
-        self.TIPheightIndex = glGetUniformLocation(self.texInsClusProg, "height")
-        self.TIPnumInRowIndex = glGetUniformLocation(self.texInsClusProg, "numInRow")
-        self.TIPsamplerIndex = glGetUniformLocation(self.texInsClusProg, "sampler")
-        # 4
-        self.TIIvpIndex = glGetUniformLocation(self.texInsIndiviProg, "vp")
-
         self._initBuffers()
         glUseProgram(self.colorProgram)
         glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
@@ -154,7 +147,7 @@ class RendererOpenGL:
 
         if self.toRenderTexInstancedCluster:
             glUseProgram(self.texInsClusProg)
-            glUniformMatrix4fv(self.TIPvpIndex, 1, GL_FALSE, glm.value_ptr(self.vpMat))
+            glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
             for obj in self.toRenderTexInstancedCluster:
                 self._renderTexInstancedCluster(*obj)
                 self.toRenderTexInstancedCluster = []
@@ -174,8 +167,8 @@ class RendererOpenGL:
     def _renderDefault(self, worldRect, color, name):
         worldMat = self._calcWorldMat(worldRect)
         mvpMat = self.vpMat * worldMat
-        glUniformMatrix4fv(self.colorMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
-        glUniform4f(self.colorColorIndex, color[0], color[1], color[2], 1.0)
+        glUniformMatrix4fv(COLORINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        glUniform4f(COLORINDEX, color[0], color[1], color[2], 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
@@ -222,7 +215,7 @@ class RendererOpenGL:
         self._textureUploadAttributes(textureView)
 
         mvpMat = self.vpMat * self._calcWorldMat(worldRect)
-        glUniformMatrix4fv(self.textureMVPIndex, 1, GL_FALSE, glm.value_ptr(mvpMat))
+        glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
@@ -240,10 +233,10 @@ class RendererOpenGL:
         y = center[1] + height * tilePos
         m = glm.translate(glm.mat4(), glm.vec3(x, y, 0))
 
-        glUniformMatrix4fv(self.TIPmIndex, 1, GL_FALSE, glm.value_ptr(m))
-        glUniform1f(self.TIPwidthIndex, width)
-        glUniform1f(self.TIPheightIndex, height)
-        glUniform1i(self.TIPnumInRowIndex, n)
+        glUniformMatrix4fv(MINDEX, 1, GL_FALSE, glm.value_ptr(m))
+        glUniform1f(WIDTHINDEX, width)
+        glUniform1f(HEIGHTINDEX, height)
+        glUniform1i(NUMINROWINDEX, n)
 
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, n * n)
 
@@ -306,7 +299,8 @@ class RendererOpenGL:
 
         self.instIndiviWorlds = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
-        # todo
+        glBufferData(GL_ARRAY_BUFFER, GL_FLOAT_MAT4 * 1000, None, GL_DYNAMIC_DRAW)
+        glEnableVertexAttribArray(2)
 
     @staticmethod
     def _calcMVPMat(cosntRect, constCamera):
