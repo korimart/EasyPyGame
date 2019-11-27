@@ -1,5 +1,6 @@
 import os.path
 import json
+import array
 import pygame
 from OpenGL.GL import *
 from PIL import ImageDraw, ImageFont, Image
@@ -62,7 +63,7 @@ class ResourceManager:
         glBindTexture(GL_TEXTURE_2D, texture)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.tobytes())
         try:
-            glDeleteTextures(1, self.textureDict[handleName])
+            glDeleteTextures([self.textureDict[handleName]])
         except KeyError:
             pass
         self.textureDict[handleName] = texture

@@ -1,29 +1,26 @@
 import EasyPygame
 
 class TextureView:
-    def __init__(self, texture, imageRect=None, stretchFit=True, \
-            cropFit=False, halign="center", \
-            flipX=False, flipY=False):
+    def __init__(self, texture, imageRect=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False):
 
         self.texture = texture
         if not imageRect:
             self.imageRect = EasyPygame.Rect(0, 0, 1, 1)
         else:
             self.imageRect = imageRect
-        self.stretchFit = stretchFit
-        self.cropFit = cropFit
-        self.halign = halign
         self.flipX = flipX
         self.flipY = flipY
+        self.minFilter = minFilter
+        self.magFilter = magFilter
 
     def render(self, gameObject):
         EasyPygame.renderer.renderTextured(gameObject.rect.copy(), self)
 
 class TileTextureView(TextureView):
-    def __init__(self, texture, imageRect=None, stretchFit=True, \
-            cropFit=False, halign="center", \
-            flipX=False, flipY=False, pivot=(0, 0)):
-            super().__init__(texture, imageRect, stretchFit, cropFit, halign, flipX, flipY)
+    def __init__(self, texture, imageRect=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False, pivot=(0, 0)):
+            super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY)
             self.pivot = pivot
 
     def render(self, gameObject):
@@ -36,11 +33,6 @@ class TileTextureView(TextureView):
         EasyPygame.renderer.renderTexInstancedCluster((x, y), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
 class InstancedTextureView(TextureView):
-    def __init__(self, texture, imageRect=None, stretchFit=True, \
-            cropFit=False, halign="center", \
-            flipX=False, flipY=False):
-            super().__init__(texture, imageRect, stretchFit, cropFit, halign, flipX, flipY)
-
     def render(self, gameObject):
         EasyPygame.renderer.renderTexInstancedIndivi(gameObject.worldRectList, self)
 

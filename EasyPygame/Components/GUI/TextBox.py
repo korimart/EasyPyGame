@@ -7,7 +7,7 @@ class TextBoxUnfocused(StaticTextureState):
     def onEnter(self, gameObject, ms):
         super().onEnter(gameObject, ms)
         EasyPygame.resManager.createTextTexture(gameObject.textureName, "comic.ttf", \
-            72, gameObject.text, gameObject.color)
+            72 * 3, gameObject.text, gameObject.color)
         # EasyPygame.createTextImage(gameObject.fontName, gameObject.fontSize, \
         #     gameObject.color, gameObject.textureName, gameObject.text, True, \
         #     (200, 200, 200))
@@ -33,7 +33,7 @@ class TextBoxFocused(StaticTextureState):
         
         if gameObject.dirty:
             EasyPygame.resManager.createTextTexture(gameObject.textureName, "comic.ttf", \
-                72, gameObject.text, gameObject.color)
+                72 * 3, gameObject.text, gameObject.color)
             gameObject.dirty = False
 
 class TextBox(GameObject):
@@ -55,7 +55,7 @@ class TextBox(GameObject):
                 break
 
         self.charTextureView = TextureView(self.textureName, \
-            stretchFit=False, halign="left", cropFit=True)
+            minFilter="linear", magFilter="linear")
         self.addTextureView(self.charTextureView)
 
         self.FSM.addState(TextBoxUnfocused(1))

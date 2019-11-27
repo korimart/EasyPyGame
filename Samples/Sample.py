@@ -104,13 +104,13 @@ class Scene2(Scene):
             self.camera.setDistance(1)
             self.camera.moveTo(0, 0)
         if EasyPygame.isDown("KP4"):
-            self.camera.move((-0.1 * ms, 0))
+            self.camera.move((-0.01 * ms, 0))
         if EasyPygame.isDown("KP8"):
-            self.camera.move((0, 0.1 * ms))
+            self.camera.move((0, 0.01 * ms))
         if EasyPygame.isDown("KP6"):
-            self.camera.move((0.1 * ms, 0))
+            self.camera.move((0.01 * ms, 0))
         if EasyPygame.isDown("KP2"):
-            self.camera.move((0, -0.1 * ms))
+            self.camera.move((0, -0.01 * ms))
 
 if __name__ == "__main__":
     EasyPygame.initWindow(500, 500, "Sample", 75)

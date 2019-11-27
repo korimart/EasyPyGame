@@ -126,6 +126,8 @@ class RendererOpenGL:
         self.currProgram = None
 
         self.currBoundTex = None
+        self.currBoundMinFilter = GL_NEAREST
+        self.currBoundMagFilter = GL_NEAREST
         self.quadVBO = None
         self.quadTexCoords = None
         self.instIndiviWorlds = None
@@ -203,13 +205,23 @@ class RendererOpenGL:
 
     def _textureUploadAttributes(self, textureView):
         texture = self.resManager.getTexture(textureView.texture)
+        minFilter = GL_LINEAR if textureView.minFilter == "linear" else GL_NEAREST
+        magFilter = GL_LINEAR if textureView.magFilter == "linear" else GL_NEAREST
         if texture != self.currBoundTex:
             glBindTexture(GL_TEXTURE_2D, texture)
             self.currBoundTex = texture
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        else:
+            if self.currBoundMinFilter != minFilter:
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter)
+                self.currBoundMinFilter = minFilter
+            if self.currBoundMagFilter != magFilter:
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter)
+                self.currBoundMagFilter = magFilter
 
         texRect = textureView.imageRect
 
