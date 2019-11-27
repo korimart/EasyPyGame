@@ -45,7 +45,7 @@ class ResourceManager:
         except:
             pass
 
-    def createTextTexture(self, font, size, text, color):
+    def createTextTexture(self, handleName, font, size, text, color):
         # return size
         name = (font + str(size)).lower()
         try:
@@ -61,7 +61,11 @@ class ResourceManager:
         texture = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, texture)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.tobytes())
-        self.textureDict[fileName] = texture
+        try:
+            glDeleteTextures(1, self.textureDict[handleName])
+        except KeyError:
+            pass
+        self.textureDict[handleName] = texture
         # TODO
 
     def getLoaded(self, fileName):
