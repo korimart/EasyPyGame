@@ -2,16 +2,17 @@ import os.path
 import json
 import pygame
 from OpenGL.GL import *
+from PIL import ImageDraw, ImageFont, Image
 
 class ResourceManager:
     def __init__(self):
         self.resourceDict = dict()
         self.textureDict = dict()
         self.supportedImageList = [".jpg", ".png", ".bmp"]
-        self.fontNameDict = dict()
-        self.DEFAULT_FONT = "comicsansms"
-        self.DEFAULT_FONT_SIZE = 30
-        self.loadFont(self.DEFAULT_FONT, self.DEFAULT_FONT_SIZE)
+        self.fontDict = dict()
+
+        self.img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        self.draw = ImageDraw.Draw(self.img)
 
     def load(self, fileName, override=False):
         _, extension = os.path.splitext(fileName)
@@ -43,6 +44,25 @@ class ResourceManager:
             del self.resourceDict[fileName]
         except:
             pass
+
+    def createTextTexture(self, font, size, text, color):
+        # return size
+        name = (font + str(size)).lower()
+        try:
+            fontObj = self.fontDict[name]
+        except:
+            fontObj = ImageFont.truetype(font, size)
+            self.fontDict[name] = fontObj
+
+        width, height = self.draw.textsize(text, font=fontObj)
+        img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        draw.text((0, 0), text, color, font=fontObj)
+        texture = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, texture)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.tobytes())
+        self.textureDict[fileName] = texture
+        # TODO
 
     def getLoaded(self, fileName):
         if fileName in self.resourceDict:

@@ -30,6 +30,10 @@ class EasyPygameRect:
     def copy(self):
         return EasyPygameRect(self.x, self.y, self.width, self.height)
 
+    def collidepoint(self, x, y):
+       return 0 <= x - self.x + self.width / 2 <= self.width \
+           and 0 <= y - self.y + self.height / 2 <= self.height
+
 def initWindow(width, height, caption, FPS):
     global window, renderer, resManager
     window = Window.Window(width, height, caption, FPS)

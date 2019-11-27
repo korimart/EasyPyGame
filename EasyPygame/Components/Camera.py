@@ -8,6 +8,16 @@ class Camera:
         self.pos = initPos
         self.distance = 3
 
+    def screen2worldCoord(self, screenPos):
+        width = EasyPygame.getWindowWidth()
+        height = EasyPygame.getWindowHeight()
+
+        x = screenPos[0] / width * 2 - 1
+        y = 1 - screenPos[1] / height * 2
+        x *= self.distance
+        y *= self.distance
+        return (x, y)        
+
     def reset(self):
         self.moveTo(0, 0)
         self.distance = 3

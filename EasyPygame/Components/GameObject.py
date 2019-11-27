@@ -40,9 +40,11 @@ class GameObject:
         self.FSM.switchState(stateIndex, 0)
 
     def isMouseOn(self):
-        mouseX, mouseY = EasyPygame.getMousePos()
+        camera = self.scene.camera
+        mousePos = EasyPygame.getMousePos()
+        x, y = camera.screen2worldCoord(mousePos)
         try:
-            return self.screenRect.collidepoint(mouseX, mouseY)
+            return self.rect.collidepoint(x, y)
         except AttributeError:
             return False
 

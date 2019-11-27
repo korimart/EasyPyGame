@@ -43,7 +43,13 @@ class TextBox(GameObject):
         self.fontName = fontName
         self.fontSize = fontSize
         self.color = color
-        self.textureName = "__Kori" + str(random.randint(0, 10000))
+
+        while True:
+            self.textureName = "__Kori" + str(random.randint(0, 10000))
+            try:
+                EasyPygame.resManager.getTexture(self.textureName)
+            except:
+                break
 
         self.charTextureView = TextureView(self.textureName, \
             stretchFit=False, halign="left", cropFit=True)
