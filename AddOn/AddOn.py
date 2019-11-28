@@ -6,35 +6,36 @@ from pympler import asizeof
 class AddOn:
     def __init__(self, size, hazards, searchPoints, robotLocation, pathFinder):
         self.map = Map(size, hazards, searchPoints, robotLocation)
-        self.pathFinder = pathFinder
-        self.behavior = GoSlow(self.map)
+        #self.pathFinder = pathFinder
+        self.behavior = GoSlow(self.map, pathFinder)
         self.robotLocation = robotLocation
         
         
     def go(self, robot):
-        self.behavior.go(robot, self.map, self.pathFinder)
+        self.behavior.go(robot, self.map)
 
 
 class Behavior(ABC):
-    def __init__(self, map):
+    def __init__(self, map, pathFinder):
         self.path = []
         self.pathNeedsUpdate = True
         self.searchPoints = map.getUnvisitedSearchPoints()
         self.position = None
         self.direction = None
         self.coordinates = None
+        self.pathFinder = pathFinder
 
-    def go(self, robot, map, pathFinder):
+    def go(self, robot, map):
         while(len(map.getUnvisitedSearchPoints()) > 0):
-            self.takeAStep(robot, map, pathFinder)
+            self.takeAStep(robot, map)
     
-    def takeAStep(self, robot, map, pathFinder):
-        self.prepToMove(robot, map, pathFinder) #Base
-        self.updateMap(robot, map, pathFinder) #Sub
-        self.findPath(robot, map, pathFinder) #Sub
+    def takeAStep(self, robot, map):
+        self.prepToMove(robot, map) #Base
+        self.updateMap(robot, map) #Sub
+        self.findPath(robot, map) #Sub
         self.move(robot, map) #Base
 
-    def prepToMove(self, robot, map, pathFinder):
+    def prepToMove(self, robot, map):
         self.position = robot.getPos()
         self.direction = self.posToDirection(self.position)
         self.coordinates = self.posToCoord(self.position)
@@ -47,11 +48,11 @@ class Behavior(ABC):
                 self.moveInDirection(robot, self.coordinates, self.direction, map.nextDestination())
 
     @abstractmethod
-    def updateMap(self,robot, map, pathFinder):
+    def updateMap(self,robot, map):
         pass
 
     @abstractmethod
-    def findPath(self, robot, map, pathFinder):
+    def findPath(self, robot, map):
         pass
 
     @abstractmethod
@@ -161,16 +162,16 @@ class GoSlow(Behavior):
                 self.moveInDirection(robot, coordinates, direction, map.nextDestination())
     """
     
-    def updateMap(self, robot, map, pathFinder):
+    def updateMap(self, robot, map):
         map.update(
                 self.coordinates,
                 self.getHazardData(robot, map, self.position),
                 self.getBlobData(robot, self.position))
         self.direction = (self.direction + 3) % 4
 
-    def findPath(self, robot, map, pathFinder):
+    def findPath(self, robot, map):
         if map.isOnPath or self.pathNeedsUpdate:
-                map.pathToBeTaken = pathFinder.findPath(map, self.coordinates)
+                map.pathToBeTaken = self.pathFinder.findPath(map, self.coordinates)
         if map.pathToBeTaken == None:
             raise RuntimeError("map.pathToBeTaken == None")
     
@@ -193,9 +194,17 @@ class GoSlow(Behavior):
                 if self.sanityCheck(map.minPoints, map.size, frontCoord):
                     hazards.append(tuple(frontCoord))
         return hazards
-            
-class AdaptiveGoSlow(Behavior):
-    pass
+
+class AdaptiveGoSlow(GoSlow):
+    def __init__(self, threshold):
+        self.threshold = threshold
+
+    def findPath(self, robot, map):
+        super.findPath()
+        if self.pathFinder.lastMemoryUsage() > self.threshold:
+            self.pathFinder = IDA_starShortestFirst()            
+    
+
 """
 psuedocode for bfs:
 function bfs(map, start, end)

@@ -13,8 +13,10 @@ class RobotForDebug(Robot.Robot):
         super().__init__(scene=scene, rect=rect, position=position, name=name,
         increment=increment, errorRate=errorRate, delay = delay)
         self.map = map
-        self.MaybeIShouldHavePutThisMethodInMap = AddOn.GoSlow(self.map).calculateCoordinates
-        self.MaybeIShouldHavePutThisMethodInMap2 = AddOn.GoSlow(self.map).sanityCheck
+        self.MaybeIShouldHavePutThisMethodInMap = AddOn.GoSlow(
+            self.map, AddOn.bfsShortestFirst()).calculateCoordinates
+        self.MaybeIShouldHavePutThisMethodInMap2 = AddOn.GoSlow(
+            self.map, AddOn.bfsShortestFirst()).sanityCheck
 
     def move(self):
         loc = self.location()
