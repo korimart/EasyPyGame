@@ -3,226 +3,6 @@ import sys
 import time
 from pympler import asizeof
 
-class AddOn:
-    def __init__(self, size, hazards, searchPoints, robotLocation, pathFinder):
-        self.map = Map(size, hazards, searchPoints, robotLocation)
-        #self.pathFinder = pathFinder
-        self.behavior = GoSlow(self.map, pathFinder)
-        self.robotLocation = robotLocation
-        
-        
-    def go(self, robot):
-        self.behavior.go(robot, self.map)
-
-
-class Behavior(ABC):
-    def __init__(self, map, pathFinder):
-        self.path = []
-        self.pathNeedsUpdate = True
-        self.searchPoints = map.getUnvisitedSearchPoints()
-        self.position = None
-        self.direction = None
-        self.coordinates = None
-        self.pathFinder = pathFinder
-
-    def go(self, robot, map):
-        while(len(map.getUnvisitedSearchPoints()) > 0):
-            self.takeAStep(robot, map)
-    
-    def takeAStep(self, robot, map):
-        self.prepToMove(robot, map) #Base
-        self.updateMap(robot, map) #Sub
-        self.findPath(robot, map) #Sub
-        self.move(robot, map) #Base
-
-    def prepToMove(self, robot, map):
-        self.position = robot.getPos()
-        self.direction = self.posToDirection(self.position)
-        self.coordinates = self.posToCoord(self.position)
-        map.pathTaken.append(self.coordinates)
-        if self.posToCoord(map.currentPos()) != self.coordinates:
-            self.pathNeedsUpdate = True
-    
-    def move(self, robot, map):
-        if len(map.pathToBeTaken) > 0:
-                self.moveInDirection(robot, self.coordinates, self.direction, map.nextDestination())
-
-    @abstractmethod
-    def updateMap(self,robot, map):
-        pass
-
-    @abstractmethod
-    def findPath(self, robot, map):
-        pass
-
-    @abstractmethod
-    def getHazardData(self, robot, map, position):
-        pass
-    
-    def calculateCoordinates(self, coord, direction):
-        newCoord = list(coord)
-        if direction == 0:
-            newCoord[1] += 1 
-        elif direction == 1:
-           newCoord[0] += 1
-        elif direction == 2:
-            newCoord[1] -= 1
-        elif direction == 3:
-            newCoord[0] -= 1
-        return tuple(newCoord)
-
-    def sanityCheck(self, minInclusive, maxExclusive, location):
-            if (minInclusive[0] <= location[0] < maxExclusive[0]) and (minInclusive[1] <= location[1] < maxExclusive[1]):
-                return True
-            else:
-                return False
-            
-    """
-    def sanityCheck(self, map, coord):
-        if coord[0] >= map.size[0] or coord[0] < 0:
-            return False
-        elif coord[1] >= map.size[1] or coord[1] < 0:
-            return False
-        else:
-            return True
-    """
-
-    def nextDirection(self, direction):
-        return (direction + 1) % 4
-
-    def getBlobData(self, robot, position):
-        blobs = []
-        direction = position[2]
-        coordinates = [position[0], position[1]]
-        rawData = robot.senseBlob()
-        
-        for raw in rawData:
-            if raw:
-                blobs.append(self.calculateCoordinates(coordinates, direction))
-                #self.sanityCheck(map.minPoints, map.size, coordinates)
-                
-            direction = (direction + 1) % 4
-        return blobs
-
-    def getCoordinates(self, robot):
-        pos = robot.getPos()
-        return (pos[0], pos[1])
-
-    def getDirection(self, robot):
-        pos = robot.getPos()
-        return pos[2]
-
-    def posToCoord(self, position):
-        return (position[0], position[1])
-    
-    def posToDirection(self, position):
-        return position[2]
-
-    def moveInDirection(self, robot, curLocation, direction, destination):
-        #nextLocation = self.path.pop(0)
-        while(destination != self.calculateCoordinates(curLocation, direction)):
-            robot.rotate()
-            direction = self.nextDirection(direction)
-        robot.move()
-"""
-go:
-    while :
-        takeAStep
-
-takeAStep:
-    doPrepToMove: BASE
-    updateMap: SUB
-    findPath: SUB
-    move: BASE
-"""
-class GoSlow(Behavior):
-    """
-    def go(self, robot, map, pathFinder):
-        while(len(map.getUnvisitedSearchPoints()) > 0):
-
-            position = robot.getPos()
-            direction = self.posToDirection(position)
-            coordinates = self.posToCoord(position)
-            map.pathTaken.append(coordinates)
-            if self.posToCoord(map.currentPos()) != coordinates:
-                self.pathNeedsUpdate = True
-
-            map.update(
-                coordinates,
-                self.getHazardDataInAllDirections(robot, map, position),
-                self.getBlobData(robot, position))
-            direction = (direction + 3) % 4
-
-            #checks if the path needs an update
-            if map.isOnPath or self.pathNeedsUpdate:
-                map.pathToBeTaken = pathFinder.findPath(map, coordinates)
-            if map.pathToBeTaken == None:
-                raise RuntimeError("map.pathToBeTaken == None")
-            if len(map.pathToBeTaken) > 0:
-                self.moveInDirection(robot, coordinates, direction, map.nextDestination())
-    """
-    
-    def updateMap(self, robot, map):
-        map.update(
-                self.coordinates,
-                self.getHazardData(robot, map, self.position),
-                self.getBlobData(robot, self.position))
-        self.direction = (self.direction + 3) % 4
-
-    def findPath(self, robot, map):
-        if map.isOnPath or self.pathNeedsUpdate:
-                map.pathToBeTaken = self.pathFinder.findPath(map, self.coordinates)
-        if map.pathToBeTaken == None:
-            raise RuntimeError("map.pathToBeTaken == None")
-    
-    def getHazardData(self, robot, map, position):
-        hazards = []
-        direction = position[2]
-        coordinates = [position[0], position[1]]
-        
-        if robot.senseHazard():
-                frontCoord = self.calculateCoordinates(coordinates, direction)
-                #I'm not sure why it needs to be checked
-                if self.sanityCheck(map.minPoints, map.size, frontCoord):
-                    hazards.append(frontCoord)
-        for i in range(3):
-            robot.rotate()
-            direction = (direction + 1) % 4
-            if robot.senseHazard():
-                frontCoord = self.calculateCoordinates(coordinates, direction)
-                #I'm not sure why it needs to be checked
-                if self.sanityCheck(map.minPoints, map.size, frontCoord):
-                    hazards.append(tuple(frontCoord))
-        return hazards
-
-class AdaptiveGoSlow(GoSlow):
-    def __init__(self, threshold):
-        self.threshold = threshold
-
-    def findPath(self, robot, map):
-        super.findPath()
-        if self.pathFinder.lastMemoryUsage() > self.threshold:
-            self.pathFinder = IDA_starShortestFirst()            
-    
-
-"""
-psuedocode for bfs:
-function bfs(map, start, end)
-initialize: Set: visited, Queue: queue
-push a list with the start position in it to the queue
-while the queue is not empty:
-    path = queue.dequeue()
-    current = path[-1]
-    visited.add(current)
-    if end == current:
-        return path
-    calculate the list of possible positions the robot can take from current
-    for each position in the list: 
-        if a position is not in the visited set:
-            copy the path and push the position to the copied path
-            push the copied path to the queue
-"""
-
 class PathAlgorithm:
     def __init__(self, path=[], paths=[], queue=[]):
         self.path = path
@@ -419,6 +199,275 @@ class PathAlgorithm:
                         min = t                   
                 path.pop(-1)
         return min
+
+
+class AddOn:
+    def __init__(self, size, hazards, searchPoints, robotLocation, behavior):
+        self.map = Map(size, hazards, searchPoints, robotLocation)
+        #self.pathFinder = pathFinder
+        self.behavior = behavior
+        self.robotLocation = robotLocation
+        
+    def go(self, robot):
+        self.behavior.go(robot, self.map)
+
+
+class Behavior(ABC):
+    def __init__(self, pathFinder):
+        self.path = []
+        self.pathNeedsUpdate = True
+        #self.searchPoints = map.getUnvisitedSearchPoints()
+        self.position = None
+        self.direction = None
+        self.coordinates = None
+        self.pathFinder = pathFinder
+
+    def go(self, robot, map):
+        while(len(map.getUnvisitedSearchPoints()) > 0):
+            self.takeAStep(robot, map)
+    
+    def takeAStep(self, robot, map):
+        self.prepToMove(robot, map) #Base
+        self.updateMap(robot, map) #Sub
+        self.findPath(robot, map) #Sub
+        self.move(robot, map) #Base
+
+    def prepToMove(self, robot, map):
+        self.position = robot.getPos()
+        self.direction = self.posToDirection(self.position)
+        self.coordinates = self.posToCoord(self.position)
+        map.pathTaken.append(self.coordinates)
+        if self.posToCoord(map.currentPos()) != self.coordinates:
+            self.pathNeedsUpdate = True
+    
+    def move(self, robot, map):
+        if len(map.pathToBeTaken) > 0:
+                self.moveInDirection(robot, self.coordinates, self.direction, map.nextDestination())
+
+    @abstractmethod
+    def updateMap(self,robot, map):
+        pass
+
+    @abstractmethod
+    def findPath(self, robot, map):
+        pass
+
+    @abstractmethod
+    def getHazardData(self, robot, map, position):
+        pass
+    
+    def calculateCoordinates(self, coord, direction):
+        newCoord = list(coord)
+        if direction == 0:
+            newCoord[1] += 1 
+        elif direction == 1:
+           newCoord[0] += 1
+        elif direction == 2:
+            newCoord[1] -= 1
+        elif direction == 3:
+            newCoord[0] -= 1
+        return tuple(newCoord)
+
+    def sanityCheck(self, minInclusive, maxExclusive, location):
+            if (minInclusive[0] <= location[0] < maxExclusive[0]) and (minInclusive[1] <= location[1] < maxExclusive[1]):
+                return True
+            else:
+                return False
+            
+    """
+    def sanityCheck(self, map, coord):
+        if coord[0] >= map.size[0] or coord[0] < 0:
+            return False
+        elif coord[1] >= map.size[1] or coord[1] < 0:
+            return False
+        else:
+            return True
+    """
+
+    def nextDirection(self, direction):
+        return (direction + 1) % 4
+
+    def getBlobData(self, robot, position):
+        blobs = []
+        direction = position[2]
+        coordinates = [position[0], position[1]]
+        rawData = robot.senseBlob()
+        
+        for raw in rawData:
+            if raw:
+                blobs.append(self.calculateCoordinates(coordinates, direction))
+                #self.sanityCheck(map.minPoints, map.size, coordinates)
+                
+            direction = (direction + 1) % 4
+        return blobs
+
+    def getCoordinates(self, robot):
+        pos = robot.getPos()
+        return (pos[0], pos[1])
+
+    def getDirection(self, robot):
+        pos = robot.getPos()
+        return pos[2]
+
+    def posToCoord(self, position):
+        return (position[0], position[1])
+    
+    def posToDirection(self, position):
+        return position[2]
+
+    def moveInDirection(self, robot, curLocation, direction, destination):
+        #nextLocation = self.path.pop(0)
+        while(destination != self.calculateCoordinates(curLocation, direction)):
+            robot.rotate()
+            direction = self.nextDirection(direction)
+        robot.move()
+"""
+go:
+    while :
+        takeAStep
+
+takeAStep:
+    doPrepToMove: BASE
+    updateMap: SUB
+    findPath: SUB
+    move: BASE
+"""
+class GoSlow(Behavior):
+    """
+    def go(self, robot, map, pathFinder):
+        while(len(map.getUnvisitedSearchPoints()) > 0):
+
+            position = robot.getPos()
+            direction = self.posToDirection(position)
+            coordinates = self.posToCoord(position)
+            map.pathTaken.append(coordinates)
+            if self.posToCoord(map.currentPos()) != coordinates:
+                self.pathNeedsUpdate = True
+
+            map.update(
+                coordinates,
+                self.getHazardDataInAllDirections(robot, map, position),
+                self.getBlobData(robot, position))
+            direction = (direction + 3) % 4
+
+            #checks if the path needs an update
+            if map.isOnPath or self.pathNeedsUpdate:
+                map.pathToBeTaken = pathFinder.findPath(map, coordinates)
+            if map.pathToBeTaken == None:
+                raise RuntimeError("map.pathToBeTaken == None")
+            if len(map.pathToBeTaken) > 0:
+                self.moveInDirection(robot, coordinates, direction, map.nextDestination())
+    """
+    
+    def updateMap(self, robot, map):
+        map.update(
+                self.coordinates,
+                self.getHazardData(robot, map, self.position),
+                self.getBlobData(robot, self.position))
+        self.direction = (self.direction + 3) % 4
+
+    def findPath(self, robot, map):
+        if map.isOnPath or self.pathNeedsUpdate:
+                map.pathToBeTaken = self.pathFinder.findPath(map, self.coordinates)
+        if map.pathToBeTaken == None:
+            raise RuntimeError("map.pathToBeTaken == None")
+    
+    def getHazardData(self, robot, map, position):
+        hazards = []
+        direction = position[2]
+        coordinates = [position[0], position[1]]
+        
+        if robot.senseHazard():
+                frontCoord = self.calculateCoordinates(coordinates, direction)
+                #I'm not sure why it needs to be checked
+                if self.sanityCheck(map.minPoints, map.size, frontCoord):
+                    hazards.append(frontCoord)
+        for i in range(3):
+            robot.rotate()
+            direction = (direction + 1) % 4
+            if robot.senseHazard():
+                frontCoord = self.calculateCoordinates(coordinates, direction)
+                #I'm not sure why it needs to be checked
+                if self.sanityCheck(map.minPoints, map.size, frontCoord):
+                    hazards.append(tuple(frontCoord))
+        return hazards
+
+class PathFinder:
+    def __init__(self):
+        self.pathFinder = PathAlgorithm()
+    @abstractmethod
+    def findPath(self):
+        pass
+
+class AdaptivePathFinder(PathFinder):
+    def __init__(self, memoryLimit):
+        super().__init__()
+        self.lastMemoryUsage = 0
+        self.lastTimeUsage = 0
+        self.memoryLimit = memoryLimit
+    
+    def getLastMemoryUsage(self):
+        return self.lastMemoryUsage
+    
+    def getLastTimeUsage(self):
+        return self.lastTimeUsage
+
+
+class AdaptiveBfsShortestFirst(AdaptivePathFinder):
+    def findPath(self, map, start):
+        result = self.pathFinder.adaptiveShortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(),
+                    self.pathFinder.adaptiveBfs, limit=self.memoryLimit)
+        self.lastMemoryUsage = result[1]
+        self.lastTimeUsage = result[2]
+        return result[0]
+
+class AdaptiveIDA_starShortestFirst(AdaptivePathFinder):
+    def findPath(self, map, start):
+        result = self.pathFinder.adaptiveShortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(),
+                    self.pathFinder.adaptiveIDA_star, limit=self.memoryLimit)
+        self.lastMemoryUsage = result[1]
+        self.lastTimeUsage = result[2]
+        return result[0]
+
+class AdaptiveGoSlow(GoSlow):
+    def __init__(self, memoryThreshold, timeThreshold, pathFinder):
+        super().__init__(pathFinder)
+        self.memoryThreshold = memoryThreshold
+        self.timeThreshold = timeThreshold
+
+    def findPath(self, robot, map):
+        super().findPath(robot, map)
+        if self.pathFinder.getLastMemoryUsage() > self.memoryThreshold:
+            print("BFS -> IDA star. Cause: memory ", self.pathFinder.getLastMemoryUsage())
+            self.pathFinder = AdaptiveIDA_starShortestFirst(self.pathFinder.memoryLimit)
+        if (self.pathFinder.getLastTimeUsage() > self.timeThreshold
+            and isinstance(self.pathFinder, AdaptiveBfsShortestFirst)):
+            print("BFS -> IDA star. Cause: time ", self.pathFinder.getLastTimeUsage())
+            self.pathFinder = AdaptiveIDA_starShortestFirst(self.pathFinder.memoryLimit)
+            
+    
+
+
+"""
+psuedocode for bfs:
+function bfs(map, start, end)
+initialize: Set: visited, Queue: queue
+push a list with the start position in it to the queue
+while the queue is not empty:
+    path = queue.dequeue()
+    current = path[-1]
+    visited.add(current)
+    if end == current:
+        return path
+    calculate the list of possible positions the robot can take from current
+    for each position in the list: 
+        if a position is not in the visited set:
+            copy the path and push the position to the copied path
+            push the copied path to the queue
+"""
+
 
 class IDA_starShortestFirst():
     def __init__(self):

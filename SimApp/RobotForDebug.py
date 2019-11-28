@@ -14,9 +14,9 @@ class RobotForDebug(Robot.Robot):
         increment=increment, errorRate=errorRate, delay = delay)
         self.map = map
         self.MaybeIShouldHavePutThisMethodInMap = AddOn.GoSlow(
-            self.map, AddOn.bfsShortestFirst()).calculateCoordinates
+            AddOn.bfsShortestFirst()).calculateCoordinates
         self.MaybeIShouldHavePutThisMethodInMap2 = AddOn.GoSlow(
-            self.map, AddOn.bfsShortestFirst()).sanityCheck
+            AddOn.bfsShortestFirst()).sanityCheck
 
     def move(self):
         loc = self.location()
