@@ -44,7 +44,7 @@ if __name__ == "__main__":
     
 
     print(pf.pathFinder.adaptiveShortestFirst(map.minPoints, map.size, map.hazards,
-       map.robotLocation, map.searchPoints.copy(), pf.pathFinder.adaptiveBfs, 1000000))
+       map.robotLocation, map.searchPoints.copy(), pf.pathFinder.adaptiveIDA_star, 1000000))
     print("IDAS: ", pf.pathFinder.shortestFirst(map.minPoints, map.size, map.hazards,
        map.robotLocation, map.searchPoints.copy(), pf.pathFinder.IDA_star))
     print(pf.findPath(map, robotLocation))
