@@ -3,50 +3,39 @@ from EasyPygame.Components import *
 
 class ReadyState(GameObjectState):
     def __init__(self):
-        super().__init__(0, "Ready")
         self.wasRestart = False
 
     def onEnter(self, gameObject, ms):
-        super().onEnter(gameObject, ms)
         gameObject.buttonList[0].enable(1)
-        
+
         if self.wasRestart:
             # restart SIM and addOn
             # maybe pass addOn to SIM again
             pass
 
     def onExit(self, gameObject, ms):
-        super().onExit(gameObject, ms)
         gameObject.buttonList[0].disable()
 
 class SimulatingState(GameObjectState):
-    def __init__(self):
-        super().__init__(0, "Simulating")
-
     def onEnter(self, gameObject, ms):
-        super().onEnter(gameObject, ms)
         # message SIM to start
+        pass
 
     def update(self, gameObject, ms):
-        super().update(gameObject, ms)
         # update SIM with taking-so-long callback
+        pass
 
     def addOnIsTakingSoLong(self):
         # display "waiting calculation"
         pass
 
 class DoneState(GameObjectState):
-    def __init__(self):
-        super().__init__(0, "Done")
-
     def onEnter(self, gameObject, ms):
-        super().onEnter(gameObject, ms)
         gameObject.buttonList[1].enable(1)
         gameObject.buttonList[2].enable(1)
         # organize floor and robot for button display
 
     def onExit(self, gameObject, ms):
-        super().onExit(gameObject, ms)
         gameObject.buttonList[1].disable()
         gameObject.buttonList[2].disable()
 
@@ -93,4 +82,3 @@ class Scene2StateContext(EasyPygame.Components.GameObject):
 
     def reset(self):
         EasyPygame.nextScene("Scene2", "Scene1")
-    

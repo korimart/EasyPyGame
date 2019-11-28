@@ -52,10 +52,12 @@ class ResourceManager:
         try:
             fontObj = self.fontDict[name]
         except:
-            fontObj = ImageFont.truetype(font, size)
+            fontObj = ImageFont.truetype(font, size * 5)
             self.fontDict[name] = fontObj
 
-        width, height = self.draw.textsize(text, font=fontObj)
+        ascent, descent = fontObj.getmetrics()
+        width, _ = self.draw.textsize(text, font=fontObj)
+        height = ascent + descent
         img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
         draw.text((0, 0), text, color, font=fontObj)
@@ -67,7 +69,7 @@ class ResourceManager:
         except KeyError:
             pass
         self.textureDict[handleName] = texture
-        # TODO
+        return (width, height)
 
     def getLoaded(self, fileName):
         if fileName in self.resourceDict:

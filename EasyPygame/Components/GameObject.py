@@ -34,6 +34,7 @@ class GameObject:
             self.textureViewIndex = 0
 
     def disable(self):
+        self.useTextureView(0)
         self.FSM.switchState(0, 0)
 
     def enable(self, stateIndex):

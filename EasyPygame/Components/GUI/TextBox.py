@@ -6,17 +6,18 @@ from EasyPygame.Components import *
 class TextBoxUnfocused(StaticTextureState):
     def onEnter(self, gameObject, ms):
         super().onEnter(gameObject, ms)
-        EasyPygame.resManager.createTextTexture(gameObject.textureName, "comic.ttf", \
-            72 * 3, gameObject.text, gameObject.color)
-        # EasyPygame.createTextImage(gameObject.fontName, gameObject.fontSize, \
-        #     gameObject.color, gameObject.textureName, gameObject.text, True, \
-        #     (200, 200, 200))
+        gameObject.modifyTextureView()
+        gameObject.bgTV.color = (0.8, 0.8, 0.8)
 
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
 class TextBoxFocused(StaticTextureState):
+    def onEnter(self, gameObject, ms):
+        super().onEnter(gameObject, ms)
+        gameObject.bgTV.color = (0.2, 0.2, 0.9)
+
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("RETURN") \
             or EasyPygame.isDown1stTime("MOUSELEFT") and not gameObject.isMouseOn():
@@ -27,25 +28,25 @@ class TextBoxFocused(StaticTextureState):
             gameObject.dirty = True
         else:
             printables = EasyPygame.inputManager.getPrintables()
-            gameObject.text += "".join(printables)
-            gameObject.cursorPos += len(printables)
-            gameObject.dirty = True
-        
+            if printables:
+                gameObject.text += "".join(printables)
+                gameObject.cursorPos += len(printables)
+                gameObject.dirty = True
+
         if gameObject.dirty:
-            EasyPygame.resManager.createTextTexture(gameObject.textureName, "comic.ttf", \
-                72 * 3, gameObject.text, gameObject.color)
+            gameObject.modifyTextureView()
             gameObject.dirty = False
 
 class TextBox(GameObject):
     def __init__(self, scene, name="TextBox", defaultText="", \
-            fontName="comicsansms", fontSize=30, color=(0,0,0)):
+            fontName="comic.ttf", color=(0,0,0)):
         super().__init__(scene, name)
         self.text = defaultText
         self.cursorPos = 0;
         self.fontName = fontName
-        self.fontSize = fontSize
         self.color = color
         self.dirty = False
+        self.ratio = self.rect.width / self.rect.height
 
         while True:
             self.textureName = "__Kori" + str(random.randint(0, 10000))
@@ -54,16 +55,39 @@ class TextBox(GameObject):
             except:
                 break
 
-        self.charTextureView = TextureView(self.textureName, \
-            minFilter="linear", magFilter="linear")
+        self.charTextureView = TextureView(self.textureName)
         self.addTextureView(self.charTextureView)
+
+        self.bg = GameObject(scene, name + "BG")
+        self.bg.rect = self.rect
+        self.bgTV = DefaultTextureView((0.8, 0.8, 0.8))
+        self.bg.addTextureView(self.bgTV)
+        self.bg.useTextureView(1)
 
         self.FSM.addState(TextBoxUnfocused(1))
         self.FSM.addState(TextBoxFocused(1))
         self.FSM.switchState(1, 0)
+
+    def modifyTextureView(self):
+        if self.text:
+            width, height = EasyPygame.resManager.createTextTexture(self.textureName, self.fontName, \
+                72, self.text, self.color)
+            ratio = width / height
+            imageWidth = self.ratio / ratio
+            imageRect = EasyPygame.Rect(0, 0, imageWidth, 1)
+            if imageWidth < 1:
+                imageRect.x = 1 - imageWidth
+            self.charTextureView.imageRect = imageRect
+        else:
+            self.charTextureView.imageRect.width = 0
 
     def getText(self):
         return self.text
 
     def setText(self, text):
         self.text = text
+
+    def setWidth(self, width):
+        self.rect.width = width
+        self.ratio = self.rect.width / self.rect.height
+        self.modifyTextureView()

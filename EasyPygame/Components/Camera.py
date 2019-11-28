@@ -16,7 +16,9 @@ class Camera:
         y = 1 - screenPos[1] / height * 2
         x *= self.distance
         y *= self.distance
-        return (x, y)        
+        x += self.pos[0]
+        y += self.pos[1]
+        return (x, y)
 
     def reset(self):
         self.moveTo(0, 0)

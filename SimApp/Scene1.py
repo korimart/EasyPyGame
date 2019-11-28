@@ -21,14 +21,14 @@ class Scene1(EasyPygame.Components.Scene):
         data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
-            inputField.rect.x = -100
-            inputField.rect.y = 200 - 100 * i
-            inputField.rect.width = 200
+            inputField.rect.x = -1
+            inputField.rect.y = 2 - i * 1.2
+            inputField.setWidth(3)
             self.inputFields.append(inputField)
 
         self.submitButton = GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
-        self.submitButton.rect.x = 150
-        self.submitButton.rect.y = -100
+        self.submitButton.rect.x = 1.5
+        self.submitButton.rect.y = -1
 
     def postRender(self, ms):
         if self.errorMessage and not self.errorMessageTime:
@@ -43,13 +43,13 @@ class Scene1(EasyPygame.Components.Scene):
 
     def checkInput(self):
         inputs = [inputField.getText() for inputField in self.inputFields]
-        
+
         # width by height
         for separator in ["x", "X"]:
             widthAndHeight = inputs[0].split(separator)
             if len(widthAndHeight) == 2:
                 break
-        
+
         if len(widthAndHeight) != 2:
             self.errorMessage = "only width and height must be given"
             return
@@ -62,7 +62,7 @@ class Scene1(EasyPygame.Components.Scene):
         except:
             self.errorMessage = "Incorrect width and/or height"
             return
-    
+
         try:
             startPos = ast.literal_eval(inputs[1])
             assert type(startPos) is tuple or type(startPos) is list
