@@ -133,6 +133,7 @@ class RendererOpenGL:
         self.instIndiviWorlds = None
 
         glClearColor(1.0, 1.0, 1.0, 1.0)
+        glEnable(GL_DEPTH_TEST)
         self._initBuffers()
         for program in self.programs:
             glUseProgram(program)
@@ -310,7 +311,7 @@ class RendererOpenGL:
         pass
 
     def clear(self):
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     @staticmethod
     def _createShader(shaderType, source):
@@ -365,10 +366,10 @@ class RendererOpenGL:
 
 
     @staticmethod
-    def _calcMVPMat(cosntRect, constCamera):
+    def _calcMVPMat(constRect, constCamera):
         mvpMat = glm.mat4()
-        mvpMat = glm.translate(mvpMat, glm.vec3(cosntRect.x, cosntRect.y, 0))
-        mvpMat = glm.scale(mvpMat, glm.vec3(cosntRect.width, cosntRect.height, 1))
+        mvpMat = glm.translate(mvpMat, glm.vec3(constRect.x, constRect.y, constRect.z))
+        mvpMat = glm.scale(mvpMat, glm.vec3(constRect.width, constRect.height, 1))
         vMat = glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
         pMat = glm.perspectiveFovRH(glm.radians(90), 500, 500, 0.1, 100)
@@ -377,7 +378,7 @@ class RendererOpenGL:
     @staticmethod
     def _calcWorldMat(worldRect):
         worldMat = glm.mat4()
-        worldMat = glm.translate(worldMat, glm.vec3(worldRect.x, worldRect.y, 0))
+        worldMat = glm.translate(worldMat, glm.vec3(worldRect.x, worldRect.y, worldRect.z))
         return glm.scale(worldMat, glm.vec3(worldRect.width, worldRect.height, 1))
 
     @staticmethod

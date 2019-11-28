@@ -3,9 +3,8 @@ import random
 import EasyPygame
 from EasyPygame.Components import *
 
-class TextBoxUnfocused(StaticTextureState):
+class TextBoxUnfocused(GameObjectState):
     def onEnter(self, gameObject, ms):
-        super().onEnter(gameObject, ms)
         gameObject.modifyTextureView()
         gameObject.bgTV.color = (0.8, 0.8, 0.8)
 
@@ -13,9 +12,8 @@ class TextBoxUnfocused(StaticTextureState):
         if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
-class TextBoxFocused(StaticTextureState):
+class TextBoxFocused(GameObjectState):
     def onEnter(self, gameObject, ms):
-        super().onEnter(gameObject, ms)
         gameObject.bgTV.color = (0.2, 0.2, 0.9)
 
     def update(self, gameObject, ms):
@@ -57,6 +55,7 @@ class TextBox(GameObject):
 
         self.charTextureView = TextureView(self.textureName)
         self.addTextureView(self.charTextureView)
+        self.useTextureView(1)
 
         self.bg = GameObject(scene, name + "BG")
         self.bg.rect = self.rect
@@ -64,8 +63,8 @@ class TextBox(GameObject):
         self.bg.addTextureView(self.bgTV)
         self.bg.useTextureView(1)
 
-        self.FSM.addState(TextBoxUnfocused(1))
-        self.FSM.addState(TextBoxFocused(1))
+        self.FSM.addState(TextBoxUnfocused())
+        self.FSM.addState(TextBoxFocused())
         self.FSM.switchState(1, 0)
 
     def modifyTextureView(self):

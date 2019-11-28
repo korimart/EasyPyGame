@@ -39,7 +39,7 @@ class DoneState(GameObjectState):
         gameObject.buttonList[1].disable()
         gameObject.buttonList[2].disable()
 
-class Scene2StateContext(EasyPygame.Components.GameObject):
+class Scene2StateContext(GameObject):
     def __init__(self, scene, width, height, startPos, targetPosList, knownHazardsList):
         super().__init__(scene, "SceneState")
         self.scene = scene

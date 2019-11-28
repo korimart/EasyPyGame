@@ -71,48 +71,8 @@ class ResourceManager:
         self.textureDict[handleName] = texture
         return (width, height)
 
-    def getLoaded(self, fileName):
-        if fileName in self.resourceDict:
-            return self.resourceDict[fileName]
-        else:
-            raise Exception("File not loaded")
-
     def getTexture(self, fileName):
         if fileName in self.textureDict:
             return self.textureDict[fileName]
         else:
             raise Exception("Texture not loaded: " + fileName)
-
-    def loadFont(self, fontName, size):
-        fontName = "".join(fontName.split())
-        try:
-            return bool(self.fontNameDict[fontName][size])
-        except:
-            pass
-
-        font = pygame.font.SysFont(fontName, size)
-        if fontName not in self.fontNameDict:
-            self.fontNameDict[fontName] = dict()
-
-        self.fontNameDict[fontName][size] = font
-
-    def unloadFont(self, fontName, size):
-        fontName = "".join(fontName.split())
-        try:
-            del self.fontNameDict[fontName][size]
-        except:
-            pass
-
-    def createTextSurface(self, fontName, size, color, surfaceName, text, override=False, background=None):
-        fontName = "".join(fontName.split())
-        if not override and surfaceName in self.resourceDict:
-            raise Exception("imageName already exists")
-
-        try:
-            font = self.fontNameDict[fontName][size]
-        except:
-            raise Exception("font not loaded")
-
-        surf = font.render(text, True, color, background)
-        self.resourceDict[surfaceName] = surf
-

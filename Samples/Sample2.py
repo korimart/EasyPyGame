@@ -64,10 +64,11 @@ class Scene1(EasyPygame.Components.Scene):
         self.tileMap.useTextureView(1)
 
         character = GameObject(self, "Character")
-        character.rect.z = -1
+        character.rect.z = 0.01
         character.worldRectList = [character.rect]
         for i in range(1, 1000):
             rect = EasyPygame.Rect(i*2, 0, 1, 1)
+            rect.z = 0.01
             character.worldRectList.append(rect)
 
         for i in range(4):

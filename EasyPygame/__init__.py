@@ -89,18 +89,6 @@ def consume(inp):
 def getMousePos():
     return pygame.mouse.get_pos()
 
-def loadFont(fontName, size):
-    global resManager
-    resManager.loadFont(fontName, size)
-
-def unloadFont(fontName, size):
-    global resManager
-    resManager.unloadFont(fontName, size)
-
-def createTextImage(fontName, size, color, imageName, text, override=False, background=None):
-    global resManager
-    resManager.createTextSurface(fontName, size, color, imageName, text, override, background)
-
 def pprint(text, x, y, center=False, color=(0, 0, 0)):
     global renderer
     renderer.pprint(text, x, y, center, color)
