@@ -14,7 +14,7 @@ class Scene1(EasyPygame.Components.Scene):
   
 
 if __name__ == "__main__":
-    hazards = [(1, 4), (2, 2), (2, 3), (3, 4), (4, 3), (4, 2), (5, 1), (3, 1)]
+    hazards = [(1, 4), (2, 2), (2, 3), (3, 4), (4, 3), (4, 2), (5, 1)]
     size = (6, 7)
     searchPoints = [(3, 2), (3, 3), (3, 6), (5, 4), (5, 0)]
     robotLocation = (1, 2)
