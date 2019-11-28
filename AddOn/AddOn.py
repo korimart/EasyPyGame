@@ -3,9 +3,9 @@ import sys
 from pympler import asizeof
 
 class AddOn:
-    def __init__(self, size, hazards, searchPoints, robotLocation):
+    def __init__(self, size, hazards, searchPoints, robotLocation, pathFinder):
         self.map = Map(size, hazards, searchPoints, robotLocation)
-        self.pathFinder = bfsShortestFirst()
+        self.pathFinder = pathFinder
         self.behavior = GoSlow(self.map)
         self.robotLocation = robotLocation
         
@@ -152,12 +152,11 @@ while the queue is not empty:
             push the copied path to the queue
 """
 
-class PathFinder:
-    def __init__(self, path=[], paths=[], queue=[], print = lambda : None):
+class PathAlgorithm:
+    def __init__(self, path=[], paths=[], queue=[]):
         self.path = path
         self.paths = paths
         self.queue = queue
-        self.print = print
 
     def empty(self):
         del self.path[:]
@@ -196,13 +195,13 @@ class PathFinder:
         return self.sanitiyCheck(minInclusive, maxExclusive,
             forbidden, positions)
         
-    def bfs(self, minInclusive, maxExclusive, forbidden, start, end):
+    def bfs(self, minInclusive, maxExclusive, forbidden, start, end, print = lambda : None):
         del self.queue[:]
         visited = set()
         self.queue.append([start])
         visited.add(start)
         while(len(self.queue) != 0):
-            self.print()
+            print()
             path = self.queue.pop(0)
             current = path[-1]
             if end == current:
@@ -219,7 +218,7 @@ class PathFinder:
         del self.queue[:]
         return None
     
-    def adaptiveBfs(self, minInclusive, maxExclusive, forbidden, start, end, limit):
+    def adaptiveBfs(self, minInclusive, maxExclusive, forbidden, start, end, limit, print = lambda : None):
         del self.queue[:]
         visited = set()
         self.queue.append([start])
@@ -229,7 +228,7 @@ class PathFinder:
         while(curSize < limit and len(self.queue) != 0):
             if curSize > sizeReached:
                 sizeReached = curSize
-            self.print()
+            print()
             path = self.queue.pop(0)
             current = path[-1]
             if end == current:
@@ -252,14 +251,14 @@ class PathFinder:
             return [None, sizeReached]
     
     def adaptiveShortestFirst(self, minInclusive, maxExclusive, forbidden,
-    start, searchPoints, searchAlgorithm, limit):
+    start, searchPoints, searchAlgorithm, limit, print = lambda : None):
         maxSize = 0
         while(len(searchPoints) != 0):
             del self.paths[:]
             del self.queue[:]
             for searchPoint in searchPoints:
                 result = searchAlgorithm(minInclusive, maxExclusive,
-                forbidden, start, searchPoint, limit)
+                forbidden, start, searchPoint, limit, print=print)
                 if result[0] == None:
                     self.empty()
                     return None
@@ -276,46 +275,124 @@ class PathFinder:
         return [pathToBeReturned, maxSize]
 
     def shortestFirst(self, minInclusive, maxExclusive, forbidden,
-    start, searchPoints, searchAlgorithm):
+    start, searchPoints, searchAlgorithm, print = lambda : None):
         while(len(searchPoints) != 0):
             del self.paths[:]
             del self.queue[:]
             for searchPoint in searchPoints:
                 self.paths.append(searchAlgorithm(minInclusive, maxExclusive,
-                forbidden, start, searchPoint))
+                forbidden, start, searchPoint, print=print))
                 if self.paths[-1] == None:
                     self.empty()
                     return None
             subPath = min(self.paths, key=len)
             del subPath[0]
             if len(subPath) > 0:
-                start = subPath[-1]
+                start = subPath[-1] 
             searchPoints.remove(start)
             self.path += subPath
         pathToBeReturned = self.path.copy()
         self.empty()
         return pathToBeReturned
 
+    def ManhattanDistance2D(self, x1, x2):
+        d = 0
+        d += abs(x1[0] - x2[0])
+        d += abs(x1[1] - x2[1])
+        return d
+
+    # it needs to follow shortestFirst's searchAlgorithm's arguments
+    # def IDA_star(self, start, goal, h, cost, succeessors):
+    def IDA_star(self, minInclusive, maxExclusive, forbidden,
+        start, end, print = lambda : None):
+        bound = self.ManhattanDistance2D(start, end)
+        del self.queue[:]
+        self.queue.append(start)
+        while True:
+            t = self.IDA_star_search(end, self.queue, 0, bound,
+                minInclusive, maxExclusive, forbidden)
+            if t == "Found":
+                return self.queue.copy()
+            if t == -1:
+                return None
+            bound = t
+
+    def IDA_star_search(self, end, path, g, bound,
+        minInclusive, maxExclusive, forbidden):
+        node = path[-1]
+        f = g + self.ManhattanDistance2D(node, end)
+        if f > bound:
+            return f
+        if end == node:
+            return "Found"
+        min = None
+        for next in self.possiblePositions(minInclusive, maxExclusive, forbidden, node):
+            if next not in path:
+                path.append(next)
+                t = self.IDA_star_search(end, path, g + 1, bound,
+                    minInclusive, maxExclusive, forbidden)
+                if t == "Found":
+                    return "Found"
+                if t != None:
+                    if min == None:
+                        min = t
+                    elif t < min:
+                        min = t                   
+                path.pop(-1)
+        return min
+
+class IDA_starShortestFirst():
+    def __init__(self):
+        self.pathFinder = PathAlgorithm()   
+    def findPath(self, map, start):
+        return self.pathFinder.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.pathFinder.IDA_star)
+
+
+class SIM_PathAlgorithm(PathAlgorithm):
+    def print(self):
+        # print path
+        pass
+
+
 class SimableAddOn(AddOn):
     def __init__(self,  map, size, hazards, searchPoints, sim,
         path, paths, queue):
         super().__init__(self,  map, size, hazards, searchPoints, sim)
-        self.pathFinder = SIM_bfsShortestFirst(path, paths, queue, sim.printPaths)
+        self.pathFinder = SIM_bfsShortestFirst()
 
 
-class bfsShortestFirst(PathFinder):        
+class bfsShortestFirst2():
+    def __init__(self):
+        self.path = []
+        self.paths = []
+        self.queue = []
+        self.pathFinder = PathAlgorithm(path=self.path, paths=self.paths, queue=self.queue)
+
+    def print(self):
+        #print paths
+        pass
+    
     def findPath(self, map, start):
-        return self.shortestFirst(map.minPoints, map.size,
-                    map.hazards, start, map.getUnvisitedSearchPoints(), self.bfs)
+        return self.pathFinder.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.print)
+    
+
+class bfsShortestFirst:
+    def __init__(self):
+        self.pathFinder = PathAlgorithm()   
+    def findPath(self, map, start):
+        return self.pathFinder.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.pathFinder.bfs)
 
 #there's really not much of a difference btw SIM_bfsShortest and bfsShortest
-class SIM_bfsShortestFirst(PathFinder):
-    def __init__(self, path, paths, queue, print):
-        super().__init__(path, paths, queue, print)
-
+class SIM_bfsShortestFirst():
+    def __init__(self):
+        self.pathFinder = SIM_PathAlgorithm()   
     def findPath(self, map, start):
-        return self.shortestFirst(map.minPoints, map.size,
-                    map.hazards, start, map.getUnvisitedSearchPoints(), self.bfs)
+        return self.pathFinder.shortestFirst(map.minPoints, map.size,
+                    map.hazards, start, map.getUnvisitedSearchPoints(), self.pathFinder.bfs,
+                    self.pathFinder.print)
 
 
     """ kept just in case 
