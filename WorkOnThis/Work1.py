@@ -16,6 +16,7 @@
 #   stack.push(item)
 #   stack.pop()
 #   stack.peek()
+#   stack.getList()
 #   
 
 # Map class methods:
@@ -26,7 +27,7 @@
 def sanitiyCheck(locations, mmap):
         lst = []
         for p in locations:
-            if mmap.getTerrain(p) == 0:
+            if mmap.getTerrain(p[0], p[1]) == 0:
                 lst.append(p)
         return lst
     
