@@ -14,6 +14,9 @@ class DSQueue:
 
     def peek(self):
         return self.queue[0]
+    
+    def getList(self):
+        return self.queue
 
 class DSStack:
     def __init__(self):
@@ -47,9 +50,9 @@ class DSAdaptivePushPop:
 
     def push(self, item):
         # implement this
+        self.dataStructure.push(item)
         if (asizeof.asizeof(self.dataStructure) > self.maxBytes):
             self.memCallback()
-        self.dataStructure.push(item)
 
     def pop(self):
         # implement this
