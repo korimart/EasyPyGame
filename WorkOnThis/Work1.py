@@ -67,12 +67,12 @@ class BFS:
         # implement this
         # pointA and pointB are tuples of length 2
         # return a list of points on the calculated path
-        queue = testQueue() #self.dsFactory("queue")
+        queue = self.dsFactory("queue")
 
         visited = set()
         queue.push([pointA])
         visited.add(pointA)
-        while(queue.len() != 0):
+        while(len(queue) != 0):
             # paint()
             path = queue.pop()
             current = path[-1]
@@ -92,7 +92,7 @@ class IDAstar:
         self.dsFactory = dsFactory
 
     def findPath(self, pointA, pointB, mmap):
-        stack = testStack() #self.dsFactory("stack")
+        stack = self.dsFactory("stack")
         bound = ManhattanDistance2D(pointA, pointB)
         stack.push(pointA)
         while True:
@@ -125,59 +125,4 @@ class IDAstar:
                 path.pop()
         return minimum
 
-class testQueue:
-    def __init__(self):
-        self.queue = []
-    
-    def push(self, item):
-        self.queue.append(item)
-    
-    def pop(self):
-        return self.queue.pop(0)
-    
-    def len(self):
-        return len(self.queue)
-    
-class testStack:
-    def __init__(self):
-        self.stack = []
-    
-    def push(self, item):
-        self.stack.append(item)
-    
-    def pop(self):
-        return self.stack.pop(-1)
-    
-#   def len(self):
-#       return len(self.stack)
 
-    def peek(self):
-        return self.stack[-1]
-
-    def getList(self):
-        return self.stack
-    
-
-##TEST
-import os
-import sys
-THISDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(THISDIR))
-#os.chdir(THISDIR)
-from AddOn import AddOn
-
-if __name__ == "__main__":
-    hazards = [(1, 4), (2, 2), (2, 3), (3, 4), (4, 3), (4, 2), (5, 1)]
-    size = (6, 7)
-    searchPoints = [(3, 2), (3, 3), (3, 6), (5, 4), (5, 0)]
-    robotLocation = (1, 2)
-    robotPosition = list(robotLocation)
-    robotPosition.append(0)
-   
-    mmap = AddOn.Map(hazards = hazards, size=size, searchPoints=searchPoints,
-        robotLocation=robotLocation)
-
-    id = IDAstar(0)
-    print(id.findPath((3, 3), (5,4), mmap))
-    bfs = BFS(0)
-    print(bfs.findPath((3,3), (5,4), mmap))
