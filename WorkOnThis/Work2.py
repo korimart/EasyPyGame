@@ -58,3 +58,17 @@ class DSAdaptivePushPop:
         # implement this
         popped = self.dataStructure.pop()
         return popped
+
+    def __len__(self):
+       return len(self.dataStructure)
+
+    def peek(self):
+        return self.dataStructure.peek()
+
+    def getList(self):
+        return self.dataStructure.getList()
+
+
+
+
+    
