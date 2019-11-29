@@ -6,7 +6,6 @@ sys.path.append(os.path.dirname(THISDIR))
 import EasyPygame
 from EasyPygame.Components import *
 import ast
-import SimApp.Scene2
 
 class Scene1(EasyPygame.Components.Scene):
     ERRORMESSAGETIME = 2000

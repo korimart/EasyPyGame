@@ -267,7 +267,7 @@ class RendererOpenGL:
 
         x = center[0] - width * tilePos
         y = center[1] + height * tilePos
-        m = glm.translate(glm.mat4(), glm.vec3(x, y, 0))
+        m = glm.translate(glm.mat4(), glm.vec3(x, y, center[2]))
 
         glUniformMatrix4fv(MINDEX, 1, GL_FALSE, glm.value_ptr(m))
         glUniform1f(WIDTHINDEX, width)
