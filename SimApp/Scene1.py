@@ -21,8 +21,8 @@ class Scene1(EasyPygame.Components.Scene):
         data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
-            inputField.rect.x = -1
-            inputField.rect.y = 2 - i * 1.2
+            inputField.setX(-1)
+            inputField.setY(2 - i * 1.2)
             inputField.setWidth(3)
             self.inputFields.append(inputField)
 

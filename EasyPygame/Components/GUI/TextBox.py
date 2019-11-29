@@ -58,7 +58,8 @@ class TextBox(GameObject):
         self.useTextureView(1)
 
         self.bg = GameObject(scene, name + "BG")
-        self.bg.rect = self.rect
+        self.bg.rect = self.rect.copy()
+        self.bg.rect.z = -0.001
         self.bgTV = DefaultTextureView((0.8, 0.8, 0.8))
         self.bg.addTextureView(self.bgTV)
         self.bg.useTextureView(1)
@@ -86,7 +87,16 @@ class TextBox(GameObject):
     def setText(self, text):
         self.text = text
 
+    def setX(self, x):
+        super().setX(x)
+        self.bg.setX(x)
+
+    def setY(self, y):
+        super().setY(y)
+        self.bg.setY(y)
+
     def setWidth(self, width):
-        self.rect.width = width
+        super().setWidth(width)
+        self.bg.setWidth(width)
         self.ratio = self.rect.width / self.rect.height
         self.modifyTextureView()

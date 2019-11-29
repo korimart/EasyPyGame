@@ -20,15 +20,15 @@ class IApp(ABC):
         pass
 
 class EasyPygameRect:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, z=0):
         self.x = x
         self.y = y
-        self.z = 0
+        self.z = z
         self.width = width
         self.height = height
 
     def copy(self):
-        return EasyPygameRect(self.x, self.y, self.width, self.height)
+        return EasyPygameRect(self.x, self.y, self.width, self.height, self.z)
 
     def collidepoint(self, x, y):
        return 0 <= x - self.x + self.width / 2 <= self.width \

@@ -49,6 +49,15 @@ class GameObject:
         except AttributeError:
             return False
 
+    def setX(self, x):
+        self.rect.x = x
+
+    def setY(self, y):
+        self.rect.y = y
+
+    def setWidth(self, width):
+        self.rect.width = width
+
     def __eq__(self, other):
         return self.rect.z == other.rect.z
 
