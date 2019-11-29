@@ -18,14 +18,14 @@ class DefaultScene:
         for gobj in reversed(self.gameObjects):
             gobj.yourLogic(ms)            
 
-    def preRender(self):
+    def preRender(self, ms):
         pass
 
     def render(self, ms):
         for gobj in reversed(self.gameObjects):
             gobj.render(ms)
 
-    def postRender(self):
+    def postRender(self, ms):
         pass
 
     def addGameObject(self, obj):

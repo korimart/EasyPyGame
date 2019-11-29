@@ -1,45 +1,42 @@
 import EasyPygame
-from EasyPygame.Components import GameObject
-from EasyPygame.Components import InputHandler
-from EasyPygame.Components import DefaultTextureView
-from EasyPygame.Components import GameObjectState
+from EasyPygame.Components import *
 
-class ButtonInputHandlerReleased(InputHandler):
+class ButtonReleased(GameObjectState):
     def update(self, gameObject, ms):
-        if EasyPygame.isMouseOnObject(gameObject):
+        if gameObject.isMouseOn():
             gameObject.FSM.switchState(2, ms)
 
-class ButtonInputHandlerPressed(InputHandler):
+class ButtonPressed(GameObjectState):
     def update(self, gameObject, ms):
         if not EasyPygame.isDown("MOUSELEFT"):
             gameObject.FSM.switchState(1, ms)
+            gameObject.callback()
 
-class ButtonInputHandlerHover(InputHandler):
+class ButtonHover(GameObjectState):
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT"):
             EasyPygame.consume("MOUSELEFT")
-            gameObject.callback()
             gameObject.FSM.switchState(3, ms)
-        elif not EasyPygame.isMouseOnObject(gameObject):
+        elif not gameObject.isMouseOn():
             gameObject.FSM.switchState(1, ms)
 
 class Button(GameObject):
-    def __init__(self, scene, buttonName="Button", callback=None):
-        super().__init__(scene, buttonName)
+    def __init__(self, scene, name="Button", callback=None):
+        super().__init__(scene, name)
         self.callback = callback
 
-        # handlers: 1, 2, 3
-        self.addInputHandler(ButtonInputHandlerReleased())
-        self.addInputHandler(ButtonInputHandlerHover())
-        self.addInputHandler(ButtonInputHandlerPressed())
-
-        # texture views: 1, 2
+        # texture views: 1, 2, 3
+        self.addTextureView(DefaultTextureView((0, 0, 255)))
         self.addTextureView(DefaultTextureView((0, 255, 0)))
         self.addTextureView(DefaultTextureView((255, 0, 0)))
 
-        self.FSM.addState(GameObjectState(1, 0))
-        self.FSM.addState(GameObjectState(2, 1))
-        self.FSM.addState(GameObjectState(3, 2))
+        self.FSM.addState(ButtonReleased())
+        self.FSM.addState(ButtonHover())
+        self.FSM.addState(ButtonPressed())
+        self.FSM.attachConcurrentState(1, StaticTextureState(1))
+        self.FSM.attachConcurrentState(2, StaticTextureState(2))
+        self.FSM.attachConcurrentState(3, StaticTextureState(3))
+
         self.FSM.switchState(1, 0)
 
     def setCallback(self, callback):

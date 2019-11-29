@@ -1,63 +1,48 @@
 import EasyPygame
 
 class TextureView:
-    def __init__(self, texture, imageRect=None, fitObject=True, crop=False, halign="center", relPos=(0, 0)):
+    def __init__(self, texture, imageRect=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False):
+
         self.texture = texture
-        self.imageRect = imageRect
-        self.fitObject = fitObject
-        self.crop = crop
-        self.relPos = relPos
-        self.halign = halign
+        if not imageRect:
+            self.imageRect = EasyPygame.Rect(0, 0, 1, 1)
+        else:
+            self.imageRect = imageRect
+        self.flipX = flipX
+        self.flipY = flipY
+        self.minFilter = minFilter
+        self.magFilter = magFilter
 
-    def render(self, gameObject, camera):
-        rect = gameObject.rect.copy()
-        x, y = camera.view([rect.x, rect.y])
+    def render(self, gameObject):
+        EasyPygame.renderer.renderTextured(gameObject.rect.copy(), self)
 
-        # rect has been converted to screen space
-        rect.x = x + self.relPos[0]
-        rect.y = y - self.relPos[1]
+class TileTextureView(TextureView):
+    def __init__(self, texture, imageRect=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False, pivot=(0, 0)):
+            super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY)
+            self.pivot = pivot
 
-        if self.fitObject:
-            EasyPygame.drawStretchedImage(self.texture, rect, self.imageRect)
-            return
+    def render(self, gameObject):
+        camPos = gameObject.scene.camera.pos
+        rt = gameObject.rect
+        x = round((camPos[0] - self.pivot[0]) / rt.width) * rt.width + self.pivot[0]
+        y = round((camPos[1] - self.pivot[1]) / rt.height) * rt.height + self.pivot[1]
+        dd = 2 * gameObject.scene.camera.distance
+        n = max(dd / rt.width, dd / rt.height) + 3
+        EasyPygame.renderer.renderTexInstancedCluster((x, y), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
-        imageSurf = EasyPygame._getImageSurf(self.texture)
-        if not self.imageRect:
-            imageRect = imageSurf.get_rect().copy()
-
-        imageHalfWidth = imageSurf.get_width() / 2
-        imageHalfHeight = imageSurf.get_height() / 2
-
-        # convert to imageRect coordinate and translate
-        if self.crop:
-            if self.align == "left":
-                left = 0
-                right = rect.width
-            elif self.align == "right":
-                right = imageHalfWidth * 2
-                left = right - rect.width
-            else:
-                left = imageHalfWidth - rect.width / 2
-                right = rect.width / 2 + imageHalfWidth
-
-            top = imageHalfHeight - rect.height / 2
-            bottom = rect.height / 2 + imageHalfHeight
-
-            imageRect.x = max(imageRect.x, left)
-            imageRect.y = max(imageRect.y, top)
-            imageRect.width = min(imageRect.right, right) - imageRect.x
-            imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
-
-        EasyPygame.drawImage(self.texture, rect, imageRect, self.halign)
+class InstancedTextureView(TextureView):
+    def render(self, gameObject):
+        EasyPygame.renderer.renderTexInstancedIndivi(gameObject.worldRectList, self)
 
 class DefaultTextureView:
-    def __init__(self, color=(0, 0, 255)):
+    def __init__(self, color=(0, 0, 1.0)):
         self.color = color
 
-    def render(self, gameObject, camera):
-        rect = gameObject.rect.copy()
-        x, y = camera.view([rect.x, rect.y])
-        rect.x = x
-        rect.y = y
-        EasyPygame.drawRect(self.color, rect)
-        EasyPygame.pprint(gameObject.name, x, y, True)
+    def render(self, gameObject):
+        EasyPygame.renderer.renderDefault(gameObject.rect.copy(), self.color, gameObject.name)
+
+class InvisibleTextureView:
+    def render(self, gameObject):
+        pass
