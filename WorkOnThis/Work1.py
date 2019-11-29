@@ -10,6 +10,11 @@
 #   queue.push(item)
 #   queue.pop()
 #
+# Stack class methods:
+#
+#   stack.push(item)
+#   stack.pop()
+#
 # Map class methods:
 #
 #   map.getTerrain(x, y) -> returns 0 (nothing) or 1 (hazard)
@@ -24,7 +29,16 @@ class BFS:
         self.dsFactory = dsFactory
 
     def findPath(self, pointA, pointB, map):
+        # implement this
         # pointA and pointB are tuples of length 2
         # return a list of points on the calculated path
         queue = self.dsFactory("queue")
+        pass
+
+class AStar:
+    def __init__(self, dsFactory):
+        self.dsFactory = dsFactory
+
+    def findPath(self, pointA, pointB, map):
+        # implement this
         pass
