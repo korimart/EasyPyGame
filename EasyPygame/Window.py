@@ -1,7 +1,6 @@
 import sys
 import pygame
 from EasyPygame.Input import Input
-from OpenGL.GL import *
 
 class Window:
     def __init__(self, width, height, caption, FPS=200):
