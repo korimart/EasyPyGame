@@ -603,3 +603,17 @@ class Map:
     def getUnvisitedSearchPoints(self):
         return self.unvisitedSearchPoints.copy()
 
+    def getTerrain(self, pos):
+        if pos in self.hazards:
+            return 1
+        if pos[0] < self.minPoints[0]:
+            return 1
+        if pos[1] < self.minPoints[1]:
+            return 1
+        if pos[0] >= self.size[0]:
+            return 1
+        if pos[0] >= self.size[0]:
+            return 1
+        return 0
+        
+
