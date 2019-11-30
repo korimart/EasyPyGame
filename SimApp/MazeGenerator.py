@@ -11,7 +11,7 @@ class MazeGenerator:
 
     def generate(self, width, height, startingPos, targetList):
         # from world space to array space (flip x y)
-        targets = [startingPos]
+        targets = [(startingPos[1], startingPos[0])]
         for target in targetList:
             targets.append((target[1], target[0]))
         stack = []
