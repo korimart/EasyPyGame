@@ -18,9 +18,9 @@ class VisitOrderProducer:
         # targetList is a list of tuples that need to be visited
         # mmap is a Map class instance
         # return an optimized path that starts from startingPoint and visits all tuples in targetList
+        path = []
         while(len(targetList) != 0):
             paths = []
-            path = []
             for searchPoint in targetList:
                 paths.append(self.algorithm(startingPoint, searchPoint, mmap))
                 if paths[-1] == None:

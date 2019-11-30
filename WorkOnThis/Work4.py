@@ -61,8 +61,7 @@ class BehaviorGoFast:
                 self.coordinates,
                 self.getHazardData(robot, mmap, self.position),
                 self.getBlobData(robot, self.position))
-        self.direction = (self.direction + 3) % 4
-
+                
     def getBlobData(self, robot, position):
         blobs = []
         direction = 0
