@@ -53,8 +53,8 @@ class VisitOrderProducer:
             subPath = min(paths, key=len)
             del subPath[0]
             if len(subPath) > 0:
-                startingPoint = subPath[-1]
-            targetList.remove(startingPoint)
+                PointA = subPath[-1]
+            targetList.remove(PointA)
             path += subPath
         return path
 

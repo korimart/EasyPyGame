@@ -45,20 +45,9 @@ class Map:
                 return True
             else:
                 return False
-    
-    def isOnNextStep(self):
-        if self.peekNextDestination() in self.hazards:
-            return True
-        else:
-            False 
 
-    def popNextDestination(self):
-        if len(self.pathToBeTaken) > 0:
-            return self.pathToBeTaken.pop(0)
-
-    def peekNextDestination(self):
-        if len(self.pathToBeTaken) > 0:
-            return self.pathToBeTaken[0]
+    def nextDestination(self):
+        return self.pathToBeTaken.pop(0)
 
     def currentPos(self):
         return self.robotLocation
