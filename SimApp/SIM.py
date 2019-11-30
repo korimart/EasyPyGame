@@ -1,8 +1,9 @@
 import multiprocessing
 import queue
 from SimApp.Floor import Floor
-from SimApp.Robot import Robot
+from SimApp.Robot import *
 from AddOn.AddOn import AddOn
+from SimApp.SkinChanger import SkinChanger
 
 class Message:
     MOVE = 0
@@ -19,10 +20,15 @@ class SIMProgramSide:
         self.receivingQueue = None
         self.patience = patience
         self.patienceMeter = 0
+        self.ret = None
+        self.needReturn = False
+
+        self.skinChanger = SkinChanger()
+        self.robot.changeSkin(self.skinChanger)
 
         # test
         self.hazards = []
-        self.floor.randomize([(19, 19)])
+        self.floor.randomize([(0, 0), (19, 19)])
         terrain = self.floor.terrain
         for i in range(20):
             for j in range(20):
@@ -30,12 +36,14 @@ class SIMProgramSide:
                     self.hazards.append((j, i))
 
     def update(self, ms, cwal):
-        self.robot.update(ms)
+        self.patienceMeter += ms
+        self._handleMessage()
         if self.robot.isWorking:
             return
 
-        self.patienceMeter += ms
-        self._handleMessage()
+        if self.needReturn:
+            self.robotReturn(self.ret)
+            self.needReturn = False
 
         if self.patienceMeter > self.patience:
             cwal()
@@ -59,21 +67,24 @@ class SIMProgramSide:
             return
 
         if message == Message.MOVE:
-            self.robot.move()
+            self.ret = self.robot.move()
         elif message == Message.ROTATE:
-            self.robot.rotate()
+            self.ret = self.robot.rotate()
         elif message == Message.GETPOS:
-            self.robot.getPos()
+            self.ret = self.robot.getPos()
         elif message == Message.SENSEBLOB:
-            # ask floor
-            pass
+            north = self.floor.senseBlob(self.robot.rect.x, self.robot.rect.y + 1)
+            east = self.floor.senseBlob(self.robot.rect.x + 1, self.robot.rect.y)
+            south = self.floor.senseBlob(self.robot.rect.x, self.robot.rect.y - 1)
+            west = self.floor.senseBlob(self.robot.rect.x - 1, self.robot.rect.y)
+            self.ret = [north, east, south, west]
         elif message == Message.SENSEHAZARD:
-            # ask floor
-            pass
+            self.ret = self.floor.senseHazard(self.robot.rect.x + MOVEDELTA[self.robot.facing][0], self.robot.rect.y + MOVEDELTA[self.robot.facing][1])
         else:
             raise Exception("Unknown message from addOn")
 
         self.patienceMeter = 0
+        self.needReturn = True
 
     def robotReturn(self, ret):
         self.sendingQueue.put(ret)

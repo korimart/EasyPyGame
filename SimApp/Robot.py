@@ -49,6 +49,7 @@ class Running(GameObjectState):
         self.elapsed += ms
         gameObject.rect.x += MOVEDELTA[gameObject.facing][0] * gameObject.runSpeed * ms
         gameObject.rect.y += MOVEDELTA[gameObject.facing][1] * gameObject.runSpeed * ms
+        gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
 
         if gameObject.runSpeed * self.elapsed > 1:
             gameObject.FSM.switchState(gameObject.idle, ms)
@@ -61,8 +62,8 @@ class Robot(GameObject):
     def __init__(self, scene):
         super().__init__(scene, "Robot")
         self.facing = Direction.UP
-        self.workTime = 1000
-        self.runSpeed = 1 / 1000 # 0.001 per ms -> 1 per second
+        self.workTime = 0
+        self.runSpeed = 1 / 10 # 0.001 per ms -> 1 per second
         self.isWorking = False
 
         self.idle = self.FSM.addState(Idle())
@@ -80,15 +81,5 @@ class Robot(GameObject):
         self.FSM.switchState(self.working, 0)
         self.facing = (self.facing + 1) % 4
 
-    def isWorking(self):
-        return self.isWorking
-
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)
-
-    # test
-    def senseHazard(self):
-        return False
-
-    def senseBlob(self):
-        return []
