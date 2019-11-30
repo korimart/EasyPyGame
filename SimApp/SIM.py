@@ -1,5 +1,8 @@
 import multiprocessing
 import queue
+from SimApp.Floor import Floor
+from SimApp.Robot import Robot
+from AddOn.AddOn import AddOn
 
 class Message:
     MOVE = 0
@@ -9,10 +12,9 @@ class Message:
     SENSEHAZARD = 4
 
 class SIMProgramSide:
-    def __init__(self, addOnCls, patience=3000):
-        self.robot = None
-        self.floor = None
-        self.addOnCls = addOnCls
+    def __init__(self, patience=3000):
+        self.robot = Robot(self)
+        self.floor = Floor(self, 20, 20)
         self.sendingQueue = None
         self.receivingQueue = None
         self.patience = patience
@@ -32,13 +34,13 @@ class SIMProgramSide:
     def go(self):
         self.sendingQueue = multiprocessing.Queue(maxsize=1)
         self.receivingQueue = multiprocessing.Queue(maxsize=1)
-        process = multiprocessing.Process(target=self._go, args=(self.addOnCls, self.receivingQueue, self.sendingQueue))
+        process = multiprocessing.Process(target=self._go, args=(self.receivingQueue, self.sendingQueue))
         process.start()
 
     @staticmethod
-    def _go(addOnCls, sendingQueueForAddOn, receivingQueueForAddOn):
+    def _go(sendingQueueForAddOn, receivingQueueForAddOn):
         sim = SIMAddOnSide(sendingQueueForAddOn, receivingQueueForAddOn)
-        addOn = addOnCls()
+        addOn = AddOn()
         addOn.go(sim)
 
     def _handleMessage(self):

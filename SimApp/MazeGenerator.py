@@ -30,7 +30,7 @@ class MazeGenerator:
             neighbors = []
             for delta in self.DIRECTIONS:
                 nei = (curr[0] + delta[0], curr[1] + delta[1])
-                if 0 <= nei[0] < width and 0 <= nei[1] < height and not visited[nei[0]][nei[1]]:
+                if 0 <= nei[0] < height and 0 <= nei[1] < width and not visited[nei[0]][nei[1]]:
                     neighbors.append(nei)
             if neighbors:
                 stack.append(curr)
@@ -46,7 +46,7 @@ class MazeGenerator:
                 neighbors = []
                 for delta in self.DIRECTIONS1:
                     nei = (curr[0] + delta[0], curr[1] + delta[1])
-                    if 0 <= nei[0] < width and 0 <= nei[1] < height:
+                    if 0 <= nei[0] < height and 0 <= nei[1] < width:
                         neighbors.append(nei)
                         if ret[nei[0]][nei[1]] == Terrain.NOTHING:
                             break

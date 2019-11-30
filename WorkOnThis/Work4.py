@@ -12,7 +12,7 @@
 #       direction is one of 0 (UP), 1 (RIGHT), 2 (DOWN), 3 (LEFT)
 #   senseHazard() -> retruns a boolean
 #   senseBlob() -> returns a list of 4 tuples (UP, RIGHT, DOWN, LEFT)
-# 
+#
 # VisitOrderProducer class methods
 #
 #   setAlgorithm(algorithm) -> void
@@ -22,7 +22,7 @@ class BehaviorGoFast:
         self.dsFactory = DSFactory()
         self.algorithm = BFS(self.dsFactory)
         self.visitOrderProducer = VisitOrderProducer(self.algorithm)
-        # 
+        #
         self.pathNeedsUpdate = True
         self.position = None
         self.direction = None
@@ -33,7 +33,7 @@ class BehaviorGoFast:
         # DO NOT check time and memory
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self.takeAStep(robot, mmap)
-    
+
     def takeAStep(self, robot, mmap):
         self.prepToMove(robot, mmap) #Base
         self.updatemMap(robot, mmap) #Sub
@@ -50,7 +50,7 @@ class BehaviorGoFast:
         mmap.pathTaken.append(self.coordinates)
         if self.posToCoord(mmap.currentPos()) != self.coordinates:
             self.pathNeedsUpdate = True
-    
+
     def move(self, robot, mmap):
         if len(mmap.pathToBeTaken) > 0:
                 self.moveInDirection(robot, self.coordinates, self.direction, mmap.nextDestination())
@@ -67,7 +67,7 @@ class BehaviorGoFast:
         direction = 0
         coordinates = [position[0], position[1]]
         rawData = robot.senseBlob()
-        
+
         for raw in rawData:
             if raw:
                 blobs.append(self.calculateCoordinates(coordinates, direction))
@@ -80,12 +80,12 @@ class BehaviorGoFast:
                     self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         if mmap.pathToBeTaken == None:
             raise RuntimeError("mmap.pathToBeTaken == None")
-    
+
     def getHazardData(self, robot, mmap, position):
         hazards = []
         direction = position[2]
         coordinates = [position[0], position[1]]
-        
+
         if robot.senseHazard():
                 frontCoord = self.calculateCoordinates(coordinates, direction)
                 hazards.append(frontCoord)
@@ -93,11 +93,11 @@ class BehaviorGoFast:
 
     def posToDirection(self, position):
         return position[2]
-    
+
     def calculateCoordinates(self, coord, direction):
         newCoord = list(coord)
         if direction == 0:
-            newCoord[1] += 1 
+            newCoord[1] += 1
         elif direction == 1:
            newCoord[0] += 1
         elif direction == 2:
@@ -119,10 +119,10 @@ class BehaviorGoFast:
 """
 class BehaviorAdpative:
     def __init__(self):
-        self.dsFactory = AdaptiveDSFactory()
+        self.dsFactory = AdaptiveDSFactory(self.memoryOverflow)
         self.algorithms = [BFS(self.dsFactory)] # add more according to your needs
         self.visitOrderProducer = VisitOrderProducer(self.algorithms[0])
-        
+
     def go(self, robot, mmap, pathFinder):
         # implement this
         # check time and memory
