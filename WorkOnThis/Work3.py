@@ -22,7 +22,7 @@ class VisitOrderProducer:
         while(len(targetList) != 0):
             paths = []
             for searchPoint in targetList:
-                paths.append(self.algorithm(startingPoint, searchPoint, mmap))
+                paths.append(self.algorithm.findPath(startingPoint, searchPoint, mmap))
                 if paths[-1] == None:
                     return None
             subPath = min(paths, key=len)

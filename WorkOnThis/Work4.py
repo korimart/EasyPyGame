@@ -33,7 +33,6 @@ class BehaviorGoFast:
         # DO NOT check time and memory
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self.takeAStep(robot, mmap)
-        pass
     
     def takeAStep(self, robot, mmap):
         self.prepToMove(robot, mmap) #Base
@@ -61,7 +60,8 @@ class BehaviorGoFast:
                 self.coordinates,
                 self.getHazardData(robot, mmap, self.position),
                 self.getBlobData(robot, self.position))
-                
+
+    # Yet to be changed in SIM or Robot
     def getBlobData(self, robot, position):
         blobs = []
         direction = 0
@@ -77,7 +77,7 @@ class BehaviorGoFast:
     def findPath(self, robot, mmap):
         if mmap.isOnPath or self.pathNeedsUpdate:
                 mmap.pathToBeTaken = self.visitOrderProducer.findPath(
-                    self.coordinates, mmap.getUnvisitedSearchPoints, mmap)
+                    self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         if mmap.pathToBeTaken == None:
             raise RuntimeError("mmap.pathToBeTaken == None")
     
@@ -116,6 +116,7 @@ class BehaviorGoFast:
     def nextDirection(self, direction):
         return (direction + 1) % 4
 
+"""
 class BehaviorAdpative:
     def __init__(self):
         self.dsFactory = AdaptiveDSFactory()
@@ -126,3 +127,5 @@ class BehaviorAdpative:
         # implement this
         # check time and memory
         pass
+
+    """
