@@ -8,6 +8,8 @@ os.chdir(THISDIR)
 import EasyPygame
 from EasyPygame.Components import *
 from SimApp.Floor import *
+from SimApp.SkinChanger import *
+from SimApp.Robot import *
 
 class idle(GameObjectState):
     def __init__(self, key, otherKey, runIndex, otherRunIndex):
@@ -42,6 +44,7 @@ class run(GameObjectState):
             if EasyPygame.isDown(key):
                 gameObject.rect.x += self.DELTA[key][0] * ms
                 gameObject.rect.y += self.DELTA[key][1] * ms
+                gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
                 isIdle = False
 
         if isIdle:
@@ -66,22 +69,15 @@ class Scene1(EasyPygame.Components.Scene):
         self.tileMap.useTextureView(1)
 
         # character = GameObject(self, "Character")
-        # character.rect.z = 0.01
-        # character.worldRectList = [character.rect]
-        # for i in range(1, 1000):
-        #     rect = EasyPygame.Rect(i*2, 0, 1, 1)
-        #     rect.z = 0.01
-        #     character.worldRectList.append(rect)
-
         # for i in range(4):
         #     imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512)
-        #     character.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
-        #     character.addTextureView(InstancedTextureView("animated.png", imageRect))
+        #     character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
+        #     character.addTextureView(TextureView("animated.png", imageRect))
 
         # for i in range(4):
         #     imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512)
-        #     character.addTextureView(InstancedTextureView("animated.png", imageRect.copy(), flipX=True))
-        #     character.addTextureView(InstancedTextureView("animated.png", imageRect))
+        #     character.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
+        #     character.addTextureView(TextureView("animated.png", imageRect))
 
         # # 1: leftIdle, 2: rightIdle, 3:leftRun, 4:rightRun
         # character.FSM.addState(idle("a", "d", 3, 4))
@@ -98,8 +94,12 @@ class Scene1(EasyPygame.Components.Scene):
         # character.FSM.switchState(1, 0)
         # self.characters.append(character)
 
-        self.floor = Floor(self, 10, 10)
-        self.floor.randomize([(0,0)])
+        # self.floor = Floor(self, 33, 33)
+        # self.floor.randomize([(0,0)])
+
+        self.robot = Robot(self)
+        self.skinChanger = SkinChanger()
+        self.robot.changeSkin(self.skinChanger)
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
@@ -119,6 +119,11 @@ class Scene1(EasyPygame.Components.Scene):
             self.camera.move((0.01 * ms, 0))
         if EasyPygame.isDown("KP2"):
             self.camera.move((0, -0.01 * ms))
+
+        if EasyPygame.isDown1stTime("m"):
+            self.robot.move()
+        if EasyPygame.isDown1stTime("r"):
+            self.robot.rotate()
 
     def onUnLoad(self):
         EasyPygame.unload("animated.png")

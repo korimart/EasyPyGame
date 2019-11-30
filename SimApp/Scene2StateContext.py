@@ -1,5 +1,6 @@
 import EasyPygame
 from EasyPygame.Components import *
+from SimApp.SIM import SIMProgramSide
 
 class ReadyState(GameObjectState):
     def __init__(self):
@@ -49,8 +50,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
 
-        self.SIM = None
-        self.addOn = None
+        self.SIM = SIMProgramSide()
 
         # start, restart, reset
         self.buttonList = []

@@ -33,6 +33,9 @@ class GameObject:
         else:
             self.textureViewIndex = 0
 
+    def clearTextureViews(self):
+        self.textureViewList = [TextureView.InvisibleTextureView()]
+
     def disable(self):
         self.useTextureView(0)
         self.FSM.switchState(0, 0)
