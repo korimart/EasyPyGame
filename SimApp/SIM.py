@@ -13,9 +13,8 @@ class Message:
     SENSEHAZARD = 4
 
 class SIMProgramSide:
-    def __init__(self, scene, patience=3000):
-        self.robot = Robot(scene)
-        self.floor = Floor(scene, 50, 50)
+    def __init__(self, scene, parent, patience=3000):
+        self.parent = parent
         self.sendingQueue = None
         self.receivingQueue = None
         self.patience = patience
@@ -23,17 +22,14 @@ class SIMProgramSide:
         self.ret = None
         self.needReturn = False
 
+        self.robot = Robot(scene)
+        self.floor = Floor(scene, parent.width, parent.height)
+        self.addOn = AddOn()
         self.skinChanger = SkinChanger()
         self.robot.changeSkin(self.skinChanger)
 
-        # test
-        self.hazards = []
-        self.floor.randomize([(0, 0), (19, 19)])
-        terrain = self.floor.terrain
-        for i in range(50):
-            for j in range(50):
-                if terrain[i][j]:
-                    self.hazards.append((j, i))
+        self.floor.randomize(parent.startPos, parent.targetPosList)
+        self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):
         self.patienceMeter += ms
@@ -51,13 +47,12 @@ class SIMProgramSide:
     def go(self):
         self.sendingQueue = multiprocessing.Queue(maxsize=1)
         self.receivingQueue = multiprocessing.Queue(maxsize=1)
-        process = multiprocessing.Process(target=self._go, args=(self.hazards, self.receivingQueue, self.sendingQueue))
+        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.receivingQueue, self.sendingQueue))
         process.start()
 
     @staticmethod
-    def _go(hazards, sendingQueueForAddOn, receivingQueueForAddOn):
+    def _go(addOn, sendingQueueForAddOn, receivingQueueForAddOn):
         sim = SIMAddOnSide(sendingQueueForAddOn, receivingQueueForAddOn)
-        addOn = AddOn(hazards)
         addOn.go(sim)
 
     def _handleMessage(self):

@@ -20,7 +20,7 @@ class Scene1(EasyPygame.Components.Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
+        data = ["10x9", "0,0", "[(8, 8)]", "[(3,3)]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.setX(-1)
@@ -67,7 +67,7 @@ class Scene1(EasyPygame.Components.Scene):
 
         try:
             startPos = ast.literal_eval(inputs[1])
-            assert type(startPos) is tuple or type(startPos) is list
+            assert type(startPos) is tuple
             assert type(startPos[0]) is int and type(startPos[1]) is int
             assert 0 <= startPos[0] < width and 0 <= startPos[0] < height
         except:
@@ -78,7 +78,7 @@ class Scene1(EasyPygame.Components.Scene):
             targetPosList = ast.literal_eval(inputs[2])
             assert type(targetPosList) is tuple or type(targetPosList) is list
             for pos in targetPosList:
-                assert type(pos) is tuple or type(pos) is list
+                assert type(pos) is tuple
                 assert type(pos[0]) is int and type(pos[1]) is int
                 assert 0 <= pos[0] < width and 0 <= pos[0] < height
 
@@ -90,7 +90,7 @@ class Scene1(EasyPygame.Components.Scene):
             knownHazardsList = ast.literal_eval(inputs[3])
             assert type(knownHazardsList) is tuple or type(knownHazardsList) is list
             for pos in knownHazardsList:
-                assert type(pos) is tuple or type(pos) is list
+                assert type(pos) is tuple
                 assert type(pos[0]) is int and type(pos[1]) is int
                 assert 0 <= pos[0] < width and 0 <= pos[0] < height
 

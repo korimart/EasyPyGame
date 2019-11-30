@@ -17,14 +17,18 @@ class Floor(GameObject):
         self.wall.addTextureView(InstancedTextureView("animated.png", self.wall.uncoveredRects, imageRect))
         self.wall.useTextureView(1)
 
-    def randomize(self, targetList):
-        self.terrain = self.mazeGenerator.generate(self.width, self.height, targetList)
+    def randomize(self, startingPos, targetList):
+        self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList)
         self.uncovered = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        # test
+
+    def getHazardList(self):
+        hazardList = []
         for i in range(self.height):
             for j in range(self.width):
                 if self.terrain[i][j]:
-                    self._uncover(j, i)
+                    hazardList.append((j, i))
+
+        return hazardList
 
     def restart(self, map):
         pass

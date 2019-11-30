@@ -9,9 +9,11 @@ class MazeGenerator:
     DIRECTIONS = [(2, 0), (-2, 0), (0, 2), (0, -2)]
     DIRECTIONS1 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-    def generate(self, width, height, targetList):
+    def generate(self, width, height, startingPos, targetList):
         # from world space to array space (flip x y)
-        targets = [(target[1], target[0]) for target in targetList]
+        targets = [startingPos]
+        for target in targetList:
+            targets.append((target[1], target[0]))
         stack = []
         start = targets[0]
         xEven = start[0] % 2

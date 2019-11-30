@@ -44,7 +44,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
 
-        self.SIM = SIMProgramSide(scene)
+        self.SIM = SIMProgramSide(scene, self)
 
         # start, restart, reset
         self.buttonList = []
