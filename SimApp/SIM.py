@@ -15,7 +15,7 @@ class Message:
 class SIMProgramSide:
     def __init__(self, scene, patience=3000):
         self.robot = Robot(scene)
-        self.floor = Floor(scene, 20, 20)
+        self.floor = Floor(scene, 50, 50)
         self.sendingQueue = None
         self.receivingQueue = None
         self.patience = patience
@@ -30,8 +30,8 @@ class SIMProgramSide:
         self.hazards = []
         self.floor.randomize([(0, 0), (19, 19)])
         terrain = self.floor.terrain
-        for i in range(20):
-            for j in range(20):
+        for i in range(50):
+            for j in range(50):
                 if terrain[i][j]:
                     self.hazards.append((j, i))
 

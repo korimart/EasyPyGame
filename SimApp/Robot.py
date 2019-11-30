@@ -57,6 +57,7 @@ class Running(GameObjectState):
     def onExit(self, gameObject, ms):
         gameObject.rect.x = self.destX
         gameObject.rect.y = self.destY
+        gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
 
 class Robot(GameObject):
     def __init__(self, scene):
