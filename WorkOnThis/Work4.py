@@ -32,37 +32,37 @@ class BehaviorGoFast:
         # implement this
         # DO NOT check time and memory
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
-            self.takeAStep(robot, mmap)
+            self._takeAStep(robot, mmap)
     
-    def takeAStep(self, robot, mmap):
-        self.prepToMove(robot, mmap) #Base
-        self.updatemMap(robot, mmap) #Sub
-        self.findPath(robot, mmap) #Sub
-        self.move(robot, mmap) #Base
+    def _takeAStep(self, robot, mmap):
+        self._prepToMove(robot, mmap) #Base
+        self._updatemMap(robot, mmap) #Sub
+        self._findPath(robot, mmap) #Sub
+        self._move(robot, mmap) #Base
 
-    def posToCoord(self, position):
+    def _posToCoord(self, position):
         return (position[0], position[1])
 
-    def prepToMove(self, robot, mmap):
+    def _prepToMove(self, robot, mmap):
         self.position = robot.getPos()
-        self.direction = self.posToDirection(self.position)
-        self.coordinates = self.posToCoord(self.position)
+        self.direction = self._posToDirection(self.position)
+        self.coordinates = self._posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
-        if self.posToCoord(mmap.currentPos()) != self.coordinates:
+        if self._posToCoord(mmap.currentPos()) != self.coordinates:
             self.pathNeedsUpdate = True
     
-    def move(self, robot, mmap):
+    def _move(self, robot, mmap):
         if len(mmap.pathToBeTaken) > 0:
-                self.moveInDirection(robot, self.coordinates, self.direction, mmap.nextDestination())
+                self._moveInDirection(robot, self.coordinates, self.direction, mmap.nextDestination())
 
-    def updatemMap(self, robot, mmap):
+    def _updatemMap(self, robot, mmap):
         mmap.update(
                 self.coordinates,
-                self.getHazardData(robot, mmap, self.position),
-                self.getBlobData(robot, self.position))
+                self._getHazardData(robot, mmap, self.position),
+                self._getBlobData(robot, self.position))
 
     # Yet to be changed in SIM or Robot
-    def getBlobData(self, robot, position):
+    def _getBlobData(self, robot, position):
         blobs = []
         direction = 0
         coordinates = [position[0], position[1]]
@@ -70,31 +70,31 @@ class BehaviorGoFast:
         
         for raw in rawData:
             if raw:
-                blobs.append(self.calculateCoordinates(coordinates, direction))
+                blobs.append(self._calculateCoordinates(coordinates, direction))
             direction = (direction + 1) % 4
         return blobs
 
-    def findPath(self, robot, mmap):
+    def _findPath(self, robot, mmap):
         if mmap.isOnPath or self.pathNeedsUpdate:
                 mmap.pathToBeTaken = self.visitOrderProducer.findPath(
                     self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         if mmap.pathToBeTaken == None:
             raise RuntimeError("mmap.pathToBeTaken == None")
     
-    def getHazardData(self, robot, mmap, position):
+    def _getHazardData(self, robot, mmap, position):
         hazards = []
         direction = position[2]
         coordinates = [position[0], position[1]]
         
         if robot.senseHazard():
-                frontCoord = self.calculateCoordinates(coordinates, direction)
+                frontCoord = self._calculateCoordinates(coordinates, direction)
                 hazards.append(frontCoord)
         return hazards
 
-    def posToDirection(self, position):
+    def _posToDirection(self, position):
         return position[2]
     
-    def calculateCoordinates(self, coord, direction):
+    def _calculateCoordinates(self, coord, direction):
         newCoord = list(coord)
         if direction == 0:
             newCoord[1] += 1 
@@ -106,17 +106,16 @@ class BehaviorGoFast:
             newCoord[0] -= 1
         return tuple(newCoord)
 
-    def moveInDirection(self, robot, curLocation, direction, destination):
+    def _moveInDirection(self, robot, curLocation, direction, destination):
         #nextLocation = self.path.pop(0)
-        while(destination != self.calculateCoordinates(curLocation, direction)):
+        while(destination != self._calculateCoordinates(curLocation, direction)):
             robot.rotate()
-            direction = self.nextDirection(direction)
+            direction = self._nextDirection(direction)
         robot.move()
 
-    def nextDirection(self, direction):
+    def _nextDirection(self, direction):
         return (direction + 1) % 4
 
-"""
 class BehaviorAdpative:
     def __init__(self):
         self.dsFactory = AdaptiveDSFactory()
@@ -127,5 +126,3 @@ class BehaviorAdpative:
         # implement this
         # check time and memory
         pass
-
-    """

@@ -96,14 +96,14 @@ class IDAstar:
         bound = ManhattanDistance2D(pointA, pointB)
         stack.push(pointA)
         while True:
-            t = self.IDA_star_search(pointB, stack, 0, bound, mmap)
+            t = self._IDA_star_search(pointB, stack, 0, bound, mmap)
             if t == "Found":
                 return stack.getList()
             if t == None:
                 return None
             bound = t
 
-    def IDA_star_search(self, end, path, g, bound, mmap):
+    def _IDA_star_search(self, end, path, g, bound, mmap):
         node = path.peek()
         f = g + ManhattanDistance2D(node, end)
         if f > bound:
@@ -114,7 +114,7 @@ class IDAstar:
         for neighbour in possiblePositions(node, mmap):
             if neighbour not in path.getList():
                 path.push(neighbour)
-                t = self.IDA_star_search(end, path, g + 1, bound, mmap)
+                t = self._IDA_star_search(end, path, g + 1, bound, mmap)
                 if t == "Found":
                     return "Found"
                 if t != None:
