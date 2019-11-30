@@ -64,7 +64,7 @@ class Robot(GameObject):
         super().__init__(scene, "Robot")
         self.facing = Direction.UP
         self.workTime = 100
-        self.runSpeed = 1 / 100 # 0.001 per ms -> 1 per second
+        self.runSpeed = 0.01 # 0.001 per ms -> 1 per second
         self.isWorking = False
 
         self.idle = self.FSM.addState(Idle())
