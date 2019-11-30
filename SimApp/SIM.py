@@ -29,6 +29,13 @@ class SIMProgramSide:
         self.robot.changeSkin(self.skinChanger)
 
         self.floor.randomize(parent.startPos, parent.targetPosList)
+
+        # test--- uncover all
+        hazards = self.floor.getHazardList()
+        for hazard in hazards:
+            self.floor.uncover(*hazard)
+        # test--- uncover all
+
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):

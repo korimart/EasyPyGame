@@ -38,7 +38,7 @@ class Floor(GameObject):
             ret = self.terrain[y][x]
             if ret == Terrain.BLOB:
                 self.uncovered[y][x] = Terrain.BLOB
-                self._uncover(x, y)
+                self.uncover(x, y)
                 return True
         return False
 
@@ -47,11 +47,11 @@ class Floor(GameObject):
             ret = self.terrain[y][x]
             if ret == Terrain.HAZARD:
                 self.uncovered[y][x] = Terrain.HAZARD
-                self._uncover(x, y)
+                self.uncover(x, y)
                 return True
 
         return False
 
-    def _uncover(self, x, y):
+    def uncover(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
         self.wall.uncoveredRects.append(rt)
