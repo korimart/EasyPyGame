@@ -74,7 +74,7 @@ class Robot(GameObject):
 
     def getPos(self):
         self.FSM.switchState(self.working, 0)
-        return (self.rect.x, self.rect.y)
+        return (self.rect.x, self.rect.y, self.facing)
 
     def rotate(self):
         self.FSM.switchState(self.working, 0)
@@ -85,3 +85,10 @@ class Robot(GameObject):
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)
+
+    # test
+    def senseHazard(self):
+        return False
+
+    def senseBlob(self):
+        return []

@@ -19,16 +19,10 @@ class ReadyState(GameObjectState):
 
 class SimulatingState(GameObjectState):
     def onEnter(self, gameObject, ms):
-        # message SIM to start
-        pass
+        gameObject.SIM.go()
 
     def update(self, gameObject, ms):
-        # update SIM with taking-so-long callback
-        pass
-
-    def addOnIsTakingSoLong(self):
-        # display "waiting calculation"
-        pass
+        gameObject.SIM.update(ms, gameObject.cwal)
 
 class DoneState(GameObjectState):
     def onEnter(self, gameObject, ms):
@@ -50,7 +44,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
 
-        self.SIM = SIMProgramSide()
+        self.SIM = SIMProgramSide(scene)
 
         # start, restart, reset
         self.buttonList = []
@@ -69,6 +63,9 @@ class Scene2StateContext(GameObject):
 
         for button in self.buttonList:
             button.disable()
+
+    def cwal(self):
+        print("cannot wait any longer")
 
     def start(self):
         self.FSM.switchState(self.simulating, 0)

@@ -1,7 +1,8 @@
 import EasyPygame
+from EasyPygame.Components import *
 from SimApp.Scene2StateContext import Scene2StateContext
 
-class Scene2(EasyPygame.Components.Scene):
+class Scene2(Scene):
     def __init__(self):
         super().__init__()
         self.dataTuple = None

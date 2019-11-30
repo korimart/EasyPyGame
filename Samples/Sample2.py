@@ -10,6 +10,10 @@ from EasyPygame.Components import *
 from SimApp.Floor import *
 from SimApp.SkinChanger import *
 from SimApp.Robot import *
+from AddOn.Map import *
+from AddOn.Behavior import *
+from AddOn.Algorithm import *
+from AddOn.DSFactory import *
 
 class idle(GameObjectState):
     def __init__(self, key, otherKey, runIndex, otherRunIndex):
@@ -60,13 +64,13 @@ class Scene1(EasyPygame.Components.Scene):
     def onLoad(self):
         EasyPygame.load("animated.png")
 
-        self.characters = []
+        # self.characters = []
 
-        self.tileMap = GameObject(self, "TileMap")
-        self.tileMap.rect.z = -0.01
-        imageRect = EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)
-        self.tileMap.addTextureView(TileTextureView("animated.png", imageRect))
-        self.tileMap.useTextureView(1)
+        # self.tileMap = GameObject(self, "TileMap")
+        # self.tileMap.rect.z = -0.01
+        # imageRect = EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)
+        # self.tileMap.addTextureView(TileTextureView("animated.png", imageRect))
+        # self.tileMap.useTextureView(1)
 
         # character = GameObject(self, "Character")
         # for i in range(4):
@@ -97,9 +101,16 @@ class Scene1(EasyPygame.Components.Scene):
         # self.floor = Floor(self, 33, 33)
         # self.floor.randomize([(0,0)])
 
-        self.robot = Robot(self)
-        self.skinChanger = SkinChanger()
-        self.robot.changeSkin(self.skinChanger)
+        # self.skinChanger = SkinChanger()
+        # self.robot2 = Robot(self)
+        # self.robot2.changeSkin(self.skinChanger)
+        # self.robot = Robot(self)
+        # self.robot.changeSkin(self.skinChanger)
+
+        # self.mmap = Map((20, 20), [], [(5, 3)], (0, 0))
+        # self.behavior = BehaviorGoFast()
+        # self.pathFinder = VisitOrderProducer(BFS(DSFactory()))
+        # self.behavior.go(self.robot, self.mmap, self.pathFinder)
 
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)

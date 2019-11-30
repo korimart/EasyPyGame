@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(THISDIR))
 import EasyPygame
 from EasyPygame.Components import *
 import ast
+from SimApp.Scene2 import Scene2
 
 class Scene1(EasyPygame.Components.Scene):
     ERRORMESSAGETIME = 2000
@@ -17,6 +18,7 @@ class Scene1(EasyPygame.Components.Scene):
         self.errorMessageTime = 0
 
     def onLoad(self):
+        EasyPygame.load("animated.png")
         data = ["10x9", "0,0", "[[1,2]]", "[[3,3]]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
