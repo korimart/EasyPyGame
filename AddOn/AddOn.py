@@ -364,7 +364,7 @@ class GoSlow(Behavior):
                 self.coordinates,
                 self.getHazardData(robot, map, self.position),
                 self.getBlobData(robot, self.position))
-        self.direction = (self.direction + 3) % 4
+        
 
     def findPath(self, robot, map):
         if map.isOnPath or self.pathNeedsUpdate:
@@ -390,6 +390,7 @@ class GoSlow(Behavior):
                 #I'm not sure why it needs to be checked
                 if self.sanityCheck(map.minPoints, map.size, frontCoord):
                     hazards.append(tuple(frontCoord))
+        self.direction = (self.direction + 3) % 4
         return hazards
 
 class PathFinder:
