@@ -24,7 +24,6 @@ class SIMProgramSide:
 
         self.robot = Robot(scene)
         self.floor = Floor(scene, parent.width, parent.height)
-        self.addOn = AddOn()
         self.skinChanger = SkinChanger()
         self.robot.changeSkin(self.skinChanger)
 
@@ -36,6 +35,7 @@ class SIMProgramSide:
             self.floor.uncover(*hazard)
         # test--- uncover all
 
+        self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):
