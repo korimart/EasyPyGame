@@ -6,7 +6,7 @@ import EasyPygame
 class Camera:
     def __init__(self, initPos=[0, 0]):
         self.pos = initPos
-        self.distance = 3
+        self.distance = 7
 
     def screen2worldCoord(self, screenPos):
         width = EasyPygame.getWindowWidth()
@@ -22,7 +22,7 @@ class Camera:
 
     def reset(self):
         self.moveTo(0, 0)
-        self.distance = 3
+        self.distance = 7
 
     def setDistanceDelta(self, delta):
         if (self.distance + delta > 0.3):
