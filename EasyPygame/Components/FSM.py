@@ -15,6 +15,9 @@ class FSM:
         except KeyError:
             self.concurrentStateDict[gameObjectStateIndex] = [state]
 
+    def clearConcurrentStates(self):
+        self.concurrentStateDict = dict()
+
     def switchState(self, stateIndex, ms):
         if 0 <= stateIndex < len(self.gameObjectStateList):
             if self.currentStateIndex in self.concurrentStateDict:
@@ -81,3 +84,29 @@ class SpriteAnimState(GameObjectState):
         gameObject.useTextureView(self.textureViewIndexList[index])
         self.ms += ms
         self.ms %= self.duration
+
+class TerneryState(GameObjectState):
+    def __init__(self, condVar, unaryFunc, state1, state2):
+        self.condVar = condVar
+        self.unaryFunc = unaryFunc
+        self.state1 = state1
+        self.state2 = state2
+        self.currState = None
+
+    def setCondVar(self, condVar):
+        self.condVar = condVar
+
+    def setUnaryFunc(self, unaryFunc):
+        self.unaryFunc = unaryFunc
+
+    def onEnter(self, gameObject, ms):
+        left = getattr(gameObject, self.condVar)
+        boolean = self.unaryFunc(left)
+        self.currState = self.state1 if boolean else self.state2
+        self.currState.onEnter(gameObject, ms)
+
+    def update(self, gameObject, ms):
+        self.currState.update(gameObject, ms)
+
+    def onExit(self, gameObject, ms):
+        self.currState.onExit(gameObject, ms)
