@@ -31,7 +31,7 @@ class SIMProgramSide:
 
     def update(self, ms, cwal):
         self.robot.update(ms)
-        if self.robot.isWorking():
+        if self.robot.isWorking:
             return
 
         self.patienceMeter += ms
@@ -58,16 +58,16 @@ class SIMProgramSide:
         except queue.Empty:
             return
 
-        if self.message == Message.MOVE:
+        if message == Message.MOVE:
             self.robot.move()
-        elif self.message == Message.ROTATE:
+        elif message == Message.ROTATE:
             self.robot.rotate()
-        elif self.message == Message.GETPOS:
+        elif message == Message.GETPOS:
             self.robot.getPos()
-        elif self.message == Message.SENSEBLOB:
+        elif message == Message.SENSEBLOB:
             # ask floor
             pass
-        elif self.message == Message.SENSEHAZARD:
+        elif message == Message.SENSEHAZARD:
             # ask floor
             pass
         else:

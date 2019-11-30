@@ -12,4 +12,4 @@ class AddOn:
         self.visitOrder = VisitOrderProducer(self.algorithm)
 
     def go(self, robot):
-        self.behavior(robot, self.mmap, self.visitOrder)
+        self.behavior.go(robot, self.mmap, self.visitOrder)

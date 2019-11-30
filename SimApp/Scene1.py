@@ -2,6 +2,7 @@ import os, sys
 
 THISDIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(THISDIR))
+os.chdir(THISDIR)
 
 import EasyPygame
 from EasyPygame.Components import *
