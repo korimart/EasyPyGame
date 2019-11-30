@@ -30,20 +30,21 @@ class Floor(GameObject):
         pass
 
     def senseBlob(self, x, y):
-        ret = self.terrain[x][y]
-        if ret == Terrain.BLOB:
-            self.uncovered[x][y] = Terrain.BLOB
-            self._uncover(x, y)
-            return True
-
+        if 0 <= x < self.width and 0 <= y < self.height:
+            ret = self.terrain[y][x]
+            if ret == Terrain.BLOB:
+                self.uncovered[y][x] = Terrain.BLOB
+                self._uncover(x, y)
+                return True
         return False
 
     def senseHazard(self, x, y):
-        ret = self.terrain[x][y]
-        if ret == Terrain.HAZARD:
-            self.uncovered[x][y] = Terrain.HAZARD
-            self._uncover(x, y)
-            return True
+        if 0 <= x < self.width and 0 <= y < self.height:
+            ret = self.terrain[y][x]
+            if ret == Terrain.HAZARD:
+                self.uncovered[y][x] = Terrain.HAZARD
+                self._uncover(x, y)
+                return True
 
         return False
 
