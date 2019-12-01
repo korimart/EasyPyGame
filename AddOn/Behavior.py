@@ -1,6 +1,3 @@
-from AddOn.DSFactory import *
-from AddOn.Algorithm import *
-
 def _posToCoord(position):
         return (position[0], position[1])
 
@@ -34,7 +31,6 @@ def _getBlobData(robot, position):
             direction = (direction + 1) % 4
         return blobs
 
-
 class BehaviorGoFast:
     def __init__(self):
         self.pathNeedsUpdate = True
@@ -51,7 +47,7 @@ class BehaviorGoFast:
         self.direction = _posToDirection(self.position)
         self.coordinates = _posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
-        
+
         if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
             self.pathNeedsUpdate = True
 
@@ -61,14 +57,14 @@ class BehaviorGoFast:
             if mmap.pathToBeTaken == None:
                 raise RuntimeError("mmap.pathToBeTaken == None")
             self.pathNeedsUpdate = False
-        
+
         if len(mmap.pathToBeTaken) == 0:
             mmap.update(
                 self.coordinates,
                 [],
                 _getBlobData(robot, self.position))
             return
-             
+
         self._faceThisPoint(robot, mmap.peekNextDestination())
         mmap.update(
                 self.coordinates,
@@ -82,7 +78,7 @@ class BehaviorGoFast:
                 raise RuntimeError("mmap.pathToBeTaken == None")
             self._faceThisPoint(robot, mmap.peekNextDestination())
             self._updateHazard(mmap, robot)
-            
+
         mmap.popNextDestination()
         robot.move()
 
@@ -95,14 +91,13 @@ class BehaviorGoFast:
     def _updateHazard(self, mmap, robot):
         mmap.update(self.coordinates, self._getHazardData(robot, mmap), [])
 
-    def _getHazardData(self, robot, mmap): 
+    def _getHazardData(self, robot, mmap):
         hazards = []
         if robot.senseHazard():
                 frontCoord = _calculateCoordinates(
                     self.coordinates, self.direction)
                 hazards.append(frontCoord)
         return hazards
-
 
 class BehaviorGoSlow:
     def __init__(self):
@@ -114,6 +109,7 @@ class BehaviorGoSlow:
     def go(self, robot, mmap, pathFinder):
         # implement this
         # DO NOT check time and memory
+        self.visitOrderProducer = pathFinder
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self._takeAStep(robot, mmap, pathFinder)
 
@@ -154,7 +150,7 @@ class BehaviorGoSlow:
         hazards = []
         direction = position[2]
         coordinates = [position[0], position[1]]
-        
+
         if robot.senseHazard():
                 frontCoord = _calculateCoordinates(coordinates, direction)
                 hazards.append(frontCoord)

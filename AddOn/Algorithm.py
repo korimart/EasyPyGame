@@ -72,7 +72,6 @@ class BFS:
         queue.push([pointA])
         visited.add(pointA)
         while(len(queue) != 0):
-            # paint()
             path = queue.pop()
             current = path[-1]
             if pointB == current:
@@ -84,6 +83,7 @@ class BFS:
                     copiedPath = path.copy()
                     copiedPath.append(position)
                     queue.push(copiedPath)
+
         return None
 
 class IDAstar:
