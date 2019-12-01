@@ -8,16 +8,35 @@ class DSFactory:
     def getGraph(self):
         pass
 
-class AdaptiveDSFactory:
-    def __init__(self, maxBytes, memCallback):
+class MemCheckDSFactory:
+    def __init__(self, dsFactory, maxbytes, memCallback):
+        self.dsFactory = dsFactory
         self.maxBytes = maxBytes
         self.memCallback = memCallback
 
     def getQueue(self):
-        return DSAdaptivePushPop(DSQueue(), self.maxBytes, self.memCallback)
+        queue = self.dsFactory.getQueue()
+        return PushPopMemCheckWrapper(queue, self.maxBytes, self.memCallback)
 
     def getStack(self):
-        return DSAdaptivePushPop(DSStack(), self.maxBytes, self.memCallback)
+        stack = self.dsFactory.getStack()
+        return PushPopMemCheckWrapper(stack, self.maxBytes, self.memCallback)
+
+    def getGraph(self):
+        pass
+
+class InsertCallbackDSFactory:
+    def __init__(self, dsFactory, callback):
+        self.dsFactory = dsFactory
+        self.callback = callback
+
+    def getQueue(self):
+        queue = self.dsFactory.getQueue()
+        return PushPopPushCheckWrapper(queue, self.callback)
+
+    def getStack(self):
+        stack = self.dsFactory.getStack()
+        return PushPopPushCheckWrapper(stack, self.callback)
 
     def getGraph(self):
         pass
@@ -67,20 +86,14 @@ class DSStack:
 
 from pympler import asizeof
 
-class DSAdaptivePushPop:
-    def __init__(self, dataStructure, maxBytes, memCallback):
+class PushPopWrapper:
+    def __init__(self, dataStructure):
         self.dataStructure = dataStructure
-        self.maxBytes = maxBytes
-        self.memCallback = memCallback
 
     def push(self, item):
-        # implement this
         self.dataStructure.push(item)
-        if (asizeof.asizeof(self.dataStructure) > self.maxBytes):
-            self.memCallback()
 
     def pop(self):
-        # implement this
         popped = self.dataStructure.pop()
         return popped
 
@@ -92,3 +105,23 @@ class DSAdaptivePushPop:
 
     def getList(self):
         return self.dataStructure.getList()
+
+class PushPopMemCheckWrapper(PushPopWrapper):
+    def __init__(self, dataStructure, maxBytes, memCallback):
+        super().__init__(dataStructure)
+        self.maxBytes = maxBytes
+        self.memCallback = memCallback
+
+    def push(self, item):
+        super().push(item)
+        if (asizeof.asizeof(self.dataStructure) > self.maxBytes):
+            self.memCallback()
+
+class PushPopPushCheckWrapper(PushPopWrapper):
+    def __init__(self, dataStructure, callBack):
+        super().__init__(dataStructure)
+        self.callBack = callBack
+
+    def push(self, item):
+        super().push(item)
+        self.callBack(item)

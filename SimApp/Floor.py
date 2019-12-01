@@ -55,8 +55,8 @@ class Floor(GameObject):
                 self.uncovered[y][x] = Terrain.HAZARD
                 self.uncover(x, y)
                 return True
-
-        return False
+            return False
+        return True
 
     def uncover(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
