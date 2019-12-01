@@ -11,6 +11,10 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
+        self.colorTileSpeed = 1
+        self.colorTileTimer = 0
+        self.colorTileBuffer = []
+
         self.wall = GameObject(scene, "Wall")
         self.wall.uncoveredRects = []
         imageRect = EasyPygame.Rect(32 / 512, 12 / 512, 16 / 512, 16 / 512)
@@ -64,7 +68,16 @@ class Floor(GameObject):
 
     def colorTile(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-        self.colorTiles.tileRects.append(rt)
+        self.colorTileBuffer.append(rt)
 
     def clearColor(self):
         del self.colorTiles.tileRects[:]
+
+    def yourLogic(self, ms):
+        if self.colorTileBuffer:
+            self.colorTileTimer += ms
+            if self.colorTileTimer > 1 / self.colorTileSpeed:
+                pop = self.colorTileBuffer.pop(0)
+                self.colorTiles.tileRects.append(pop)
+                self.colorTileTimer = 0
+

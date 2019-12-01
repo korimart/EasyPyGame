@@ -13,6 +13,7 @@ class Message:
     SENSEHAZARD = 4
     CLEARCOLOR = 5
     COLORTILE = 6
+    COLORTILEARRAY = 7
 
 class SIMProgramSide:
     def __init__(self, scene, parent, patience=3000):
@@ -41,6 +42,9 @@ class SIMProgramSide:
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):
+        if self.floor.colorTileBuffer:
+            return
+
         self.patienceMeter += ms
         self._handleMessage()
         if self.robot.isWorking:
@@ -54,8 +58,8 @@ class SIMProgramSide:
             cwal()
 
     def go(self):
-        self.sendingQueue = multiprocessing.Queue(maxsize=1)
-        self.receivingQueue = multiprocessing.Queue(maxsize=1)
+        self.sendingQueue = multiprocessing.Queue(maxsize=100)
+        self.receivingQueue = multiprocessing.Queue(maxsize=100)
         process = multiprocessing.Process(target=self._go, args=(self.addOn, self.receivingQueue, self.sendingQueue))
         process.start()
 
@@ -92,11 +96,16 @@ class SIMProgramSide:
             y = self.receivingQueue.get()
             self.ret = None
             self.floor.colorTile(x, y)
+        elif message == Message.COLORTILEARRAY:
+            tupleList = self.receivingQueue.get()
+            for pos in tupleList:
+                self.floor.colorTile(*pos)
+
         else:
             raise Exception("Unknown message from addOn")
 
-        self.patienceMeter = 0
         self.needReturn = True
+        self.patienceMeter = 0
 
     def robotReturn(self, ret):
         self.sendingQueue.put(ret)
@@ -128,6 +137,11 @@ class SIMAddOnSide:
         self.sendingQueue.put(Message.COLORTILE)
         self.sendingQueue.put(int(x))
         self.sendingQueue.put(int(y))
+        return self.receivingQueue.get()
+
+    def colorTileArray(self, tupleList):
+        self.sendingQueue.put(Message.COLORTILEARRAY)
+        self.sendingQueue.put(tupleList)
         return self.receivingQueue.get()
 
     def _returnRobotMessage(self, message):

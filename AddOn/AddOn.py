@@ -1,3 +1,4 @@
+import threading
 from functools import partial
 
 from AddOn.Algorithm import *
@@ -8,9 +9,9 @@ from AddOn.Map import *
 class AddOn:
     def __init__(self):
         self.mmap = None
-        self.behavior = BehaviorGoSlow()
+        self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = IDAstar(self.dsFactory)
+        self.algorithm = BFS(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
@@ -51,19 +52,27 @@ class PaintingPathFinder:
         self.painter.clear()
         for pos in path:
             self.painter.draw(*pos)
+        self.painter.flush()
         return path
 
 class Painter:
     def __init__(self):
         self.size = None
         self.array = None
+        self.package = []
         self.sim = None
 
     def draw(self, x, y):
         if self.array[y][x] == 0:
-            self.sim.colorTile(x, y)
+            self.package.append((x, y))
         self.array[y][x] += 1
 
     def clear(self):
+        self.flush()
         self.sim.clearColor()
         self.array = [[0 for _ in range(self.size[0])] for _ in range(self.size[1])]
+
+    def flush(self):
+        if self.package:
+            self.sim.colorTileArray(self.package)
+            self.package = []
