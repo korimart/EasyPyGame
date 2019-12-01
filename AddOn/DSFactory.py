@@ -9,7 +9,7 @@ class DSFactory:
         pass
 
 class MemCheckDSFactory:
-    def __init__(self, dsFactory, maxbytes, memCallback):
+    def __init__(self, dsFactory, maxBytes, memCallback):
         self.dsFactory = dsFactory
         self.maxBytes = maxBytes
         self.memCallback = memCallback
