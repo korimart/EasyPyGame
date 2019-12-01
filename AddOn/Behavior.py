@@ -65,6 +65,7 @@ class BehaviorGoFast:
                     self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         if mmap.pathToBeTaken == None:
             raise RuntimeError("mmap.pathToBeTaken == None")
+        self.pathNeedsUpdate = False
 
     def _getHazardData(self, robot, mmap, position):
         hazards = []
@@ -118,3 +119,4 @@ class BehaviorGoFast:
 
     def _nextDirection(self, direction):
         return (direction + 1) % 4
+
