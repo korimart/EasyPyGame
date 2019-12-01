@@ -52,7 +52,7 @@ class BehaviorGoFast:
         self.coordinates = _posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
         
-        if _posToCoord(_posToCoord(mmap.currentPos())) != self.coordinates:
+        if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
             self.pathNeedsUpdate = True
 
         if self.pathNeedsUpdate:
@@ -128,11 +128,11 @@ class GoSlow:
         self.direction = _posToDirection(self.position)
         self.coordinates = _posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
-        if _posToCoord(_posToCoord(mmap.currentPos())) != self.coordinates:
+        if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
             self.pathNeedsUpdate = True
 
     def _findPath(self, robot, mmap, pathFinder):
-        if mmap.isOnPath or self.pathNeedsUpdate:
+        if mmap.isOnPath() or self.pathNeedsUpdate:
                 mmap.pathToBeTaken = pathFinder.findPath(
                     self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         self.pathNeedsUpdate = False
