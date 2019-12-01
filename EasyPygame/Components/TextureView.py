@@ -39,7 +39,8 @@ class InstancedTextureView(TextureView):
         self.rectListRef = rectListRef
 
     def render(self, gameObject):
-        EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self)
+        if self.rectListRef:
+            EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self)
 
 class DefaultTextureView:
     def __init__(self, color=(0, 0, 1.0)):

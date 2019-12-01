@@ -11,6 +11,8 @@ class Message:
     GETPOS = 2
     SENSEBLOB = 3
     SENSEHAZARD = 4
+    CLEARCOLOR = 5
+    COLORTILE = 6
 
 class SIMProgramSide:
     def __init__(self, scene, parent, patience=3000):
@@ -82,6 +84,14 @@ class SIMProgramSide:
             self.ret = [north, east, south, west]
         elif message == Message.SENSEHAZARD:
             self.ret = self.floor.senseHazard(self.robot.rect.x + MOVEDELTA[self.robot.facing][0], self.robot.rect.y + MOVEDELTA[self.robot.facing][1])
+        elif message == Message.CLEARCOLOR:
+            self.ret = None
+            self.floor.clearColor()
+        elif message == Message.COLORTILE:
+            x = self.receivingQueue.get()
+            y = self.receivingQueue.get()
+            self.ret = None
+            self.floor.colorTile(x, y)
         else:
             raise Exception("Unknown message from addOn")
 
@@ -97,24 +107,29 @@ class SIMAddOnSide:
         self.receivingQueue = receivingQueue
 
     def move(self):
-        self.sendingQueue.put(Message.MOVE)
-        return self._returnRobotMessage()
+        return self._returnRobotMessage(Message.MOVE)
 
     def rotate(self):
-        self.sendingQueue.put(Message.ROTATE)
-        return self._returnRobotMessage()
+        return self._returnRobotMessage(Message.ROTATE)
 
     def getPos(self):
-        self.sendingQueue.put(Message.GETPOS)
-        return self._returnRobotMessage()
+        return self._returnRobotMessage(Message.GETPOS)
 
     def senseBlob(self):
-        self.sendingQueue.put(Message.SENSEBLOB)
-        return self._returnRobotMessage()
+        return self._returnRobotMessage(Message.SENSEBLOB)
 
     def senseHazard(self):
-        self.sendingQueue.put(Message.SENSEHAZARD)
-        return self._returnRobotMessage()
+        return self._returnRobotMessage(Message.SENSEHAZARD)
 
-    def _returnRobotMessage(self):
+    def clearColor(self):
+        return self._returnRobotMessage(Message.CLEARCOLOR)
+
+    def colorTile(self, x, y):
+        self.sendingQueue.put(Message.COLORTILE)
+        self.sendingQueue.put(int(x))
+        self.sendingQueue.put(int(y))
+        return self.receivingQueue.get()
+
+    def _returnRobotMessage(self, message):
+        self.sendingQueue.put(message)
         return self.receivingQueue.get()
