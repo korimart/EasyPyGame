@@ -1,11 +1,10 @@
 from AddOn.Algorithm import *
 from AddOn.DSFactory import *
 
-def _IDAstar_INDEX():
-    return 1
+import time
 
-def _BFS_INDEX():
-    return 0
+_BFS_INDEX = 0
+_IDAstar_INDEX = 1
 
 class AlgorithmPicker:
     def __init__(self, dsFactory, maxBytes, maxTime):
@@ -17,30 +16,28 @@ class AlgorithmPicker:
         # and other members as necessary
 
     def findPath(self, pointA, pointB, mmap):
+
         try:
+            t_start = time.time()
             path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
+            t_delta = time.time() - t_start()
+
         except MemoryError:
             # implement this
             # change algorithm and try again
             if isinstance(self.algorithms[self.currAlgoIndex], BFS):
-                self.currAlgoIndex = _IDAstar_INDEX()
+                self.currAlgoIndex = _IDAstar_INDEX
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
+            
 
         # also use Python's whatever event system for max time
         # change alogirhtm and try again
-        except TimeoutError:
+        if t_delta > self.maxTime:
             if isinstance(self.algorithms[self.currAlgoIndex], BFS):
-                self.currAlgoIndex = _IDAstar_INDEX()
+                self.currAlgoIndex = _IDAstar_INDEX
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
         
         return path
 
     def memCallback(self):
         raise MemoryError
-
-#TEST
-"""
-if __name__ == "__main__":
-    picker = AlgorithmPicker(DSFactory(), 200, 100)
-    picker.findPath(...)
-"""
