@@ -10,7 +10,7 @@ class AddOn:
         self.mmap = None
         self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = IDAstar(self.dsFactory)
+        self.algorithm = BFS(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
@@ -26,8 +26,14 @@ class AddOn:
         self.mmap = Map(size, hazardList, targetList, startingPoint)
 
     def _inserted(self, item):
-        self.sim.colorTile(*item)
-        # print(item)
+        try:
+            self.sim.colorTile(*item)
+        except:
+            try:
+                for pos in item:
+                    self.sim.colorTile(*pos)
+            except:
+                pass
 
 class PathPainter:
     def __init__(self, pathFinder):
