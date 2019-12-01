@@ -5,7 +5,7 @@ class BehaviorGoFast:
     def __init__(self):
         self.dsFactory = DSFactory()
         self.algorithm = BFS(self.dsFactory)
-        self.visitOrderProducer = VisitOrderProducer(self.algorithm)
+        self.visitOrderProducer = None
         #
         self.pathNeedsUpdate = True
         self.position = None
@@ -15,6 +15,7 @@ class BehaviorGoFast:
     def go(self, robot, mmap, pathFinder):
         # implement this
         # DO NOT check time and memory
+        self.visitOrderProducer = pathFinder
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self._takeAStep(robot, mmap)
 

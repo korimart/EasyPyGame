@@ -30,7 +30,7 @@ class PathFinder:
 
     def findPath(self, startingPoint, targetList, mmap):
         path = self.pathFinder.findPath(startingPoint, targetList, mmap)
-        robot.clearColor()
+        self.robot.clearColor()
         for pos in path:
-            robot.colorTile(*pos)
+            self.robot.colorTile(*pos)
         return path

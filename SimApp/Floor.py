@@ -17,11 +17,11 @@ class Floor(GameObject):
         self.wall.addTextureView(InstancedTextureView("animated.png", self.wall.uncoveredRects, imageRect))
         self.wall.useTextureView(1)
 
-        self.colorTile = GameObject(scene, "ColorTile")
-        self.colorTile.tileRects = []
+        self.colorTiles = GameObject(scene, "ColorTile")
+        self.colorTiles.tileRects = []
         imageRect = EasyPygame.Rect(128 / 512 + 16 / 512, 16 / 512, 16 / 512, 16 / 512)
-        self.colorTile.addTextureView(InstancedTextureView("animated.png", self.colorTile.tileRects, imageRect))
-        self.colorTile.useTextureView(1)
+        self.colorTiles.addTextureView(InstancedTextureView("animated.png", self.colorTiles.tileRects, imageRect))
+        self.colorTiles.useTextureView(1)
 
     def randomize(self, startingPos, targetList):
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList)
@@ -64,7 +64,7 @@ class Floor(GameObject):
 
     def colorTile(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-        self.colorTile.tileRects.append(rt)
+        self.colorTiles.tileRects.append(rt)
 
     def clearColor(self):
-        del self.colorTile.tileRects[:]
+        del self.colorTiles.tileRects[:]
