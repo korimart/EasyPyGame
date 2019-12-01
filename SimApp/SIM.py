@@ -1,4 +1,4 @@
-import multiprocessing
+import threading
 import queue
 from SimApp.Floor import Floor
 from SimApp.Robot import *
@@ -58,10 +58,10 @@ class SIMProgramSide:
             cwal()
 
     def go(self):
-        self.sendingQueue = multiprocessing.Queue(maxsize=100)
-        self.receivingQueue = multiprocessing.Queue(maxsize=100)
-        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.receivingQueue, self.sendingQueue))
-        process.start()
+        self.sendingQueue = queue.Queue(maxsize=100)
+        self.receivingQueue = queue.Queue(maxsize=100)
+        thread = threading.Thread(target=self._go, args=(self.addOn, self.receivingQueue, self.sendingQueue))
+        thread.start()
 
     @staticmethod
     def _go(addOn, sendingQueueForAddOn, receivingQueueForAddOn):
