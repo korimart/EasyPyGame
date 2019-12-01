@@ -104,7 +104,7 @@ class BehaviorGoFast:
         return hazards
 
 
-class GoSlow:
+class BehaviorGoSlow:
     def __init__(self):
         self.pathNeedsUpdate = True
         self.position = None
@@ -166,16 +166,6 @@ class GoSlow:
                 hazards.append(tuple(frontCoord))
         self.direction = (self.direction + 3) % 4
         return hazards
-        """
-        hazards = []
-        direction = position[2]
-        coordinates = [position[0], position[1]]
-
-        if robot.senseHazard():
-                frontCoord = self._calculateCoordinates(coordinates, direction)
-                hazards.append(frontCoord)
-        return hazards
-        """
 
     def _moveInDirection(self, robot, curLocation, direction, destination):
         #nextLocation = self.path.pop(0)
