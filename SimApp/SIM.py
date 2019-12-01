@@ -16,7 +16,7 @@ class Message:
     COLORTILEARRAY = 7
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=3000):
+    def __init__(self, scene, parent, patience=5000):
         self.parent = parent
         self.sendingQueue = None
         self.receivingQueue = None
@@ -30,7 +30,7 @@ class SIMProgramSide:
         self.skinChanger = SkinChanger()
         self.robot.changeSkin(self.skinChanger)
 
-        self.floor.randomize(parent.startPos, parent.targetPosList)
+        self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)
 
         # test--- uncover all
         hazards = self.floor.getHazardList()

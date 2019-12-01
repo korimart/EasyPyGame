@@ -9,7 +9,7 @@ class MazeGenerator:
     DIRECTIONS = [(2, 0), (-2, 0), (0, 2), (0, -2)]
     DIRECTIONS1 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-    def generate(self, width, height, startingPos, targetList):
+    def generate(self, width, height, startingPos, targetList, hazardList):
         # from world space to array space (flip x y)
         targets = [(startingPos[1], startingPos[0])]
         for target in targetList:
@@ -42,6 +42,9 @@ class MazeGenerator:
                 visited[chosen[0]][chosen[1]] = True
                 stack.append(chosen)
 
+        for hazard in hazardList:
+            ret[hazard[1]][hazard[0]] = Terrain.HAZARD
+
         for curr in targets:
             while True:
                 ret[curr[0]][curr[1]] = Terrain.NOTHING
@@ -60,18 +63,3 @@ class MazeGenerator:
                 break
 
         return ret
-
-# # for _ in range(100):
-# #     targetList = []
-# #     for _ in range(10):
-# #         a = randint(0, 99)
-# #         b = randint(0, 99)
-# #         targetList.append((a, b))
-# #     maze = MazeGenerator().generate(100, 100, targetList)
-
-# #     for target in targetList:
-# #         if maze[target[0]][target[1]] == Terrain.HAZARD:
-# #             raise Exception("lul")
-
-# maze = MazeGenerator().generate(10, 10, [(0, 0), (0, 3), (1, 4)])
-# print(maze)

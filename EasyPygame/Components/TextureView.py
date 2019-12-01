@@ -1,4 +1,7 @@
+from random import randint
+
 import EasyPygame
+from EasyPygame.Components import *
 
 class TextureView:
     def __init__(self, texture, imageRect=None, minFilter="nearest", \
@@ -45,9 +48,36 @@ class InstancedTextureView(TextureView):
 class DefaultTextureView:
     def __init__(self, color=(0, 0, 1.0)):
         self.color = color
+        self.handle = str(randint(0, 1000))
+        self.textTextureView = TextureView(self.handle)
+        self.madeTexture = False
 
     def render(self, gameObject):
-        EasyPygame.renderer.renderDefault(gameObject.rect.copy(), self.color, gameObject.name)
+        if not self.madeTexture:
+            EasyPygame.resManager.createTextTexture(self.handle, "comic.ttf", 30, gameObject.name, (0, 0, 0))
+            self.madeTexture = True
+        worldRect = gameObject.rect.copy()
+        worldRect.z += 0.01
+        EasyPygame.renderer.renderTextured(worldRect, self.textTextureView)
+        EasyPygame.renderer.renderColor(gameObject.rect.copy(), self.color, gameObject.name)
+
+class DefaultInstancedTextureView:
+    def __init__(self, rectListRef, color=(0, 0, 1.0)):
+        self.color = color
+        self.rectListRef = rectListRef
+        self.handle = str(randint(0, 1000))
+        self.textTextureView = InstancedTextureView(self.handle, self.rectListRef)
+        self.madeTexture = False
+
+    def render(self, gameObject):
+        if self.rectListRef:
+            if not self.madeTexture:
+                EasyPygame.resManager.createTextTexture(self.handle, "comic.ttf", 30, gameObject.name, (0, 0, 0))
+                self.madeTexture = True
+            worldRect = gameObject.rect.copy()
+            worldRect.z += 0.01
+            EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self.textTextureView)
+            EasyPygame.renderer.renderColorInstanced(self.rectListRef, self.color, gameObject.name)
 
 class InvisibleTextureView:
     def render(self, gameObject):

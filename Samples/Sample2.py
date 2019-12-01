@@ -112,6 +112,15 @@ class Scene1(EasyPygame.Components.Scene):
         # self.pathFinder = VisitOrderProducer(BFS(DSFactory()))
         # self.behavior.go(self.robot, self.mmap, self.pathFinder)
 
+        self.testObj = GameObject(self, "test")
+        self.testObj.worldRects = []
+        self.testObj.addTextureView(DefaultInstancedTextureView(self.testObj.worldRects))
+        self.testObj.useTextureView(1)
+
+        for i in range(100):
+            rect = EasyPygame.Rect(i * 1.1, 0, 1, 1)
+            self.testObj.worldRects.append(rect)
+
     def preRender(self, ms):
         EasyPygame.pprint("This is Scene1", 0, 0)
 

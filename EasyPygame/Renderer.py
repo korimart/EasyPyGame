@@ -109,7 +109,8 @@ class RendererOpenGL:
         self.surface = window.displaySurface
         self.resManager = resManager
 
-        self.toRenderDefaults = []
+        self.toRenderColors = []
+        self.toRenderColorIns = []
         self.toRenderTextured = []
         self.toRenderTexInstancedCluster = []
         self.toRenderTexInstIndivi = []
@@ -118,11 +119,12 @@ class RendererOpenGL:
         self.vpMat = None
 
         self.colorProgram = None
+        self.colorInsProgram = None
         self.textureProgram = None
         self.texInsClusProg = None
         self.texInsIndiviProg = None
         self._initPrograms()
-        self.programs = [self.colorProgram, self.textureProgram, self.texInsClusProg, self.texInsIndiviProg]
+        self.programs = [self.colorProgram, self.colorInsProgram, self.textureProgram, self.texInsClusProg, self.texInsIndiviProg]
         self.currProgram = None
 
         self.currBoundTex = None
@@ -169,18 +171,27 @@ class RendererOpenGL:
                 self._renderTexInstancedIndivi(*obj)
             self.toRenderTexInstIndivi = []
 
+        if self.toRenderColorIns:
+            if not self.currProgram == self.colorInsProgram:
+                self.currProgram = self.colorInsProgram
+                glUseProgram(self.colorInsProgram)
+            glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.vpMat))
+            for obj in self.toRenderColorIns:
+                self._renderColorInstanced(*obj)
+            self.toRenderColorIns = []
+
         glDisableVertexAttribArray(2)
         glDisableVertexAttribArray(3)
         glDisableVertexAttribArray(4)
         glDisableVertexAttribArray(5)
 
-        if self.toRenderDefaults:
+        if self.toRenderColors:
             if not self.currProgram == self.colorProgram:
                 self.currProgram = self.colorProgram
                 glUseProgram(self.colorProgram)
-            for obj in self.toRenderDefaults:
-                self._renderDefault(*obj)
-            self.toRenderDefaults = []
+            for obj in self.toRenderColors:
+                self._renderColor(*obj)
+            self.toRenderColors = []
 
         if self.toRenderTextured:
             if not self.currProgram == self.textureProgram:
@@ -190,7 +201,7 @@ class RendererOpenGL:
                 self._renderTextured(*obj)
             self.toRenderTextured = []
 
-    def _renderDefault(self, worldRect, color, name):
+    def _renderColor(self, worldRect, color, name):
         worldMat = self._calcWorldMat(worldRect)
         mvpMat = self.vpMat * worldMat
         glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
@@ -198,8 +209,39 @@ class RendererOpenGL:
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-    def renderDefault(self, worldRect, color, name):
-        self.toRenderDefaults.append((worldRect, color, name))
+    def renderColor(self, worldRect, color, name):
+        self.toRenderColors.append((worldRect, color, name))
+
+    def renderColorInstanced(self, worldRectList, color, name):
+        self.toRenderColorIns.append((worldRectList, color, name))
+
+    def _renderColorInstanced(self, worldRectList, color, name):
+        glUniform4f(COLORINDEX, *color, 1.0)
+        a = []
+        for worldRect in worldRectList[:1000]:
+            worldMat = self._calcWorldMat(worldRect)
+            for i in range(4):
+                for j in range(4):
+                    a.append(worldMat[i][j])
+
+        data = array('f', a).tobytes()
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.instIndiviWorlds)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, None, data)
+
+        size = min(len(worldRectList), 1000)
+
+        glVertexAttribPointer(2, 4, GL_FLOAT, False, 16 * 4, c_void_p(0))
+        glVertexAttribPointer(3, 4, GL_FLOAT, False, 16 * 4, c_void_p(16))
+        glVertexAttribPointer(4, 4, GL_FLOAT, False, 16 * 4, c_void_p(32))
+        glVertexAttribPointer(5, 4, GL_FLOAT, False, 16 * 4, c_void_p(48))
+
+        glVertexAttribDivisor(2, 1)
+        glVertexAttribDivisor(3, 1)
+        glVertexAttribDivisor(4, 1)
+        glVertexAttribDivisor(5, 1)
+
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, size)
 
     def renderTextured(self, worldRect, textureView):
         self.toRenderTextured.append((worldRect, textureView))
@@ -340,6 +382,7 @@ class RendererOpenGL:
         fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
 
         self.colorProgram = self._createProgram(vshader, fshader_color)
+        self.colorInsProgram = self._createProgram(vshader_insIndivi, fshader_color)
         self.textureProgram = self._createProgram(vshader, fshader_texture)
         self.texInsClusProg = self._createProgram(vshader_insClus, fshader_texture)
         self.texInsIndiviProg = self._createProgram(vshader_insIndivi, fshader_texture)

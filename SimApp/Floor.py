@@ -27,8 +27,8 @@ class Floor(GameObject):
         self.colorTiles.addTextureView(InstancedTextureView("animated.png", self.colorTiles.tileRects, imageRect))
         self.colorTiles.useTextureView(1)
 
-    def randomize(self, startingPos, targetList):
-        self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList)
+    def randomize(self, startingPos, targetList, hazardList):
+        self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList)
         self.uncovered = [[0 for _ in range(self.width)] for _ in range(self.height)]
 
     def getHazardList(self):
