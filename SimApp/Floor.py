@@ -2,6 +2,8 @@ import EasyPygame
 from EasyPygame.Components import *
 from SimApp.MazeGenerator import *
 
+count = 0
+
 class Floor(GameObject):
     def __init__(self, scene, width, height):
         super().__init__(scene, "Floor")
@@ -9,9 +11,9 @@ class Floor(GameObject):
         self.uncovered = []
         self.width = width
         self.height = height
-        self.mazeGenerator = FieldGenerator()
+        self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 1000
+        self.colorTileSpeed = 1000000000
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -66,19 +68,30 @@ class Floor(GameObject):
         rt.z = -0.002
         self.hazard.uncoveredRects.append(rt)
 
+    # def colorTile(self, x, y):
+    #     rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
+    #     rt.z = -0.001
+    #     self.colorTileBuffer.append(rt)
+
     def colorTile(self, x, y):
+        global count
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
         rt.z = -0.001
-        self.colorTileBuffer.append(rt)
+        self.colorTiles.tileRects.append(rt)
+        # count += 1
+        # print(count)
 
     def clearColor(self):
         del self.colorTiles.tileRects[:]
 
-    def yourLogic(self, ms):
-        if self.colorTileBuffer:
-            self.colorTileTimer += ms
-            if self.colorTileTimer > 1 / self.colorTileSpeed:
-                pop = self.colorTileBuffer.pop(0)
-                self.colorTiles.tileRects.append(pop)
-                self.colorTileTimer = 0
+    # def yourLogic(self, ms):
+    #     global count
+    #     if self.colorTileBuffer:
+    #         self.colorTileTimer += ms
+    #         if self.colorTileTimer > 1 / self.colorTileSpeed:
+    #             count += 1
+    #             print(count)
+    #             pop = self.colorTileBuffer.pop(0)
+    #             self.colorTiles.tileRects.append(pop)
+    #             self.colorTileTimer = 0
 

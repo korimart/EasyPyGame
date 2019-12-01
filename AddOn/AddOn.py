@@ -13,7 +13,7 @@ class AddOn:
         self.mmap = None
         self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = IDAstar(self.dsFactory)
+        self.algorithm = BFS(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
@@ -64,8 +64,11 @@ class Painter:
         self.sim = None
 
     def draw(self, x, y):
+        global count
         if self.array[y][x] == 0:
             self.sim.colorTile(x, y)
+            count += 1
+            print(count)
         self.array[y][x] += 1
 
     def clear(self):

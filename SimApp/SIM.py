@@ -48,10 +48,13 @@ class SIMProgramSide:
             return
 
         self.patienceMeter += ms
-        for _ in range(30):
-            if not self._handleMessage():
-                break
+        for _ in range(100):
+            self._handleMessage()
+
             self.robot.update(ms)
+            self.robot.update(ms)
+            self.robot.update(ms)
+
             if self.robot.isWorking:
                 return
 
@@ -74,8 +77,11 @@ class SIMProgramSide:
         addOn.go(sim)
 
     def _handleMessage(self):
+        global count
         try:
             message = self.receivingQueue.get(block=False)
+            # count += 1
+            # print(count)
         except queue.Empty:
             return 0
 
