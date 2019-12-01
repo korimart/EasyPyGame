@@ -73,6 +73,5 @@ class Painter:
         self.array = [[0 for _ in range(self.size[0])] for _ in range(self.size[1])]
 
     def flush(self):
-        if self.package:
-            self.sim.colorTileArray(self.package)
-            self.package = []
+        self.sim.colorTileArray(self.package)
+        self.package = []

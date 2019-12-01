@@ -64,8 +64,9 @@ class Robot(GameObject):
         super().__init__(scene, "Robot")
         self.rect.z = 0.01
         self.facing = Direction.UP
-        self.workTime = 100
-        self.runSpeed = 0.01 # 0.001 per ms -> 1 per second
+        self.lastFace = Direction.RIGHT
+        self.workTime = 1
+        self.runSpeed = 1 # 0.001 per ms -> 1 per second
         self.isWorking = False
 
         self.idle = self.FSM.addState(Idle())
@@ -73,6 +74,8 @@ class Robot(GameObject):
         self.running = self.FSM.addState(Running())
 
     def move(self):
+        if self.facing in [Direction.RIGHT, Direction.LEFT]:
+            self.lastFace = self.facing
         self.FSM.switchState(self.running, 0)
 
     def getPos(self):

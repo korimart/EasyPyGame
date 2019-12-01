@@ -78,7 +78,7 @@ class DefaultInstancedTextureView:
                 EasyPygame.resManager.createTextTexture(self.handle, "comic.ttf", 30, gameObject.name, (0, 0, 0))
                 self.madeTexture = True
             worldRect = gameObject.rect.copy()
-            worldRect.z += 0.0001
+            worldRect.z += 0.00001
             if self.showName:
                 EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self.textTextureView)
             EasyPygame.renderer.renderColorInstanced(self.rectListRef, self.color, gameObject.name)

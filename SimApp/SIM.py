@@ -3,7 +3,7 @@ import queue
 from SimApp.Floor import Floor
 from SimApp.Robot import *
 from AddOn.AddOn import AddOn
-from SimApp.SkinChanger import SkinChanger
+from SimApp.SkinChanger import *
 
 class Message:
     MOVE = 0
@@ -27,7 +27,7 @@ class SIMProgramSide:
 
         self.robot = Robot(scene)
         self.floor = Floor(scene, parent.width, parent.height)
-        self.skinChanger = SkinChanger()
+        self.skinChanger = DungeonSkinChanger()
         self.robot.changeSkin(self.skinChanger)
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)

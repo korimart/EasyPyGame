@@ -76,9 +76,6 @@ class SpriteAnimState(GameObjectState):
             self.msPerFrame = duration
             self.textureViewIndexList = [0]
 
-    def onEnter(self, gameObject, ms):
-        self.ms = 0
-
     def update(self, gameObject, ms):
         index = int(self.ms / self.msPerFrame)
         gameObject.useTextureView(self.textureViewIndexList[index])
