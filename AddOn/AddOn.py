@@ -6,12 +6,14 @@ from AddOn.Behavior import *
 from AddOn.DSFactory import *
 from AddOn.Map import *
 
+count = 0
+
 class AddOn:
     def __init__(self):
         self.mmap = None
         self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = BFS(self.dsFactory)
+        self.algorithm = IDAstar(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
@@ -52,7 +54,6 @@ class PaintingPathFinder:
         self.painter.clear()
         for pos in path:
             self.painter.draw(*pos)
-        self.painter.flush()
         return path
 
 class Painter:
@@ -64,14 +65,9 @@ class Painter:
 
     def draw(self, x, y):
         if self.array[y][x] == 0:
-            self.package.append((x, y))
+            self.sim.colorTile(x, y)
         self.array[y][x] += 1
 
     def clear(self):
-        self.flush()
         self.sim.clearColor()
         self.array = [[0 for _ in range(self.size[0])] for _ in range(self.size[1])]
-
-    def flush(self):
-        self.sim.colorTileArray(self.package)
-        self.package = []

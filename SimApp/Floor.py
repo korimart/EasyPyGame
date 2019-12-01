@@ -9,7 +9,7 @@ class Floor(GameObject):
         self.uncovered = []
         self.width = width
         self.height = height
-        self.mazeGenerator = MazeGenerator()
+        self.mazeGenerator = FieldGenerator()
 
         self.colorTileSpeed = 1000
         self.colorTileTimer = 0

@@ -63,3 +63,8 @@ class MazeGenerator:
                 break
 
         return ret
+
+class FieldGenerator:
+    def generate(self, width, height, startingPos, targetList, hazardList):
+        ret = [[0 for _ in range(width)] for _ in range(height)]
+        return ret

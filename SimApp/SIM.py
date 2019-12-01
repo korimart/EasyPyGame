@@ -5,6 +5,8 @@ from SimApp.Robot import *
 from AddOn.AddOn import AddOn
 from SimApp.SkinChanger import *
 
+count = 0
+
 class Message:
     MOVE = 0
     ROTATE = 1
@@ -46,13 +48,16 @@ class SIMProgramSide:
             return
 
         self.patienceMeter += ms
-        self._handleMessage()
-        if self.robot.isWorking:
-            return
+        for _ in range(30):
+            if not self._handleMessage():
+                break
+            self.robot.update(ms)
+            if self.robot.isWorking:
+                return
 
-        if self.needReturn:
-            self.robotReturn(self.ret)
-            self.needReturn = False
+            if self.needReturn:
+                self.robotReturn(self.ret)
+                self.needReturn = False
 
         if self.patienceMeter > self.patience:
             cwal()
@@ -72,7 +77,7 @@ class SIMProgramSide:
         try:
             message = self.receivingQueue.get(block=False)
         except queue.Empty:
-            return
+            return 0
 
         if message == Message.MOVE:
             self.ret = self.robot.move()
@@ -106,6 +111,8 @@ class SIMProgramSide:
 
         self.needReturn = True
         self.patienceMeter = 0
+
+        return 1
 
     def robotReturn(self, ret):
         self.sendingQueue.put(ret)

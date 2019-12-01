@@ -3,7 +3,7 @@ import multiprocessing
 def sendNumbers(queue1, queue2):
     for i in range(100000):
         queue1.put(i)
-        queue2.get()
+        queue2.get(block=True)
 
 if __name__ == "__main__":
     queue1 = multiprocessing.Queue()
@@ -12,6 +12,8 @@ if __name__ == "__main__":
     process.start()
 
     while True:
-        i = queue2.get()
+        i = queue2.get(block=True)
         queue1.put(1)
-        print(i)
+        if i > 99998:
+            break
+    print("done")
