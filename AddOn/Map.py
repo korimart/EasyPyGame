@@ -45,9 +45,19 @@ class Map:
                 return True
             else:
                 return False
+    
+    def isOnNextStep(self):
+        if self.peekNextDestination() in self.hazards:
+            return True
+        else:
+            return False
 
-    def nextDestination(self):
-        return self.pathToBeTaken.pop(0)
+    def peekNextDestination(self):
+            return self.pathToBeTaken[0]
+
+
+    def popNextDestination(self):
+            return self.pathToBeTaken.pop(0)
 
     def currentPos(self):
         return self.robotLocation
@@ -60,7 +70,7 @@ class Map:
 
     def getUnvisitedSearchPoints(self):
         return self.unvisitedSearchPoints.copy()
-
+    
     def getTerrain(self, x, y):
         pos = (x, y)
         if pos in self.hazards:
