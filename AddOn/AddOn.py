@@ -32,6 +32,7 @@ class AddOn:
             try:
                 for pos in item:
                     self.sim.colorTile(*pos)
+                    # print("coloring", pos[0], pos[1])
             except:
                 pass
 
