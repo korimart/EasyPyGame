@@ -53,11 +53,10 @@ class Map:
             return False
 
     def peekNextDestination(self):
-            return self.pathToBeTaken[0]
-
+        return self.pathToBeTaken[0]
 
     def popNextDestination(self):
-            return self.pathToBeTaken.pop(0)
+        return self.pathToBeTaken.pop(0)
 
     def currentPos(self):
         return self.robotLocation
