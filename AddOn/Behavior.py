@@ -33,7 +33,7 @@ class BehaviorGoFast:
         self.direction = self._posToDirection(self.position)
         self.coordinates = self._posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
-        if self._posToCoord(mmap.currentPos()) != self.coordinates:
+        if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
             self.pathNeedsUpdate = True
 
     def _move(self, robot, mmap):
@@ -60,7 +60,7 @@ class BehaviorGoFast:
         return blobs
 
     def _findPath(self, robot, mmap):
-        if mmap.isOnPath or self.pathNeedsUpdate:
+        if mmap.isOnPath() or self.pathNeedsUpdate:
                 mmap.pathToBeTaken = self.visitOrderProducer.findPath(
                     self.coordinates, mmap.getUnvisitedSearchPoints(), mmap)
         if mmap.pathToBeTaken == None:
