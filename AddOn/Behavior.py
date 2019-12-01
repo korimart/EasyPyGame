@@ -72,14 +72,12 @@ class BehaviorGoFast:
         
         if robot.senseHazard():
                 frontCoord = self._calculateCoordinates(coordinates, direction)
-                #I'm not sure why it needs to be checked
                 hazards.append(frontCoord)
         for i in range(3):
             robot.rotate()
             direction = (direction + 1) % 4
             if robot.senseHazard():
                 frontCoord = self._calculateCoordinates(coordinates, direction)
-                
                 hazards.append(tuple(frontCoord))
         self.direction = (self.direction + 3) % 4
         return hazards
