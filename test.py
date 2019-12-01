@@ -14,6 +14,4 @@ if __name__ == "__main__":
     while True:
         i = queue2.get(block=True)
         queue1.put(1)
-        if i > 99998:
-            break
-    print("done")
+        print(i)
