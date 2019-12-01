@@ -8,14 +8,14 @@ from AddOn.Map import *
 class AddOn:
     def __init__(self):
         self.mmap = None
-        self.behavior = BehaviorGoFast()
+        self.behavior = BehaviorGoSlow()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = BFS(self.dsFactory)
+        self.algorithm = IDAstar(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
         self.painter = Painter()
-        self.paintingPF = PathPainter(self.pathFinder, self.painter)
+        self.paintingPF = PaintingPathFinder(self.pathFinder, self.painter)
         self.sim = None
 
     def go(self, robot):
@@ -40,7 +40,7 @@ class AddOn:
             except:
                 return
 
-class PathPainter:
+class PaintingPathFinder:
     def __init__(self, pathFinder, painter):
         self.pathFinder = pathFinder
         self.painter = painter
