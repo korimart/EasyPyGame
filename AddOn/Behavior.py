@@ -1,6 +1,3 @@
-from AddOn.DSFactory import *
-from AddOn.Algorithm import *
-
 def _posToCoord(position):
         return (position[0], position[1])
 
@@ -33,7 +30,6 @@ def _getBlobData(robot, position):
                 blobs.append(_calculateCoordinates(coordinates, direction))
             direction = (direction + 1) % 4
         return blobs
-
 
 class BehaviorGoFast:
     def __init__(self):
@@ -102,7 +98,6 @@ class BehaviorGoFast:
                     self.coordinates, self.direction)
                 hazards.append(frontCoord)
         return hazards
-
 
 class BehaviorGoSlow:
     def __init__(self):

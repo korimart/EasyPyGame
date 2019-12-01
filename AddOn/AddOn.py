@@ -10,7 +10,7 @@ class AddOn:
         self.mmap = None
         self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = IDAstar(self.dsFactory)
+        self.algorithm = BFS(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
