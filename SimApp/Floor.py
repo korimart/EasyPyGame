@@ -23,8 +23,7 @@ class Floor(GameObject):
 
         self.colorTiles = GameObject(scene, "ColorTile")
         self.colorTiles.tileRects = []
-        imageRect = EasyPygame.Rect(128 / 512 + 16 / 512, 16 / 512, 16 / 512, 16 / 512)
-        self.colorTiles.addTextureView(InstancedTextureView("animated.png", self.colorTiles.tileRects, imageRect))
+        self.colorTiles.addTextureView(DefaultInstancedTextureView(self.colorTiles.tileRects, (0, 1, 1)))
         self.colorTiles.useTextureView(1)
 
     def randomize(self, startingPos, targetList, hazardList):
@@ -64,10 +63,12 @@ class Floor(GameObject):
 
     def uncover(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
+        rt.z = -0.002
         self.wall.uncoveredRects.append(rt)
 
     def colorTile(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
+        rt.z = -0.001
         self.colorTileBuffer.append(rt)
 
     def clearColor(self):

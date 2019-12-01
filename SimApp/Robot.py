@@ -62,6 +62,7 @@ class Running(GameObjectState):
 class Robot(GameObject):
     def __init__(self, scene):
         super().__init__(scene, "Robot")
+        self.rect.z = 0.01
         self.facing = Direction.UP
         self.workTime = 100
         self.runSpeed = 0.01 # 0.001 per ms -> 1 per second

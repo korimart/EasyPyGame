@@ -46,11 +46,12 @@ class InstancedTextureView(TextureView):
             EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self)
 
 class DefaultTextureView:
-    def __init__(self, color=(0, 0, 1.0)):
+    def __init__(self, color=(0, 0, 1.0), showName=True):
         self.color = color
-        self.handle = str(randint(0, 1000))
+        self.handle = str(randint(0, 100000000))
         self.textTextureView = TextureView(self.handle)
         self.madeTexture = False
+        self.showName = showName
 
     def render(self, gameObject):
         if not self.madeTexture:
@@ -58,16 +59,18 @@ class DefaultTextureView:
             self.madeTexture = True
         worldRect = gameObject.rect.copy()
         worldRect.z += 0.01
-        EasyPygame.renderer.renderTextured(worldRect, self.textTextureView)
+        if self.showName:
+            EasyPygame.renderer.renderTextured(worldRect, self.textTextureView)
         EasyPygame.renderer.renderColor(gameObject.rect.copy(), self.color, gameObject.name)
 
 class DefaultInstancedTextureView:
-    def __init__(self, rectListRef, color=(0, 0, 1.0)):
+    def __init__(self, rectListRef, color=(0, 0, 1.0), showName=True):
         self.color = color
         self.rectListRef = rectListRef
-        self.handle = str(randint(0, 1000))
+        self.handle = str(randint(0, 100000000))
         self.textTextureView = InstancedTextureView(self.handle, self.rectListRef)
         self.madeTexture = False
+        self.showName = showName
 
     def render(self, gameObject):
         if self.rectListRef:
@@ -75,8 +78,9 @@ class DefaultInstancedTextureView:
                 EasyPygame.resManager.createTextTexture(self.handle, "comic.ttf", 30, gameObject.name, (0, 0, 0))
                 self.madeTexture = True
             worldRect = gameObject.rect.copy()
-            worldRect.z += 0.01
-            EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self.textTextureView)
+            worldRect.z += 0.0001
+            if self.showName:
+                EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self.textTextureView)
             EasyPygame.renderer.renderColorInstanced(self.rectListRef, self.color, gameObject.name)
 
 class InvisibleTextureView:

@@ -60,7 +60,7 @@ class TextBox(GameObject):
         self.bg = GameObject(scene, name + "BG")
         self.bg.rect = self.rect.copy()
         self.bg.rect.z = -0.001
-        self.bgTV = DefaultTextureView((0.8, 0.8, 0.8))
+        self.bgTV = DefaultTextureView((0.8, 0.8, 0.8), showName=False)
         self.bg.addTextureView(self.bgTV)
         self.bg.useTextureView(1)
 
