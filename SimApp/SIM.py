@@ -58,21 +58,20 @@ class SIMProgramSide:
             cwal()
 
     def go(self):
-        self.sendingQueue = multiprocessing.Queue(maxsize=100)
-        self.receivingQueue = multiprocessing.Queue(maxsize=100)
-        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.receivingQueue, self.sendingQueue))
+        self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
+        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
         process.start()
 
     @staticmethod
-    def _go(addOn, sendingQueueForAddOn, receivingQueueForAddOn):
-        sim = SIMAddOnSide(sendingQueueForAddOn, receivingQueueForAddOn)
+    def _go(addOn, pipe):
+        sim = SIMAddOnSide(pipe)
         addOn.go(sim)
 
     def _handleMessage(self):
-        try:
-            message = self.receivingQueue.get(block=False)
-        except queue.Empty:
+        if not self.progPipe.poll():
             return
+
+        message = self.progPipe.recv()
 
         if message == Message.MOVE:
             self.ret = self.robot.move()
@@ -92,12 +91,12 @@ class SIMProgramSide:
             self.ret = None
             self.floor.clearColor()
         elif message == Message.COLORTILE:
-            x = self.receivingQueue.get()
-            y = self.receivingQueue.get()
+            x = self.progPipe.recv()
+            y = self.progPipe.recv()
             self.ret = None
             self.floor.colorTile(x, y)
         elif message == Message.COLORTILEARRAY:
-            tupleList = self.receivingQueue.get()
+            tupleList = self.progPipe.recv()
             for pos in tupleList:
                 self.floor.colorTile(*pos)
 
@@ -108,12 +107,11 @@ class SIMProgramSide:
         self.patienceMeter = 0
 
     def robotReturn(self, ret):
-        self.sendingQueue.put(ret)
+        self.progPipe.send(ret)
 
 class SIMAddOnSide:
-    def __init__(self, sendingQueue, receivingQueue):
-        self.sendingQueue = sendingQueue
-        self.receivingQueue = receivingQueue
+    def __init__(self, pipe):
+        self.pipe = pipe
 
     def move(self):
         return self._returnRobotMessage(Message.MOVE)
@@ -134,16 +132,16 @@ class SIMAddOnSide:
         return self._returnRobotMessage(Message.CLEARCOLOR)
 
     def colorTile(self, x, y):
-        self.sendingQueue.put(Message.COLORTILE)
-        self.sendingQueue.put(int(x))
-        self.sendingQueue.put(int(y))
-        return self.receivingQueue.get()
+        self.pipe.send(Message.COLORTILE)
+        self.pipe.send(int(x))
+        self.pipe.send(int(y))
+        return self.pipe.recv()
 
     def colorTileArray(self, tupleList):
-        self.sendingQueue.put(Message.COLORTILEARRAY)
-        self.sendingQueue.put(tupleList)
-        return self.receivingQueue.get()
+        self.pipe.send(Message.COLORTILEARRAY)
+        self.pipe.send(tupleList)
+        return self.pipe.recv()
 
     def _returnRobotMessage(self, message):
-        self.sendingQueue.put(message)
-        return self.receivingQueue.get()
+        self.pipe.send(message)
+        return self.pipe.recv()
