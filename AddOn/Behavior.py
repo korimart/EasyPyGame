@@ -69,12 +69,30 @@ class BehaviorGoFast:
         hazards = []
         direction = position[2]
         coordinates = [position[0], position[1]]
+        
+        if robot.senseHazard():
+                frontCoord = self._calculateCoordinates(coordinates, direction)
+                #I'm not sure why it needs to be checked
+                hazards.append(frontCoord)
+        for i in range(3):
+            robot.rotate()
+            direction = (direction + 1) % 4
+            if robot.senseHazard():
+                frontCoord = self._calculateCoordinates(coordinates, direction)
+                
+                hazards.append(tuple(frontCoord))
+        self.direction = (self.direction + 3) % 4
+        return hazards
+        """
+        hazards = []
+        direction = position[2]
+        coordinates = [position[0], position[1]]
 
         if robot.senseHazard():
                 frontCoord = self._calculateCoordinates(coordinates, direction)
                 hazards.append(frontCoord)
         return hazards
-
+        """
     def _posToDirection(self, position):
         return position[2]
 
