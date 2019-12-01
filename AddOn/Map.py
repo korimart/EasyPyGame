@@ -71,6 +71,6 @@ class Map:
             return 1
         if pos[0] >= self.size[0]:
             return 1
-        if pos[0] >= self.size[0]:
+        if pos[1] >= self.size[1]:
             return 1
         return 0
