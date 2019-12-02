@@ -40,15 +40,6 @@ class TileTextureView(TextureView):
         n = max(dd / rt.width, dd / rt.height) + 3
         EasyPygame.renderer.renderTexInstancedCluster((x, y, rt.z), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
-class LocalTileTextureView(TextureView):
-    def __init__(self, texture, tileRect, imageRect=None, minFilter="nearest", \
-        magFilter="nearest", flipX=False, flipY=False):
-        super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY)
-        self.tileRect = tileRect
-
-    def render(self, gameObject):
-        EasyPygame.renderer.renderTexInstancedCluster((x, y, rt.z), gameObject.rect.width, gameObject.rect.height, self, int(n))
-
 class InstancedTextureView(TextureView):
     def __init__(self, texture, rectListRef, imageRect=None, minFilter="nearest", \
             magFilter="nearest", flipX=False, flipY=False, priority=0):

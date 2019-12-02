@@ -15,17 +15,11 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 0.1
+        self.colorTileSpeed = 10
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
         self.blackSheepWallEnabled = False
-
-        # self.floorTiles = GameObject(scene, "FloorTile")
-        # self.floorTiles.addTextureView(TileTextureView("animated.png", \
-        #     EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
-        # self.floorTiles.setZ(FLOORTILEZ)
-        # self.floorTiles.useTextureView(1)
 
         self.hazards = []
         self.uncoveredHazards = []
