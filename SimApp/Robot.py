@@ -35,20 +35,23 @@ class Idle(GameObjectState):
 
 class Running(GameObjectState):
     def __init__(self):
-        self.destX = None
-        self.destY = None
+        self.x = None
+        self.y = None
+        self.deltaX = None
+        self.deltaY = None
         self.elapsed = 0
 
     def onEnter(self, gameObject, ms):
         gameObject.isWorking = True
-        self.destX = gameObject.rect.x + MOVEDELTA[gameObject.facing][0]
-        self.destY = gameObject.rect.y + MOVEDELTA[gameObject.facing][1]
+        self.x, self.y = gameObject.rect.x, gameObject.rect.y
+        self.deltaX = MOVEDELTA[gameObject.facing][0] * gameObject.num
+        self.deltaY = MOVEDELTA[gameObject.facing][1] * gameObject.num
         self.elapsed = 0
 
     def update(self, gameObject, ms):
         self.elapsed += ms
-        deltaX = MOVEDELTA[gameObject.facing][0] * gameObject.runSpeed * ms
-        deltaY = MOVEDELTA[gameObject.facing][1] * gameObject.runSpeed * ms
+        deltaX = self.deltaX * gameObject.runSpeed * ms
+        deltaY = self.deltaY * gameObject.runSpeed * ms
         gameObject.setX(gameObject.rect.x + deltaX)
         gameObject.setY(gameObject.rect.y + deltaY)
         arrow = gameObject.arrow
@@ -59,8 +62,8 @@ class Running(GameObjectState):
             gameObject.FSM.switchState(gameObject.idle, ms)
 
     def onExit(self, gameObject, ms):
-        gameObject.setXYZ(self.destX, self.destY, None)
-        gameObject.arrow.setXYZ(self.destX + MOVEDELTA[gameObject.facing][0], self.destY + MOVEDELTA[gameObject.facing][1], None)
+        gameObject.setXYZ(self.x + self.deltaX, self.y + self.deltaY, None)
+        gameObject.arrow.setXYZ(self.x + self.deltaX + MOVEDELTA[gameObject.facing][0], self.y + self.deltaY + MOVEDELTA[gameObject.facing][1], None)
         gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
 
 class Robot(GameObject):
@@ -72,6 +75,7 @@ class Robot(GameObject):
         self.workTime = 100
         self.runSpeed = 0.01 # 0.001 per ms -> 1 per second
         self.isWorking = False
+        self.num = None
 
         self.idle = self.FSM.addState(Idle())
         self.working = self.FSM.addState(Working())
@@ -80,9 +84,10 @@ class Robot(GameObject):
         self.arrow = GameObject(scene, "RobotArrow")
         self.arrow.setXYZ(MOVEDELTA[self.facing][0], MOVEDELTA[self.facing][1], self.rect.z)
 
-    def move(self):
+    def move(self, num=1):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
             self.lastFace = self.facing
+        self.num = num
         self.FSM.switchState(self.running, 0)
 
     def getPos(self):
@@ -96,3 +101,7 @@ class Robot(GameObject):
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)
+
+    def nextPos(self, num=2):
+        return (self.rect.x + MOVEDELTA[self.facing][0] * num, \
+            self.rect.y + MOVEDELTA[self.facing][1] * num)
