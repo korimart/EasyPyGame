@@ -57,7 +57,7 @@ class SIMProgramSide:
             start = time.process_time()
             empty = self._handleMessage()
 
-            self.robot.update(thisMS)
+            self.robot.update(0)
 
             if self.robot.isWorking:
                 return

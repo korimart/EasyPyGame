@@ -6,8 +6,6 @@ from AddOn.Behavior import *
 from AddOn.DSFactory import *
 from AddOn.Map import *
 
-count = 0
-
 class AddOn:
     def __init__(self):
         self.mmap = None
