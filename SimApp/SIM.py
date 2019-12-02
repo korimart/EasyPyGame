@@ -52,6 +52,7 @@ class SIMProgramSide:
 
         self.patienceMeter += ms
         thisMS = ms
+        count = 0
         while not self.close:
             start = time.time()
             empty = self._handleMessage()
@@ -64,8 +65,9 @@ class SIMProgramSide:
             if self.needReturn:
                 self.robotReturn(self.ret)
                 self.needReturn = False
+                count += 1
 
-            if empty:
+            if count > 10:
                 break
 
             thisMS = (time.time() - start) / 1000
