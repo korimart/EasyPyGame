@@ -11,7 +11,6 @@ class Floor(GameObject):
     def __init__(self, scene, width, height):
         super().__init__(scene, "Floor")
         self.terrain = []
-        self.uncovered = []
         self.width = width
         self.height = height
         self.mazeGenerator = MazeGenerator()
@@ -20,35 +19,38 @@ class Floor(GameObject):
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
-        self.floorTiles = GameObject(scene, "FloorTile")
-        self.floorTiles.addTextureView(TileTextureView("animated.png", \
-            EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
-        self.floorTiles.setZ(FLOORTILEZ)
-        self.floorTiles.useTextureView(1)
+        self.blackSheepWallEnabled = False
+
+        # self.floorTiles = GameObject(scene, "FloorTile")
+        # self.floorTiles.addTextureView(TileTextureView("animated.png", \
+        #     EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
+        # self.floorTiles.setZ(FLOORTILEZ)
+        # self.floorTiles.useTextureView(1)
+
+        self.hazards = []
+        self.uncoveredHazards = []
 
         self.hazard = GameObject(scene, "Hazard")
-        self.hazard.rectList = []
         imageRect = EasyPygame.Rect(32 / 512, 12 / 512, 16 / 512, 16 / 512)
-        self.hazard.addTextureView(InstancedTextureView("animated.png", self.hazard.rectList, imageRect))
-        self.hazard.useTextureView(1)
 
         self.colorTiles = GameObject(scene, "ColorTile")
         self.colorTiles.tileRects = []
-        self.colorTiles.addTextureView(DefaultInstancedTextureView(self.colorTiles.tileRects, (0, 1, 1)))
+        self.colorTiles.addTextureView(DefaultInstancedTextureView(self.colorTiles.tileRects, (0, 1, 1), False))
         self.colorTiles.useTextureView(1)
 
         self.pathTaken = GameObject(scene, "PathTaken")
         self.pathTaken.pathRects = []
-        self.pathTaken.addTextureView(DefaultInstancedTextureView(self.pathTaken.pathRects, (0.8, 0.8, 0)))
+        self.pathTaken.addTextureView(DefaultInstancedTextureView(self.pathTaken.pathRects, (0.8, 0.8, 0), False))
         self.pathTaken.useTextureView(1)
 
     def randomize(self, startingPos, targetList, hazardList):
-        del self.hazard.rectList[:]
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList)
+        self.hazards = []
         self._prepareHazards()
+        self.blackSheepWall()
 
         for hazard in hazardList:
-            self.uncovered.append((Terrain.HAZARD, hazard[0], hazard[1]))
+            self.uncoveredHazards.append(EasyPygame.EasyPygameRect(*hazard, 1, 1, z=HAZARDZ))
 
     def _prepareHazards(self):
         rect = EasyPygame.Rect(0, 0, 1, 1)
@@ -57,7 +59,7 @@ class Floor(GameObject):
             for j in range(self.width):
                 if self.terrain[i][j]:
                     rect.x, rect.y = j, i
-                    self.hazard.rectList.append(rect.copy())
+                    self.hazards.append(rect.copy())
 
     def restart(self, map):
         pass
@@ -80,7 +82,8 @@ class Floor(GameObject):
         return True
 
     def uncover(self, terrain, x, y):
-        self.uncovered.append((terrain, x, y))
+        if terrain == Terrain.HAZARD:
+            self.uncoveredHazards.append(EasyPygame.EasyPygameRect(x, y, 1, 1, z=HAZARDZ))
 
     def pathed(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
@@ -94,6 +97,18 @@ class Floor(GameObject):
 
     def clearColor(self):
         self.colorTileBuffer.append(None)
+
+    def blackSheepWall(self):
+        if self.blackSheepWallEnabled:
+            rectList = self.hazards
+        else:
+            rectList = self.uncoveredHazards
+        
+        self.hazard.clearTextureViews()
+        imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
+        self.hazard.addTextureView(InstancedTextureView("animated.png", rectList, imageRect))
+        self.hazard.useTextureView(1)
+        self.blackSheepWallEnabled = not self.blackSheepWallEnabled
 
     def yourLogic(self, ms):
         if self.colorTileBuffer:
@@ -110,3 +125,6 @@ class Floor(GameObject):
                     self.colorTiles.tileRects.append(pop)
 
             self.colorTileTimer = 0
+        
+        if EasyPygame.isDown1stTime("b"):
+            self.blackSheepWall()
