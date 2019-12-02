@@ -102,7 +102,7 @@ class Scene1(EasyPygame.Components.Scene):
         EasyPygame.nextSceneOnInit("Scene2", "setInputData", ((width, height, startPos, targetPosList, knownHazardsList), ))
 
 if __name__ == "__main__":
-    EasyPygame.initWindow(500, 500, "Sample", 75)
+    EasyPygame.initWindow(500, 500, "Sample", 30)
     EasyPygame.loadScene("Scene1")
     EasyPygame.switchScene("Scene1")
     EasyPygame.run()

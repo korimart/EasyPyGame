@@ -67,10 +67,9 @@ class Painter:
     def draw(self, x, y):
         global count
         if self.array[y][x] == 0:
-            self.sim.clearColor()
-            # self.sim.colorTile(x, y)
-            count += 1
-            print(count)
+            self.sim.colorTile(x, y)
+            # count += 1
+            # print(count)
         self.array[y][x] += 1
         # pass
 
