@@ -35,11 +35,6 @@ class SIMProgramSide:
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)
 
-        # test--- uncover all
-        hazards = self.floor.getHazardList()
-        for hazard in hazards:
-            self.floor.uncover(*hazard)
-        # test--- uncover all
 
         self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)

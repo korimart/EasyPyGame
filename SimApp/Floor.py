@@ -22,9 +22,9 @@ class Floor(GameObject):
         self.floorTiles.useTextureView(1)
 
         self.hazard = GameObject(scene, "Hazard")
-        self.hazard.uncoveredRects = []
+        self.hazard.rectList = []
         imageRect = EasyPygame.Rect(32 / 512, 12 / 512, 16 / 512, 16 / 512)
-        self.hazard.addTextureView(InstancedTextureView("animated.png", self.hazard.uncoveredRects, imageRect))
+        self.hazard.addTextureView(InstancedTextureView("animated.png", self.hazard.rectList, imageRect))
         self.hazard.useTextureView(1)
 
         self.colorTiles = GameObject(scene, "ColorTile")
@@ -33,17 +33,21 @@ class Floor(GameObject):
         self.colorTiles.useTextureView(1)
 
     def randomize(self, startingPos, targetList, hazardList):
+        del self.hazard.rectList[:]
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList)
-        self.uncovered = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self._prepareHazards()
 
-    def getHazardList(self):
-        hazardList = []
+        for hazard in hazardList:
+            self.uncovered.append((Terrain.HAZARD, hazard[0], hazard[1]))
+
+    def _prepareHazards(self):
+        rect = EasyPygame.Rect(0, 0, 1, 1)
+        rect.z = 0.01
         for i in range(self.height):
             for j in range(self.width):
                 if self.terrain[i][j]:
-                    hazardList.append((j, i))
-
-        return hazardList
+                    rect.x, rect.y = j, i
+                    self.hazard.rectList.append(rect.copy())
 
     def restart(self, map):
         pass
@@ -52,8 +56,7 @@ class Floor(GameObject):
         if 0 <= x < self.width and 0 <= y < self.height:
             ret = self.terrain[y][x]
             if ret == Terrain.BLOB:
-                self.uncovered[y][x] = Terrain.BLOB
-                self.uncover(x, y)
+                self.uncover(Terrain.BLOB, x, y)
                 return True
         return False
 
@@ -61,16 +64,13 @@ class Floor(GameObject):
         if 0 <= x < self.width and 0 <= y < self.height:
             ret = self.terrain[y][x]
             if ret == Terrain.HAZARD:
-                self.uncovered[y][x] = Terrain.HAZARD
-                self.uncover(x, y)
+                self.uncover(Terrain.HAZARD, x, y)
                 return True
             return False
         return True
 
-    def uncover(self, x, y):
-        rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-        rt.z = -0.002
-        self.hazard.uncoveredRects.append(rt)
+    def uncover(self, terrain, x, y):
+        self.uncovered.append((terrain, x, y))
 
     def colorTile(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
