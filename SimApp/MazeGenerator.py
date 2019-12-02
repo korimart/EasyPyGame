@@ -42,9 +42,6 @@ class MazeGenerator:
                 visited[chosen[0]][chosen[1]] = True
                 stack.append(chosen)
 
-        for hazard in hazardList:
-            ret[hazard[1]][hazard[0]] = Terrain.HAZARD
-
         for curr in targets:
             while True:
                 ret[curr[0]][curr[1]] = Terrain.NOTHING
@@ -61,6 +58,9 @@ class MazeGenerator:
                     curr = chosen
                     continue
                 break
+            
+        for hazard in hazardList:
+            ret[hazard[1]][hazard[0]] = Terrain.HAZARD
 
         return ret
 

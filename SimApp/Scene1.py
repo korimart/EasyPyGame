@@ -20,7 +20,7 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["10x10", "0,0", "[(9, 9)]", "[(1,0), (0, 1)]"]
+        data = ["30x10", "0,0", "[(0, 8), (29, 8), (29, 0)]", "[(1, 1)]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.setX(-1)
@@ -80,7 +80,7 @@ class Scene1(Scene):
             for pos in targetPosList:
                 assert type(pos) is tuple
                 assert type(pos[0]) is int and type(pos[1]) is int
-                assert 0 <= pos[0] < width and 0 <= pos[0] < height
+                assert 0 <= pos[0] < width and 0 <= pos[1] < height
 
         except:
             self.errorMessage = "Incorrect Target Locations"

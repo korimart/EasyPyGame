@@ -29,17 +29,13 @@ class SIMProgramSide:
 
         self.robot = Robot(scene)
         self.floor = Floor(scene, parent.width, parent.height)
+        self.floor.pathed(*parent.startPos)
         self.skinChanger = DungeonSkinChanger()
         self.robot.changeSkin(self.skinChanger)
         self.close = False
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)
 
-        # test--- uncover all
-        hazards = self.floor.getHazardList()
-        for hazard in hazards:
-            self.floor.uncover(*hazard)
-        # test--- uncover all
 
         self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
@@ -97,35 +93,45 @@ class SIMProgramSide:
 
         if message == Message.MOVE:
             num = 1
+            self.floor.pathed(*self.robot.nextPos(1))
             if random() < self.errorRate:
                 x, y = self.robot.nextPos()
                 if not self.floor.senseHazard(x, y):
+                    self.floor.pathed(x, y)
                     num = 2
             self.ret = self.robot.move(num)
+
         elif message == Message.ROTATE:
             self.ret = self.robot.rotate()
+
         elif message == Message.GETPOS:
             self.ret = self.robot.getPos()
+
         elif message == Message.SENSEBLOB:
             north = self.floor.senseBlob(self.robot.rect.x, self.robot.rect.y + 1)
             east = self.floor.senseBlob(self.robot.rect.x + 1, self.robot.rect.y)
             south = self.floor.senseBlob(self.robot.rect.x, self.robot.rect.y - 1)
             west = self.floor.senseBlob(self.robot.rect.x - 1, self.robot.rect.y)
             self.ret = [north, east, south, west]
+
         elif message == Message.SENSEHAZARD:
             self.ret = self.floor.senseHazard(self.robot.rect.x + MOVEDELTA[self.robot.facing][0], self.robot.rect.y + MOVEDELTA[self.robot.facing][1])
+
         elif message == Message.CLEARCOLOR:
             self.ret = None
             self.floor.clearColor()
+
         elif message == Message.COLORTILE:
             x = self.progPipe.recv()
             y = self.progPipe.recv()
             self.ret = None
             self.floor.colorTile(x, y)
+
         elif message == Message.COLORTILEARRAY:
             tupleList = self.progPipe.recv()
             for pos in tupleList:
                 self.floor.colorTile(*pos)
+
         elif message == Message.CLOSE:
             self.close = True
             self.needReturn = False

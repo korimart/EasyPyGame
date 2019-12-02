@@ -135,8 +135,8 @@ class RendererOpenGL:
         self.quadTexCoords = None
         self.instIndiviWorlds = None
 
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glEnable(GL_DEPTH_TEST)
+        glClearColor(0.0, 0.0, 0.0, 1.0)
+        # glEnable(GL_DEPTH_TEST)
         self._initBuffers()
         for program in self.programs:
             glUseProgram(program)

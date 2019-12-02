@@ -15,6 +15,8 @@ class MoveDelta:
 
 MOVEDELTA = [MoveDelta.UP, MoveDelta.RIGHT, MoveDelta.DOWN, MoveDelta.LEFT]
 
+ROBOTZ = 0.01
+
 class Working(GameObjectState):
     def __init__(self):
         self.elapsed = 0
@@ -69,7 +71,7 @@ class Running(GameObjectState):
 class Robot(GameObject):
     def __init__(self, scene):
         super().__init__(scene, "Robot")
-        self.rect.z = 0.01
+        self.setZ(ROBOTZ)
         self.facing = Direction.UP
         self.lastFace = Direction.RIGHT
         self.workTime = 100

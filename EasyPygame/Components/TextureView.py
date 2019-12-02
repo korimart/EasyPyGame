@@ -5,7 +5,7 @@ from EasyPygame.Components import *
 
 class TextureView:
     def __init__(self, texture, imageRect=None, minFilter="nearest", \
-            magFilter="nearest", flipX=False, flipY=False, blending=False, priority=0):
+            magFilter="nearest", flipX=False, flipY=False, blending=False, priority=100):
 
         self.texture = texture
         if not imageRect:
@@ -40,19 +40,10 @@ class TileTextureView(TextureView):
         n = max(dd / rt.width, dd / rt.height) + 3
         EasyPygame.renderer.renderTexInstancedCluster((x, y, rt.z), gameObject.rect.width, gameObject.rect.height, self, int(n))
 
-class LocalTileTextureView(TextureView):
-    def __init__(self, texture, tileRect, imageRect=None, minFilter="nearest", \
-        magFilter="nearest", flipX=False, flipY=False):
-        super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY)
-        self.tileRect = tileRect
-
-    def render(self, gameObject):
-        EasyPygame.renderer.renderTexInstancedCluster((x, y, rt.z), gameObject.rect.width, gameObject.rect.height, self, int(n))
-
 class InstancedTextureView(TextureView):
     def __init__(self, texture, rectListRef, imageRect=None, minFilter="nearest", \
-            magFilter="nearest", flipX=False, flipY=False):
-        super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY)
+            magFilter="nearest", flipX=False, flipY=False, priority=0):
+        super().__init__(texture, imageRect, minFilter, magFilter, flipX, flipY, priority)
         self.rectListRef = rectListRef
 
     def render(self, gameObject):
@@ -82,7 +73,7 @@ class DefaultInstancedTextureView:
         self.color = color
         self.rectListRef = rectListRef
         self.handle = str(randint(0, 100000000))
-        self.textTextureView = InstancedTextureView(self.handle, self.rectListRef)
+        self.textTextureView = InstancedTextureView(self.handle, self.rectListRef, priority=100)
         self.madeTexture = False
         self.showName = showName
 
@@ -92,7 +83,7 @@ class DefaultInstancedTextureView:
                 EasyPygame.resManager.createTextTexture(self.handle, "monogram.ttf", 30, gameObject.name, (0, 0, 0))
                 self.madeTexture = True
             worldRect = gameObject.rect.copy()
-            worldRect.z += 0.00001
+            worldRect.z += 0.01
             if self.showName:
                 EasyPygame.renderer.renderBlendingTexture(worldRect, self.textTextureView, self.textTextureView.priority)
             EasyPygame.renderer.renderColorInstanced(self.rectListRef, self.color, gameObject.name)
