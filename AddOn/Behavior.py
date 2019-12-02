@@ -168,7 +168,6 @@ class BehaviorGoSlow:
         return hazards
 
     def _moveInDirection(self, robot, curLocation, direction, destination):
-        #nextLocation = self.path.pop(0)
         while(destination != _calculateCoordinates(curLocation, direction)):
             robot.rotate()
             direction = _nextDirection(direction)
