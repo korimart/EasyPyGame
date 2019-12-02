@@ -22,8 +22,6 @@ class Message:
 class SIMProgramSide:
     def __init__(self, scene, parent, patience=10):
         self.parent = parent
-        self.sendingQueue = None
-        self.receivingQueue = None
         self.patience = patience
         self.patienceMeter = 0
         self.ret = None
@@ -77,6 +75,9 @@ class SIMProgramSide:
                 # cwal()
                 break
 
+        if self.close:
+            self.parent.FSM.switchState(self.parent.done, ms)
+
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
         process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
@@ -86,6 +87,7 @@ class SIMProgramSide:
     def _go(addOn, pipe):
         sim = SIMAddOnSide(pipe)
         addOn.go(sim)
+        print("end")
 
     def _handleMessage(self):
         if not self.progPipe.poll():

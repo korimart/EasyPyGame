@@ -13,7 +13,7 @@ class SceneManager:
     def registerScene(self, sceneCls):
         if sceneCls.__name__ in self.sceneClassDict:
             return
-        
+
         self.sceneClassDict[sceneCls.__name__] = sceneCls
 
     def loadScene(self, sceneName):
@@ -29,7 +29,7 @@ class SceneManager:
             except:
                 raise Exception("Scene not defined")
             self.sceneInstanceDict[sceneName] = scene
-        
+
         for callInfo in self.loadSceneCallOnInit:
             try:
                 scene = self.getScene(callInfo[0])
@@ -37,10 +37,11 @@ class SceneManager:
                 func(*callInfo[2])
             except:
                 raise Exception("Wrong func or arg in nextSceneOnInit")
-        
+
         for sceneName in self.loadSceneNameList:
             self.sceneInstanceDict[sceneName].onLoad()
-        
+
+        self.loadSceneCallOnInit = []
         self.loadSceneNameList = []
         self.loadSceneCallOnLoad = []
 
@@ -55,7 +56,7 @@ class SceneManager:
                 del self.sceneInstanceDict[sceneName]
             except:
                 continue
-        
+
         self.unloadSceneNameList = []
 
     def getScene(self, sceneName):

@@ -20,7 +20,7 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["30x30", "0,0", "[(19, 19), (29, 29)]", "[(1,0), (0, 1)]"]
+        data = ["10x10", "0,0", "[(9, 9)]", "[(1,0), (0, 1)]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.setX(-1)
@@ -29,8 +29,8 @@ class Scene1(Scene):
             self.inputFields.append(inputField)
 
         self.submitButton = GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
-        self.submitButton.rect.x = 1.5
-        self.submitButton.rect.y = -1
+        self.submitButton.fixedRect.x = 2
+        self.submitButton.fixedRect.y = -2
 
     def postRender(self, ms):
         if self.errorMessage and not self.errorMessageTime:
