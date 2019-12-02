@@ -27,13 +27,13 @@ class DungeonSkinChanger:
 
         for i in range(4):
             imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512)
-            robot.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
-            robot.addTextureView(TextureView("animated.png", imageRect))
+            robot.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True, blending=True))
+            robot.addTextureView(TextureView("animated.png", imageRect, blending=True))
 
         for i in range(4):
             imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512)
-            robot.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True))
-            robot.addTextureView(TextureView("animated.png", imageRect))
+            robot.addTextureView(TextureView("animated.png", imageRect.copy(), flipX=True, blending=True))
+            robot.addTextureView(TextureView("animated.png", imageRect, blending=True))
 
         func = lambda a: a >= 2
 

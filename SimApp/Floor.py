@@ -11,7 +11,7 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 1000
+        self.colorTileSpeed = 0.1
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -78,7 +78,7 @@ class Floor(GameObject):
         if self.colorTileBuffer:
             self.colorTileTimer += ms
             num = self.colorTileSpeed * self.colorTileTimer
-            for _ in range(num):
+            for _ in range(int(num)):
                 try:
                     pop = self.colorTileBuffer.pop(0)
                 except:

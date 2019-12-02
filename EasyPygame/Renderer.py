@@ -92,8 +92,6 @@ layout(location=7) uniform sampler2D sampler;
 
 void main(){
     vec4 sampled = texture(sampler, fragTexCoord);
-    if (sampled.a < 0.1)
-        discard;
     fColor = sampled;
 }
 """
@@ -116,6 +114,7 @@ class RendererOpenGL:
         self.toRenderTexInstancedCluster = []
         self.toRenderTexInstIndivi = []
         self.toRenderBlendingTex = []
+        self.toRenderBlendingTexID = 0
 
         self.pMat = glm.perspectiveFovRH(glm.radians(90), window.width, window.height, 0.1, 100)
         self.vpMat = None
@@ -211,7 +210,8 @@ class RendererOpenGL:
                 glUseProgram(self.textureProgram)
 
             while self.toRenderBlendingTex:
-                _, obj = heapq.heappop(self.toRenderBlendingTex)
+                _, withID = heapq.heappop(self.toRenderBlendingTex)
+                obj = withID[1]
                 self._renderTextured(*obj)
 
         glDisable(GL_BLEND)
@@ -365,7 +365,8 @@ class RendererOpenGL:
         self.toRenderTexInstIndivi.append((worldRectList, textureView))
 
     def renderBlendingTexture(self, worldRect, textureView, priority):
-        heapq.heappush(self.toRenderBlendingTex, (priority, (worldRect, textureView)))
+        heapq.heappush(self.toRenderBlendingTex, (priority, (self.toRenderBlendingTexID, (worldRect, textureView))))
+        self.toRenderBlendingTexID += 1
 
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass

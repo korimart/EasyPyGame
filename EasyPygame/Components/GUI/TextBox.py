@@ -53,7 +53,7 @@ class TextBox(GameObject):
             except:
                 break
 
-        self.charTextureView = TextureView(self.textureName)
+        self.charTextureView = TextureView(self.textureName, blending=True)
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
 

@@ -54,7 +54,7 @@ class DefaultTextureView:
     def __init__(self, color=(0, 0, 1.0), showName=True):
         self.color = color
         self.handle = str(randint(0, 100000000))
-        self.textTextureView = TextureView(self.handle)
+        self.textTextureView = TextureView(self.handle, blending=True)
         self.madeTexture = False
         self.showName = showName
 
@@ -65,7 +65,7 @@ class DefaultTextureView:
         worldRect = gameObject.rect.copy()
         worldRect.z += 0.01
         if self.showName:
-            EasyPygame.renderer.renderTextured(worldRect, self.textTextureView)
+            EasyPygame.renderer.renderBlendingTexture(worldRect, self.textTextureView, self.textTextureView.priority)
         EasyPygame.renderer.renderColor(gameObject.rect.copy(), self.color, gameObject.name)
 
 class DefaultInstancedTextureView:
@@ -85,7 +85,7 @@ class DefaultInstancedTextureView:
             worldRect = gameObject.rect.copy()
             worldRect.z += 0.00001
             if self.showName:
-                EasyPygame.renderer.renderTexInstancedIndivi(self.rectListRef, self.textTextureView)
+                EasyPygame.renderer.renderBlendingTexture(worldRect, self.textTextureView, self.textTextureView.priority)
             EasyPygame.renderer.renderColorInstanced(self.rectListRef, self.color, gameObject.name)
 
 class InvisibleTextureView:

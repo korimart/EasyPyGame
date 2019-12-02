@@ -65,8 +65,8 @@ class Robot(GameObject):
         self.rect.z = 0.01
         self.facing = Direction.UP
         self.lastFace = Direction.RIGHT
-        self.workTime = 0
-        self.runSpeed = 1 # 0.001 per ms -> 1 per second
+        self.workTime = 100
+        self.runSpeed = 0.01 # 0.001 per ms -> 1 per second
         self.isWorking = False
 
         self.idle = self.FSM.addState(Idle())
