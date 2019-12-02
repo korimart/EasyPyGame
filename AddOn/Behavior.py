@@ -108,6 +108,7 @@ class BehaviorGoSlow:
         self.position = None
         self.direction = None
         self.coordinates = None
+        self.supposedToBeHere = None
 
     def go(self, robot, mmap, pathFinder):
         # implement this
@@ -129,7 +130,7 @@ class BehaviorGoSlow:
         self.direction = _posToDirection(self.position)
         self.coordinates = _posToCoord(self.position)
         mmap.pathTaken.append(self.coordinates)
-        if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
+        if len(mmap.pathTaken) == 1 or self.supposedToBeHere != self.coordinates:
             self.pathNeedsUpdate = True
 
     def _findPath(self, robot, mmap, pathFinder):
@@ -142,8 +143,9 @@ class BehaviorGoSlow:
 
     def _move(self, robot, mmap):
         if len(mmap.pathToBeTaken) > 0:
-                self._moveInDirection(robot, self.coordinates, self.direction,
-                    mmap.popNextDestination())
+            self.supposedToBeHere = mmap.popNextDestination()
+            self._moveInDirection(robot, self.coordinates, self.direction,
+                self.supposedToBeHere)
 
     def _updateMap(self, robot, mmap):
         mmap.update(
