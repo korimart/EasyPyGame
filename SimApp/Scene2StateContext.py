@@ -3,16 +3,8 @@ from EasyPygame.Components import *
 from SimApp.SIM import SIMProgramSide
 
 class ReadyState(GameObjectState):
-    def __init__(self):
-        self.wasRestart = False
-
     def onEnter(self, gameObject, ms):
         gameObject.buttonList[0].enable(1)
-
-        if self.wasRestart:
-            # restart SIM and addOn
-            # maybe pass addOn to SIM again
-            pass
 
     def onExit(self, gameObject, ms):
         gameObject.buttonList[0].disable()
@@ -28,7 +20,6 @@ class DoneState(GameObjectState):
     def onEnter(self, gameObject, ms):
         gameObject.buttonList[1].enable(1)
         gameObject.buttonList[2].enable(1)
-        # organize floor and robot for button display
 
     def onExit(self, gameObject, ms):
         gameObject.buttonList[1].disable()
@@ -57,12 +48,17 @@ class Scene2StateContext(GameObject):
         self.FSM.switchState(self.ready, 0)
 
     def _makeButtons(self):
-        self.buttonList.append(GUI.Button(self.scene, name="startButton",   callback=lambda: self.start()))
-        self.buttonList.append(GUI.Button(self.scene, name="restartButton", callback=lambda: self.restart()))
-        self.buttonList.append(GUI.Button(self.scene, name="resetButton",   callback=lambda: self.reset()))
+        self.buttonList.append(GUI.Button(self.scene, name="Start",   callback=lambda: self.start()))
+        self.buttonList.append(GUI.Button(self.scene, name="Restart", callback=lambda: self.restart()))
+        self.buttonList.append(GUI.Button(self.scene, name="Reset",   callback=lambda: self.reset()))
 
         for button in self.buttonList:
+            button.fixedRect.x = 2
+            button.fixedRect.y = -2
+            button.setSize(1, 1)
             button.disable()
+
+        self.buttonList[-1].fixedRect.x = 0.5
 
     def cwal(self):
         print("cannot wait any longer")
@@ -74,8 +70,7 @@ class Scene2StateContext(GameObject):
         self.FSM.switchState(self.done, 0)
 
     def restart(self):
-        self.FSM.getGameStateObject(self.ready).wasRestart = True
-        self.FSM.switchState(self.ready)
+        self.scene.restart()
 
     def reset(self):
         EasyPygame.nextScene("Scene2", "Scene1")

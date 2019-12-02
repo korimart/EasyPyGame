@@ -2,8 +2,6 @@ import EasyPygame
 from EasyPygame.Components import *
 from SimApp.MazeGenerator import *
 
-count = 0
-
 class Floor(GameObject):
     def __init__(self, scene, width, height):
         super().__init__(scene, "Floor")
@@ -13,9 +11,15 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 1000
+        self.colorTileSpeed = 0.1
         self.colorTileTimer = 0
         self.colorTileBuffer = []
+
+        self.floorTiles = GameObject(scene, "FloorTile")
+        self.floorTiles.addTextureView(TileTextureView("animated.png", \
+            EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
+        self.floorTiles.setZ(-0.01)
+        self.floorTiles.useTextureView(1)
 
         self.hazard = GameObject(scene, "Hazard")
         self.hazard.uncoveredRects = []
@@ -80,7 +84,7 @@ class Floor(GameObject):
         if self.colorTileBuffer:
             self.colorTileTimer += ms
             num = self.colorTileSpeed * self.colorTileTimer
-            for _ in range(num):
+            for _ in range(int(num)):
                 try:
                     pop = self.colorTileBuffer.pop(0)
                 except:

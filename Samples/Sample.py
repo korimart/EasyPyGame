@@ -7,6 +7,7 @@ os.chdir(THISDIR)
 
 import EasyPygame
 from EasyPygame.Components import *
+from OpenGL.GL import *
 
 class Scene1(Scene):
     def __init__(self):
@@ -17,14 +18,13 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("Carrot.jpg")
+        EasyPygame.load("darkness.png")
         self.carrot = GameObject(self, "Carrot")
         self.carrot.addTextureView(TextureView("Carrot.jpg"))
-
-        # carrot will switch between textureview 0 and 1 when moving left and right
         self.carrot.useTextureView(1)
 
         self.testObj1 = EasyPygame.Components.GameObject(self, "Test1")
-        self.testObj1.addTextureView(DefaultTextureView())
+        self.testObj1.addTextureView(TextureView("darkness.png", EasyPygame.Rect(0, 0, 1/4, 1/4), blending=True))
         self.testObj1.useTextureView(1)
         self.testObj1.rect.x = -1
         self.testObj1.rect.y = -1

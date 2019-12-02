@@ -1,3 +1,4 @@
+import heapq
 from array import array
 from OpenGL.GL import *
 import glm
@@ -91,8 +92,6 @@ layout(location=7) uniform sampler2D sampler;
 
 void main(){
     vec4 sampled = texture(sampler, fragTexCoord);
-    if (sampled.a < 1.0)
-        discard;
     fColor = sampled;
 }
 """
@@ -114,6 +113,8 @@ class RendererOpenGL:
         self.toRenderTextured = []
         self.toRenderTexInstancedCluster = []
         self.toRenderTexInstIndivi = []
+        self.toRenderBlendingTex = []
+        self.toRenderBlendingTexID = 0
 
         self.pMat = glm.perspectiveFovRH(glm.radians(90), window.width, window.height, 0.1, 100)
         self.vpMat = None
@@ -200,6 +201,20 @@ class RendererOpenGL:
             for obj in self.toRenderTextured:
                 self._renderTextured(*obj)
             self.toRenderTextured = []
+
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        if self.toRenderBlendingTex:
+            if not self.currProgram == self.textureProgram:
+                self.currProgram = self.textureProgram
+                glUseProgram(self.textureProgram)
+
+            while self.toRenderBlendingTex:
+                _, withID = heapq.heappop(self.toRenderBlendingTex)
+                obj = withID[1]
+                self._renderTextured(*obj)
+
+        glDisable(GL_BLEND)
 
     def _renderColor(self, worldRect, color, name):
         worldMat = self._calcWorldMat(worldRect)
@@ -348,6 +363,10 @@ class RendererOpenGL:
 
     def renderTexInstancedIndivi(self, worldRectList, textureView):
         self.toRenderTexInstIndivi.append((worldRectList, textureView))
+
+    def renderBlendingTexture(self, worldRect, textureView, priority):
+        heapq.heappush(self.toRenderBlendingTex, (priority, (self.toRenderBlendingTexID, (worldRect, textureView))))
+        self.toRenderBlendingTexID += 1
 
     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
         pass

@@ -32,6 +32,9 @@ class DefaultScene:
         self.gameObjects.append(obj)
         self.gameObjects.sort()
 
+    def clearGameObjects(self):
+        self.gameObjects = []
+
 class Scene(DefaultScene):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

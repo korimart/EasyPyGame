@@ -1,12 +1,11 @@
 import multiprocessing
 import queue
 import time
+from random import random
 from SimApp.Floor import Floor
 from SimApp.Robot import *
 from AddOn.AddOn import AddOn
 from SimApp.SkinChanger import *
-
-count = 0
 
 class Message:
     MOVE = 0
@@ -20,14 +19,13 @@ class Message:
     CLOSE = 8
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=10):
+    def __init__(self, scene, parent, patience=10, errorRate=0.2):
         self.parent = parent
-        self.sendingQueue = None
-        self.receivingQueue = None
         self.patience = patience
         self.patienceMeter = 0
         self.ret = None
         self.needReturn = False
+        self.errorRate = errorRate
 
         self.robot = Robot(scene)
         self.floor = Floor(scene, parent.width, parent.height)
@@ -57,7 +55,7 @@ class SIMProgramSide:
             start = time.process_time()
             empty = self._handleMessage()
 
-            self.robot.update(thisMS)
+            self.robot.update(0)
 
             if self.robot.isWorking:
                 return
@@ -74,8 +72,11 @@ class SIMProgramSide:
             self.patienceMeter += thisMS * 1000
 
             if self.patienceMeter > self.patience:
-                # cwal()
+                cwal()
                 break
+
+        if self.close:
+            self.parent.FSM.switchState(self.parent.done, ms)
 
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
@@ -86,6 +87,7 @@ class SIMProgramSide:
     def _go(addOn, pipe):
         sim = SIMAddOnSide(pipe)
         addOn.go(sim)
+        print("end")
 
     def _handleMessage(self):
         if not self.progPipe.poll():
@@ -94,7 +96,12 @@ class SIMProgramSide:
         message = self.progPipe.recv()
 
         if message == Message.MOVE:
-            self.ret = self.robot.move()
+            num = 1
+            if random() < self.errorRate:
+                x, y = self.robot.nextPos()
+                if not self.floor.senseHazard(x, y):
+                    num = 2
+            self.ret = self.robot.move(num)
         elif message == Message.ROTATE:
             self.ret = self.robot.rotate()
         elif message == Message.GETPOS:

@@ -24,6 +24,7 @@ class Button(GameObject):
     def __init__(self, scene, name="Button", callback=None):
         super().__init__(scene, name)
         self.callback = callback
+        self.fixedRect = EasyPygame.Rect(0, 0, 1, 1)
 
         # texture views: 1, 2, 3
         self.addTextureView(DefaultTextureView((0, 0, 255)))
@@ -41,3 +42,14 @@ class Button(GameObject):
 
     def setCallback(self, callback):
         self.callback = callback
+
+    def yourLogic(self, ms):
+        camPos = self.scene.camera.pos
+        camDist = self.scene.camera.distance
+        self.setXYZ(camPos[0] + self.fixedRect.x, camPos[1] + self.fixedRect.y, camDist - 3)
+
+    # def isMouseOn(self):
+    #     rect = self.rect
+    #     self.rect = self.fixedRect
+    #     super().isMouseOn()
+    #     self.rect = rect

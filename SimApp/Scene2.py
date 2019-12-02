@@ -13,3 +13,8 @@ class Scene2(Scene):
 
     def setInputData(self, dataTuple):
         self.dataTuple = dataTuple
+
+    def restart(self):
+        self.clearGameObjects()
+        self.stateContext = Scene2StateContext(self, *self.dataTuple)
+        self.camera.reset()

@@ -46,7 +46,7 @@ class GameObject:
     def isMouseOn(self):
         camera = self.scene.camera
         mousePos = EasyPygame.getMousePos()
-        x, y = camera.screen2worldCoord(mousePos)
+        x, y = camera.screen2worldCoord(mousePos, self.rect.z)
         try:
             return self.rect.collidepoint(x, y)
         except AttributeError:
@@ -58,8 +58,28 @@ class GameObject:
     def setY(self, y):
         self.rect.y = y
 
+    def setZ(self, z):
+        self.rect.z = z
+
+    def setXYZ(self, x, y, z):
+        if x is not None:
+            self.setX(x)
+        if y is not None:
+            self.setY(y)
+        if z is not None:
+            self.setZ(z)
+
     def setWidth(self, width):
         self.rect.width = width
+
+    def setHeight(self, height):
+        self.rect.height = height
+
+    def setSize(self, width, height):
+        if width is not None:
+            self.setWidth(width)
+        if height is not None:
+            self.setHeight(height)
 
     def __eq__(self, other):
         return self.rect.z == other.rect.z

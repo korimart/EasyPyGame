@@ -37,7 +37,7 @@ class TextBoxFocused(GameObjectState):
 
 class TextBox(GameObject):
     def __init__(self, scene, name="TextBox", defaultText="", \
-            fontName="comic.ttf", color=(0,0,0)):
+            fontName="monogram.ttf", color=(0,0,0)):
         super().__init__(scene, name)
         self.text = defaultText
         self.cursorPos = 0;
@@ -53,7 +53,7 @@ class TextBox(GameObject):
             except:
                 break
 
-        self.charTextureView = TextureView(self.textureName)
+        self.charTextureView = TextureView(self.textureName, blending=True)
         self.addTextureView(self.charTextureView)
         self.useTextureView(1)
 
