@@ -1,5 +1,6 @@
 import threading
 import queue
+import time
 from SimApp.Floor import Floor
 from SimApp.Robot import *
 from AddOn.AddOn import AddOn
@@ -50,11 +51,12 @@ class SIMProgramSide:
             return
 
         self.patienceMeter += ms
-        count = 0
+        thisMS = ms
         while not self.close:
-            self.close = self._handleMessage()
+            start = time.time()
+            empty = self._handleMessage()
 
-            self.robot.update(ms)
+            self.robot.update(thisMS)
 
             if self.robot.isWorking:
                 return
@@ -62,10 +64,11 @@ class SIMProgramSide:
             if self.needReturn:
                 self.robotReturn(self.ret)
                 self.needReturn = False
-                count += 1
 
-            if count > 10:
+            if empty:
                 break
+
+            thisMS = (time.time() - start) / 1000
 
         if self.patienceMeter > self.patience:
             cwal()
@@ -88,9 +91,7 @@ class SIMProgramSide:
             # count += 1
             # print(count)
         except queue.Empty:
-            return False
-
-        close = False
+            return True
 
         if message == Message.MOVE:
             self.ret = self.robot.move()
@@ -119,7 +120,7 @@ class SIMProgramSide:
             for pos in tupleList:
                 self.floor.colorTile(*pos)
         elif message == Message.CLOSE:
-            close = True
+            self.close = True
             self.needReturn = False
 
         else:
@@ -128,7 +129,7 @@ class SIMProgramSide:
         self.needReturn = True
         self.patienceMeter = 0
 
-        return close
+        return False
 
     def robotReturn(self, ret):
         self.sendingQueue.put(ret)

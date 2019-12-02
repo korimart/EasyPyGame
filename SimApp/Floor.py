@@ -13,7 +13,7 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 1000000000
+        self.colorTileSpeed = 1000
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -68,30 +68,34 @@ class Floor(GameObject):
         rt.z = -0.002
         self.hazard.uncoveredRects.append(rt)
 
-    # def colorTile(self, x, y):
-    #     rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-    #     rt.z = -0.001
-    #     self.colorTileBuffer.append(rt)
-
     def colorTile(self, x, y):
-        global count
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
         rt.z = -0.001
-        self.colorTiles.tileRects.append(rt)
-        # count += 1
-        # print(count)
+        self.colorTileBuffer.append(rt)
+
+    # def colorTile(self, x, y):
+    #     global count
+    #     rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
+    #     rt.z = -0.001
+    #     self.colorTiles.tileRects.append(rt)
+    #     # count += 1
+    #     # print(count)
 
     def clearColor(self):
-        del self.colorTiles.tileRects[:]
+        self.colorTileBuffer.append(None)
 
-    # def yourLogic(self, ms):
-    #     global count
-    #     if self.colorTileBuffer:
-    #         self.colorTileTimer += ms
-    #         if self.colorTileTimer > 1 / self.colorTileSpeed:
-    #             count += 1
-    #             print(count)
-    #             pop = self.colorTileBuffer.pop(0)
-    #             self.colorTiles.tileRects.append(pop)
-    #             self.colorTileTimer = 0
+    def yourLogic(self, ms):
+        if self.colorTileBuffer:
+            self.colorTileTimer += ms
+            num = self.colorTileSpeed * self.colorTileTimer
+            for _ in range(num):
+                try:
+                    pop = self.colorTileBuffer.pop(0)
+                except:
+                    break
+                if not pop:
+                    del self.colorTiles.tileRects[:]
+                else:
+                    self.colorTiles.tileRects.append(pop)
 
+            self.colorTileTimer = 0
