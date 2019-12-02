@@ -20,7 +20,7 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["20x20", "0,0", "[(19, 19)]", "[(1,0), (0, 1)]"]
+        data = ["30x30", "0,0", "[(19, 19), (29, 29)]", "[(1,0), (0, 1)]"]
         for i in range(4):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.setX(-1)

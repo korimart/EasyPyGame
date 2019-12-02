@@ -20,7 +20,7 @@ class Message:
     CLOSE = 8
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=3000):
+    def __init__(self, scene, parent, patience=10):
         self.parent = parent
         self.sendingQueue = None
         self.receivingQueue = None
@@ -50,11 +50,11 @@ class SIMProgramSide:
         if self.floor.colorTileBuffer:
             return
 
-        self.patienceMeter += ms
-        thisMS = ms
         count = 0
+        thisMS = ms
+        self.patienceMeter = 0
         while not self.close:
-            start = time.time()
+            start = time.process_time()
             empty = self._handleMessage()
 
             self.robot.update(thisMS)
@@ -67,13 +67,15 @@ class SIMProgramSide:
                 self.needReturn = False
                 count += 1
 
-            if count > 100:
+            if count > 50:
                 break
 
-            thisMS = (time.time() - start) / 1000
+            thisMS = (time.process_time() - start)
+            self.patienceMeter += thisMS * 1000
 
-        if self.patienceMeter > self.patience:
-            cwal()
+            if self.patienceMeter > self.patience:
+                # cwal()
+                break
 
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
