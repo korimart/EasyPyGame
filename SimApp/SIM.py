@@ -48,7 +48,8 @@ class SIMProgramSide:
             return
 
         self.patienceMeter += ms
-        for _ in range(100):
+        count = 0
+        while True:
             self._handleMessage()
 
             self.robot.update(ms)
@@ -61,6 +62,10 @@ class SIMProgramSide:
             if self.needReturn:
                 self.robotReturn(self.ret)
                 self.needReturn = False
+                count += 1
+
+            if count > 10:
+                break
 
         if self.patienceMeter > self.patience:
             cwal()
