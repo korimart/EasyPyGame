@@ -73,14 +73,6 @@ class Floor(GameObject):
         rt.z = -0.001
         self.colorTileBuffer.append(rt)
 
-    # def colorTile(self, x, y):
-    #     global count
-    #     rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-    #     rt.z = -0.001
-    #     self.colorTiles.tileRects.append(rt)
-    #     # count += 1
-    #     # print(count)
-
     def clearColor(self):
         self.colorTileBuffer.append(None)
 

@@ -14,7 +14,7 @@ class AddOn:
         self.behavior = BehaviorGoFast()
         # self.dsFactory = DSFactory()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = BFS(self.dsFactory)
+        self.algorithm = IDAstar(self.dsFactory)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test
