@@ -41,6 +41,8 @@ class BehaviorGoFast:
     def go(self, robot, mmap, pathFinder):
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self._takeAStep(robot, mmap, pathFinder)
+        
+        robot.close()
 
     def _takeAStep(self, robot, mmap, pathFinder):
         self.position = robot.getPos()
@@ -112,6 +114,8 @@ class BehaviorGoSlow:
         self.visitOrderProducer = pathFinder
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
             self._takeAStep(robot, mmap, pathFinder)
+
+        robot.close()
 
     def _takeAStep(self, robot, mmap, pathFinder):
         self._prepToMove(robot, mmap) #Base

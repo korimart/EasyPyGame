@@ -16,6 +16,7 @@ class Message:
     CLEARCOLOR = 5
     COLORTILE = 6
     COLORTILEARRAY = 7
+    CLOSE = 8
 
 class SIMProgramSide:
     def __init__(self, scene, parent, patience=5000):
@@ -31,6 +32,7 @@ class SIMProgramSide:
         self.floor = Floor(scene, parent.width, parent.height)
         self.skinChanger = DungeonSkinChanger()
         self.robot.changeSkin(self.skinChanger)
+        self.close = False
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)
 
@@ -49,11 +51,9 @@ class SIMProgramSide:
 
         self.patienceMeter += ms
         count = 0
-        while True:
-            self._handleMessage()
+        while not self.close:
+            self.close = self._handleMessage()
 
-            self.robot.update(ms)
-            self.robot.update(ms)
             self.robot.update(ms)
 
             if self.robot.isWorking:
@@ -88,7 +88,9 @@ class SIMProgramSide:
             # count += 1
             # print(count)
         except queue.Empty:
-            return 0
+            return False
+
+        close = False
 
         if message == Message.MOVE:
             self.ret = self.robot.move()
@@ -116,6 +118,9 @@ class SIMProgramSide:
             tupleList = self.receivingQueue.get()
             for pos in tupleList:
                 self.floor.colorTile(*pos)
+        elif message == Message.CLOSE:
+            close = True
+            self.needReturn = False
 
         else:
             raise Exception("Unknown message from addOn")
@@ -123,7 +128,7 @@ class SIMProgramSide:
         self.needReturn = True
         self.patienceMeter = 0
 
-        return 1
+        return close
 
     def robotReturn(self, ret):
         self.sendingQueue.put(ret)
@@ -161,6 +166,9 @@ class SIMAddOnSide:
         self.sendingQueue.put(Message.COLORTILEARRAY)
         self.sendingQueue.put(tupleList)
         return self.receivingQueue.get()
+
+    def close(self):
+        self.sendingQueue.put(Message.CLOSE)
 
     def _returnRobotMessage(self, message):
         self.sendingQueue.put(message)
