@@ -5,7 +5,7 @@ from EasyPygame.Components import *
 
 class TextureView:
     def __init__(self, texture, imageRect=None, minFilter="nearest", \
-            magFilter="nearest", flipX=False, flipY=False):
+            magFilter="nearest", flipX=False, flipY=False, blending=False, priority=0):
 
         self.texture = texture
         if not imageRect:
@@ -16,9 +16,14 @@ class TextureView:
         self.flipY = flipY
         self.minFilter = minFilter
         self.magFilter = magFilter
+        self.blending = blending
+        self.priority = priority
 
     def render(self, gameObject):
-        EasyPygame.renderer.renderTextured(gameObject.rect.copy(), self)
+        if self.blending:
+            EasyPygame.renderer.renderBlendingTexture(gameObject.rect.copy(), self, self.priority)
+        else:
+            EasyPygame.renderer.renderTextured(gameObject.rect.copy(), self)
 
 class TileTextureView(TextureView):
     def __init__(self, texture, imageRect=None, minFilter="nearest", \

@@ -2,8 +2,6 @@ import EasyPygame
 from EasyPygame.Components import *
 from SimApp.MazeGenerator import *
 
-count = 0
-
 class Floor(GameObject):
     def __init__(self, scene, width, height):
         super().__init__(scene, "Floor")

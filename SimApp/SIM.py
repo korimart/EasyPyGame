@@ -72,7 +72,7 @@ class SIMProgramSide:
             self.patienceMeter += thisMS * 1000
 
             if self.patienceMeter > self.patience:
-                # cwal()
+                cwal()
                 break
 
         if self.close:

@@ -60,7 +60,6 @@ class Scene2StateContext(GameObject):
 
         self.buttonList[-1].fixedRect.x = 0.5
 
-
     def cwal(self):
         print("cannot wait any longer")
 
