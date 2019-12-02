@@ -1,12 +1,12 @@
 from AddOn.Algorithm import *
 from AddOn.DSFactory import *
-
 import time
 
-_BFS_INDEX = 0
-_IDAstar_INDEX = 1
-
 class AlgorithmPicker:
+
+    _BFS_INDEX = 0
+    _IDAstar_INDEX = 1
+    
     def __init__(self, dsFactory, maxBytes, maxTime):
         self.maxTime = maxTime
         self.dsFactory = MemCheckDSFactory(dsFactory, maxBytes, self.memCallback)
@@ -26,7 +26,7 @@ class AlgorithmPicker:
             # implement this
             # change algorithm and try again
             if isinstance(self.algorithms[self.currAlgoIndex], BFS):
-                self.currAlgoIndex = _IDAstar_INDEX
+                self.currAlgoIndex = AlgorithmPicker._IDAstar_INDEX
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
             
 
@@ -34,7 +34,7 @@ class AlgorithmPicker:
         # change alogirhtm and try again
         if t_delta > self.maxTime:
             if isinstance(self.algorithms[self.currAlgoIndex], BFS):
-                self.currAlgoIndex = _IDAstar_INDEX
+                self.currAlgoIndex = AlgorithmPicker._IDAstar_INDEX
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
         
         return path

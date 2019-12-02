@@ -37,6 +37,7 @@ class BehaviorGoFast:
         self.position = None
         self.direction = None
         self.coordinates = None
+        self.supposedToBeHere = None
 
     def go(self, robot, mmap, pathFinder):
         while(len(mmap.getUnvisitedSearchPoints()) > 0):
@@ -48,9 +49,10 @@ class BehaviorGoFast:
         self.position = robot.getPos()
         self.direction = _posToDirection(self.position)
         self.coordinates = _posToCoord(self.position)
+        
         mmap.pathTaken.append(self.coordinates)
 
-        if len(mmap.pathTaken) == 0 and mmap.pathTaken[-1] != self.coordinates:
+        if len(mmap.pathTaken) == 1 or self.supposedToBeHere != self.coordinates:
             self.pathNeedsUpdate = True
 
         if self.pathNeedsUpdate:
@@ -66,7 +68,6 @@ class BehaviorGoFast:
                 [],
                 _getBlobData(robot, self.position))
             return
-
         self._faceThisPoint(robot, mmap.peekNextDestination())
         mmap.update(
                 self.coordinates,
@@ -81,7 +82,7 @@ class BehaviorGoFast:
             self._faceThisPoint(robot, mmap.peekNextDestination())
             self._updateHazard(mmap, robot)
 
-        mmap.popNextDestination()
+        self.supposedToBeHere = mmap.popNextDestination()
         robot.move()
 
     def _faceThisPoint(self, robot, destination):
