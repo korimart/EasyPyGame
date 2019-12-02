@@ -2,6 +2,11 @@ import EasyPygame
 from EasyPygame.Components import *
 from SimApp.MazeGenerator import *
 
+FLOORTILEZ = -0.03
+HAZARDZ = -0.02
+COLORTILEZ = -0.01
+PATHTAKENZ = -0.005
+
 class Floor(GameObject):
     def __init__(self, scene, width, height):
         super().__init__(scene, "Floor")
@@ -18,7 +23,7 @@ class Floor(GameObject):
         self.floorTiles = GameObject(scene, "FloorTile")
         self.floorTiles.addTextureView(TileTextureView("animated.png", \
             EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
-        self.floorTiles.setZ(-0.01)
+        self.floorTiles.setZ(FLOORTILEZ)
         self.floorTiles.useTextureView(1)
 
         self.hazard = GameObject(scene, "Hazard")
@@ -32,6 +37,11 @@ class Floor(GameObject):
         self.colorTiles.addTextureView(DefaultInstancedTextureView(self.colorTiles.tileRects, (0, 1, 1)))
         self.colorTiles.useTextureView(1)
 
+        self.pathTaken = GameObject(scene, "PathTaken")
+        self.pathTaken.pathRects = []
+        self.pathTaken.addTextureView(DefaultInstancedTextureView(self.pathTaken.pathRects, (0.8, 0.8, 0)))
+        self.pathTaken.useTextureView(1)
+
     def randomize(self, startingPos, targetList, hazardList):
         del self.hazard.rectList[:]
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList)
@@ -42,7 +52,7 @@ class Floor(GameObject):
 
     def _prepareHazards(self):
         rect = EasyPygame.Rect(0, 0, 1, 1)
-        rect.z = 0.01
+        rect.z = HAZARDZ
         for i in range(self.height):
             for j in range(self.width):
                 if self.terrain[i][j]:
@@ -72,9 +82,14 @@ class Floor(GameObject):
     def uncover(self, terrain, x, y):
         self.uncovered.append((terrain, x, y))
 
+    def pathed(self, x, y):
+        rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
+        rt.z = PATHTAKENZ
+        self.pathTaken.pathRects.append(rt)
+
     def colorTile(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
-        rt.z = -0.001
+        rt.z = COLORTILEZ
         self.colorTileBuffer.append(rt)
 
     def clearColor(self):
