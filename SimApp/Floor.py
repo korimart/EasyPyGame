@@ -15,6 +15,12 @@ class Floor(GameObject):
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
+        self.floorTiles = GameObject(scene, "FloorTile")
+        self.floorTiles.addTextureView(TileTextureView("animated.png", \
+            EasyPygame.Rect(16 / 512, 64 / 512, 16 / 512, 16 / 512)))
+        self.floorTiles.setZ(-0.01)
+        self.floorTiles.useTextureView(1)
+
         self.hazard = GameObject(scene, "Hazard")
         self.hazard.uncoveredRects = []
         imageRect = EasyPygame.Rect(32 / 512, 12 / 512, 16 / 512, 16 / 512)

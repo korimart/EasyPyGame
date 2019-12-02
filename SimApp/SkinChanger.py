@@ -44,3 +44,7 @@ class DungeonSkinChanger:
         robot.FSM.attachConcurrentState(robot.running, run)
         robot.FSM.attachConcurrentState(robot.working, idle)
         robot.FSM.switchState(robot.idle, 0)
+
+        robot.arrow.clearTextureViews()
+        robot.arrow.addTextureView(DefaultTextureView((0.5, 0.5, 0)))
+        robot.arrow.useTextureView(1)

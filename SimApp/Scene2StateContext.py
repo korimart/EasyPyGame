@@ -48,9 +48,9 @@ class Scene2StateContext(GameObject):
         self.FSM.switchState(self.ready, 0)
 
     def _makeButtons(self):
-        self.buttonList.append(GUI.Button(self.scene, name="start",   callback=lambda: self.start()))
-        self.buttonList.append(GUI.Button(self.scene, name="restart", callback=lambda: self.restart()))
-        self.buttonList.append(GUI.Button(self.scene, name="reset",   callback=lambda: self.reset()))
+        self.buttonList.append(GUI.Button(self.scene, name="Start",   callback=lambda: self.start()))
+        self.buttonList.append(GUI.Button(self.scene, name="Restart", callback=lambda: self.restart()))
+        self.buttonList.append(GUI.Button(self.scene, name="Reset",   callback=lambda: self.reset()))
 
         for button in self.buttonList:
             button.fixedRect.x = 2

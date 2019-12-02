@@ -6,8 +6,6 @@ from SimApp.Robot import *
 from AddOn.AddOn import AddOn
 from SimApp.SkinChanger import *
 
-count = 0
-
 class Message:
     MOVE = 0
     ROTATE = 1

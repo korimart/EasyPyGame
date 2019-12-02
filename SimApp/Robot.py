@@ -47,16 +47,20 @@ class Running(GameObjectState):
 
     def update(self, gameObject, ms):
         self.elapsed += ms
-        gameObject.rect.x += MOVEDELTA[gameObject.facing][0] * gameObject.runSpeed * ms
-        gameObject.rect.y += MOVEDELTA[gameObject.facing][1] * gameObject.runSpeed * ms
+        deltaX = MOVEDELTA[gameObject.facing][0] * gameObject.runSpeed * ms
+        deltaY = MOVEDELTA[gameObject.facing][1] * gameObject.runSpeed * ms
+        gameObject.setX(gameObject.rect.x + deltaX)
+        gameObject.setY(gameObject.rect.y + deltaY)
+        arrow = gameObject.arrow
+        arrow.setXYZ(arrow.rect.x + deltaX, arrow.rect.y + deltaY, None)
         gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
 
         if gameObject.runSpeed * self.elapsed > 1:
             gameObject.FSM.switchState(gameObject.idle, ms)
 
     def onExit(self, gameObject, ms):
-        gameObject.rect.x = self.destX
-        gameObject.rect.y = self.destY
+        gameObject.setXYZ(self.destX, self.destY, None)
+        gameObject.arrow.setXYZ(self.destX + MOVEDELTA[gameObject.facing][0], self.destY + MOVEDELTA[gameObject.facing][1], None)
         gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
 
 class Robot(GameObject):
@@ -73,6 +77,9 @@ class Robot(GameObject):
         self.working = self.FSM.addState(Working())
         self.running = self.FSM.addState(Running())
 
+        self.arrow = GameObject(scene, "RobotArrow")
+        self.arrow.setXYZ(MOVEDELTA[self.facing][0], MOVEDELTA[self.facing][1], self.rect.z)
+
     def move(self):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
             self.lastFace = self.facing
@@ -85,6 +92,7 @@ class Robot(GameObject):
     def rotate(self):
         self.FSM.switchState(self.working, 0)
         self.facing = (self.facing + 1) % 4
+        self.arrow.setXYZ(self.rect.x + MOVEDELTA[self.facing][0], self.rect.y + MOVEDELTA[self.facing][1], None)
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)
