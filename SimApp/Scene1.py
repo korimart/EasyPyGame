@@ -9,7 +9,7 @@ from EasyPygame.Components import *
 import ast
 from SimApp.Scene2 import Scene2
 
-class Scene1(EasyPygame.Components.Scene):
+class Scene1(Scene):
     ERRORMESSAGETIME = 2000
     def __init__(self):
         super().__init__()

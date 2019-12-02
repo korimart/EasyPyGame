@@ -1,4 +1,4 @@
-import threading
+import multiprocessing
 import queue
 import time
 from SimApp.Floor import Floor
@@ -20,7 +20,7 @@ class Message:
     CLOSE = 8
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=5000):
+    def __init__(self, scene, parent, patience=3000):
         self.parent = parent
         self.sendingQueue = None
         self.receivingQueue = None
@@ -67,7 +67,7 @@ class SIMProgramSide:
                 self.needReturn = False
                 count += 1
 
-            if count > 10:
+            if count > 100:
                 break
 
             thisMS = (time.time() - start) / 1000
@@ -166,7 +166,7 @@ class SIMAddOnSide:
         return self.pipe.recv()
 
     def close(self):
-        self.sendingQueue.put(Message.CLOSE)
+        self.pipe.send(Message.CLOSE)
 
     def _returnRobotMessage(self, message):
         self.pipe.send(message)
