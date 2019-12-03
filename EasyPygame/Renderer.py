@@ -448,20 +448,109 @@ class RendererOpenGL:
         return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
 
+class Instruction:
+    COLOR = 0
+    COLORINS = 1
+    TEXTURE = 2
+    TEXTUREINS = 3
+
 class Renderer:
+    def __init__(self, window, resManager):
+        self.resManager = resManager
+
+        self.colorProgram = None
+        self.colorInsProgram = None
+        self.textureProgram = None
+        self.textureInsProgram = None
+        self._initPrograms()
+        self.programs = [self.colorInsProgram, self.colorInsProgram, \
+            self.textureProgram, self.textureInsProgram]
+
+        self.quadVBO = None
+        self.quadTexCoords = None
+        self._initBuffers()
+
+        for program in self.programs:
+            glUseProgram(program)
+            glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+            glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+            glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
+
+    def enableBlending(self):
+        self.blending = True
+
+    def disableBlending(self):
+        self.blending = False
+
     def renderColor(self, transComp, color):
+        glUseProgram(self.colorProgram)
+        # TODO
+
+    def renderColorInstanced(self, bufferID, color):
         pass
 
-    def renderColorInstanced(self, transCompList, color):
+    def setFilter(self, minFilter, magFilter):
         pass
 
-    def renderTexture(self, transComp, texture, texCoord=None, minFilter="nearest", \
-            magFilter="nearest", flipX=False, flipY=False, blending=False):
+    def setFlip(self, x=True, y=True):
         pass
 
-    def renderTextureInstanced(self, transCompList, texture, texCoord=None, minFilter="nearest", \
-            magFilter="nearest", flipX=False, flipY=False, blending=False):
+    def renderTexture(self, transComp, texture, texCoord=None):
         pass
+
+    def renderTextureInstanced(self, bufferID, texture, texCoord=None):
+        pass
+
+    def setInstancingTransComps(self, transCompList, static=True):
+        pass
+
+    def updateInstancingTransComps(self, bufferID, offset, transCompList):
+        pass
+
+    def _initPrograms(self):
+        vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
+        vshader_ins = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCED_INDIVI)
+        fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
+        fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
+
+        self.colorProgram = self._createProgram(vshader, fshader_color)
+        self.colorInsProgram = self._createProgram(vshader_ins, fshader_color)
+        self.textureProgram = self._createProgram(vshader, fshader_texture)
+        self.textureInsProgram = self._createProgram(vshader_ins, fshader_texture)
+        glDeleteShader(vshader)
+        glDeleteShader(vshader_ins)
+        glDeleteShader(fshader_color)
+        glDeleteShader(fshader_texture)
+
+    def _initBuffers(self):
+        self.quadVBO = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_STATIC_DRAW)
+        glEnableVertexAttribArray(0)
+
+        self.quadTexCoords = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_DYNAMIC_DRAW)
+        glEnableVertexAttribArray(1)
+
+    @staticmethod
+    def _createShader(shaderType, source):
+        shader = glCreateShader(shaderType)
+        glShaderSource(shader, source)
+        glCompileShader(shader)
+        print(glGetShaderInfoLog(shader))
+        return shader
+
+    @staticmethod
+    def _createProgram(vshader, fshader):
+        program = glCreateProgram()
+        glAttachShader(program, vshader)
+        glAttachShader(program, fshader)
+        glLinkProgram(program)
+        print(glGetProgramInfoLog(program))
+        glDetachShader(program, vshader)
+        glDetachShader(program, fshader)
+        return program
 
 # class Renderer:
 #     def __init__(self, displaySurf, resManager):
