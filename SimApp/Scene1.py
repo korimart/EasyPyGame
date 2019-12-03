@@ -20,8 +20,8 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["30x30", "0,0", "[(0, 8), (29, 8), (29, 0), (15, 15), (10, 20)]", "[(1, 1)]"]
-        for i in range(4):
+        data = ["30x10", "0,0", "[(0, 8), (29, 8), (29, 0)]", "[(1, 1)]", "[(3, 3)]"]
+        for i in range(5):
             inputField = GUI.TextBox(self, name="input" + str(i), defaultText=data[i])
             inputField.setX(-1)
             inputField.setY(2 - i * 1.2)
@@ -98,8 +98,20 @@ class Scene1(Scene):
             self.errorMessage = "Incorrect Hazard Locations"
             return
 
+        try:
+            knownBlobsList = ast.literal_eval(inputs[4])
+            assert type(knownBlobsList) is tuple or type(knownBlobsList) is list
+            for pos in knownBlobsList:
+                assert type(pos) is tuple
+                assert type(pos[0]) is int and type(pos[1]) is int
+                assert 0 <= pos[0] < width and 0 <= pos[0] < height
+
+        except:
+            self.errorMessage = "Incorrect Blob Locations"
+            return
+
         EasyPygame.nextScene("Scene1", "Scene2")
-        EasyPygame.nextSceneOnInit("Scene2", "setInputData", ((width, height, startPos, targetPosList, knownHazardsList), ))
+        EasyPygame.nextSceneOnInit("Scene2", "setInputData", ((width, height, startPos, targetPosList, knownHazardsList, knownBlobsList), ))
 
 if __name__ == "__main__":
     EasyPygame.initWindow(500, 500, "Sample", 75)

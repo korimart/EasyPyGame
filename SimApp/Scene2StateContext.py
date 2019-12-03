@@ -26,7 +26,7 @@ class DoneState(GameObjectState):
         gameObject.buttonList[2].disable()
 
 class Scene2StateContext(GameObject):
-    def __init__(self, scene, width, height, startPos, targetPosList, knownHazardsList):
+    def __init__(self, scene, width, height, startPos, targetPosList, knownHazardsList, knownBlobsList):
         super().__init__(scene, "SceneState")
         self.scene = scene
         self.width = width
@@ -34,6 +34,7 @@ class Scene2StateContext(GameObject):
         self.startPos = startPos
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
+        self.knownBlobsList = knownBlobsList
 
         self.SIM = SIMProgramSide(scene, self)
 

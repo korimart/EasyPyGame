@@ -136,7 +136,7 @@ class RendererOpenGL:
         self.instIndiviWorlds = None
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
-        # glEnable(GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST)
         self._initBuffers()
         for program in self.programs:
             glUseProgram(program)
@@ -448,183 +448,133 @@ class RendererOpenGL:
         return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
 
+class Renderer:
+    def __init__(self, window, resManager):
+        self.resManager = resManager
 
-# class Renderer:
-#     def __init__(self, displaySurf, resManager):
-#         self.surface = displaySurf
-#         self.resManager = resManager
+        self.colorProgram = None
+        self.colorInsProgram = None
+        self.textureProgram = None
+        self.textureInsProgram = None
+        self._initPrograms()
+        self.programs = [self.colorInsProgram, self.colorInsProgram, \
+            self.textureProgram, self.textureInsProgram]
 
-#     def renderDefault(self, worldRect, camera, color, name):
-#         # world
-#         targetRect = worldRect
+        self.quadVBO = None
+        self.quadTexCoords = None
+        self._initBuffers()
 
-#         # view
-#         targetRect.x, targetRect.y = camera.view([worldRect.x, worldRect.y])
+        for program in self.programs:
+            glUseProgram(program)
+            glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+            glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+            glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
-#         # proj
-#         self._distanceDivision(camera.distance, targetRect)
+        self.pv = None
+        self.colors = []
+        self.colorIns = []
+        self.textures = []
+        self.texIns = []
+        self.texBlending = []
+        self.texInsBlending = []
 
-#         # screen space
-#         targetRect.x += self.surface.get_width() / 2
-#         targetRect.y = self.surface.get_height() / 2 - targetRect.y
+        self.blending = False
+        self.flipX = False
+        self.flipY = False
+        self.minFilter = "nearest"
+        self.magFilter = "nearest"
 
-#         self.drawRect(color, targetRect)
-#         self.pprint(name, targetRect.x, targetRect.y, True, scale=(1 / camera.distance, 1 / camera.distance))
+    def enableBlending(self):
+        self.blending = True
 
-#         retRect = targetRect.copy()
-#         retRect.center = (retRect.x, retRect.y)
-#         return retRect
+    def disableBlending(self):
+        self.blending = False
 
-#     def renderTextured(self, worldRect, camera, textureView):
-#         # +------------+---------+-------+----------------+
-#         # | StretchFit | CropFit | Scale |   Destination  |
-#         # +------------+---------+-------+----------------+
-#         # |      0     |    0    |   0   |     source     |
-#         # +------------+---------+-------+----------------+
-#         # |      0     |    0    |   1   |  source scaled |
-#         # +------------+---------+-------+----------------+
-#         # |      0     |    1    |   0   |   crop to fit  |
-#         # +------------+---------+-------+----------------+
-#         # |      0     |    1    |   1   |   crop to fit  |
-#         # |            |         |       |    and scale   |
-#         # +------------+---------+-------+----------------+
-#         # |      1     |    X    |   0   | stretch to fit |
-#         # +------------+---------+-------+----------------+
-#         # |      1     |    X    |   1   | stretch to fit |
-#         # |            |         |       |    and scale   |
-#         # +------------+---------+-------+----------------+
+    def renderColor(self, transComp, color):
+        self.colors.append((transComp, color))
 
-#         imageSurf = self.resManager.getLoaded(textureView.texture)
-#         imageSurf = pygame.transform.flip(imageSurf, textureView.flipX, textureView.flipY)
-#         if textureView.imageRect:
-#             imageRect = textureView.imageRect.copy()
-#             tempSurf = pygame.Surface((imageRect.width, imageRect.height), pygame.SRCALPHA)
-#             tempSurf.fill((255, 255, 255, 0))
-#             tempSurf.blit(imageSurf, (0, 0), imageRect)
-#             imageSurf = tempSurf
-#         # imageRect x y are now 0
-#         imageRect = imageSurf.get_rect()
+    def renderColorInstanced(self, bufferID, color):
+        self.colorIns.append((bufferID, color))
 
-#         # world
-#         targetRect = worldRect
-#         scale = list(textureView.scale)
+    def setFilter(self, minFilter="nearest", magFilter="nearest"):
+        if minFilter is not None:
+            self.minFilter = minFilter
+        if magFilter is not None:
+            self.magFilter = magFilter
 
-#         if not textureView.stretchFit and not textureView.cropFit:
-#             targetRect.width, targetRect.height = (imageRect.width, imageRect.height)
+    def setFlip(self, x=True, y=True):
+        if x is not None:
+            self.flipX = x
+        if y is not None:
+            self.flipY = y
 
-#         # view
-#         targetRect.x, targetRect.y = camera.view([worldRect.x, worldRect.y])
+    def renderTexture(self, transComp, texture, texCoord=None):
+        if self.blending:
+            self.texBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, transComp, texture, texCoord))
+        else:
+            self.textures.append((self.minFilter, self.magFilter, self.flipX, self.flipY, transComp, texture, texCoord))
 
-#         # proj
-#         self._distanceDivision(camera.distance, targetRect)
+    def renderTextureInstanced(self, bufferID, texture, texCoord=None):
+        if self.blending:
+            self.texInsBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
+        else:
+            self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
 
-#         # if stretchFit, image does not need to be scaled to distance.
-#         # It will be stretched to gameOjbect later
-#         if not textureView.stretchFit:
-#             targetRect.width  *= scale[0]
-#             targetRect.height *= scale[1]
-#             imageSurfFactor = [1 / imageRect.width, 1 / imageRect.height]
-#             self._distanceDivision(camera.distance, imageRect)
-#             imageRect.width *= scale[0]
-#             imageRect.height *= scale[1]
-#             imageSurfFactor[0] *= imageRect.width
-#             imageSurfFactor[1] *= imageRect.height
-#             imageSurfRect = imageSurf.get_rect()
-#             imageSurf = pygame.transform.scale(imageSurf, (int(imageSurfRect.width * imageSurfFactor[0]), int(imageSurfRect.height * imageSurfFactor[1])))
+    def setInstancingTransComps(self, transCompList, static=True):
+        pass
 
-#         # convert to screen space
-#         # targetRect is in screen space but with x y being its center
-#         targetRect.x += self.surface.get_width() / 2
-#         targetRect.y = self.surface.get_height() / 2 - targetRect.y
+    def updateInstancingTransComps(self, bufferID, offset, transCompList):
+        pass
 
-#         targetRect.x += textureView.relPos[0]
-#         targetRect.y -= textureView.relPos[1]
+    def _renderColor(self, transComp, color):
+        world = transComp.getWorldMat()
+        pvw = self.pv * world
+        glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(pvw))
+        glUniform4f(COLORINDEX, *color, 1.0)
 
-#         if textureView.stretchFit:
-#             thisScale = (targetRect.width / imageRect.width * scale[0], targetRect.height / imageRect.height * scale[1])
-#             imageSurfRect = imageSurf.get_rect()
-#             imageSurfRect.width *= thisScale[0]
-#             imageSurfRect.height *= thisScale[1]
-#             imageRect.width *= thisScale[0]
-#             imageRect.height *= thisScale[1]
-#             imageSurf = pygame.transform.scale(imageSurf, (imageSurfRect.width, imageSurfRect.height))
-#         # convert targetRect to image space and find new imageRect for crop
-#         elif textureView.cropFit:
-#             if textureView.halign == "left":
-#                 left = 0
-#                 right = targetRect.width
-#             elif textureView.halign == "right":
-#                 right = imageRect.width
-#                 left = right - targetRect.width
-#             else:
-#                 left = (imageRect.width - targetRect.width) / 2
-#                 right = (targetRect.width + imageRect.width) / 2
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-#             top = (imageRect.height - targetRect.height) / 2
-#             bottom = (targetRect.height + imageRect.height) / 2
+    def _initPrograms(self):
+        vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
+        vshader_ins = self._createShader(GL_VERTEX_SHADER, VSHADER_INSTANCED_INDIVI)
+        fshader_color = self._createShader(GL_FRAGMENT_SHADER, FSHADER_COLOR)
+        fshader_texture = self._createShader(GL_FRAGMENT_SHADER, FSHADER_TEXTURE)
 
-#             imageRect.x = max(imageRect.x, left)
-#             imageRect.y = max(imageRect.y, top)
-#             imageRect.width = min(imageRect.right, right) - imageRect.x
-#             imageRect.height = min(imageRect.bottom, bottom) - imageRect.y
+        self.colorProgram = self._createProgram(vshader, fshader_color)
+        self.colorInsProgram = self._createProgram(vshader_ins, fshader_color)
+        self.textureProgram = self._createProgram(vshader, fshader_texture)
+        self.textureInsProgram = self._createProgram(vshader_ins, fshader_texture)
+        glDeleteShader(vshader)
+        glDeleteShader(vshader_ins)
+        glDeleteShader(fshader_color)
+        glDeleteShader(fshader_texture)
 
-#         # convert to left-top oriented screen space according to alignment
-#         y = targetRect.y - imageRect.height / 2
-#         if textureView.halign == "left":
-#             x = targetRect.x - targetRect.width / 2
-#         elif textureView.halign == "right":
-#             x = targetRect.x + targetRect.width / 2 - imageRect.width
-#         else:
-#             x = targetRect.x - imageRect.width / 2
+    def _initBuffers(self):
+        self.quadVBO = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadVBO)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_STATIC_DRAW)
+        glEnableVertexAttribArray(0)
 
-#         self.surface.blit(imageSurf, (x, y), imageRect)
-#         return pygame.Rect(x, y, imageRect.width, imageRect.height)
+        self.quadTexCoords = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        glBufferData(GL_ARRAY_BUFFER, quadPositions, GL_DYNAMIC_DRAW)
+        glEnableVertexAttribArray(1)
 
-#     def drawImage(self, imageName, screenRect, imageRect=None, halign="center"):
-#         surf = self.resManager.getLoaded(imageName)
-#         if not imageRect:
-#             imageRect = surf.get_rect()
+    @staticmethod
+    def _createShader(shaderType, source):
+        shader = glCreateShader(shaderType)
+        glShaderSource(shader, source)
+        glCompileShader(shader)
+        print(glGetShaderInfoLog(shader))
+        return shader
 
-#         y = screenRect.y - imageRect.height / 2
-#         if halign == "left":
-#             x = screenRect.x - screenRect.width / 2
-#         elif halign == "right":
-#             x = screenRect.x + screenRect.width / 2 - imageRect.width
-#         else:
-#             x = screenRect.x - imageRect.width / 2
-
-#         self.surface.blit(surf, (x, y), imageRect)
-
-#     def drawStretchedImage(self, imageName, screenRect, imageRect=None):
-#         surf = self.resManager.getLoaded(imageName)
-#         if not imageRect:
-#             imageRect = surf.get_rect()
-
-#         surf = pygame.transform.scale(surf, (screenRect.width, screenRect.height))
-#         rt = screenRect.copy()
-#         rt.center = (screenRect.x, screenRect.y)
-
-#         self.surface.blit(surf, (rt.x, rt.y), imageRect)
-
-#     def drawRect(self, color, rect):
-#         rt = rect.copy()
-#         rt.center = (rect.x, rect.y)
-#         pygame.draw.rect(self.surface, color, rt)
-
-#     def pprint(self, text, x, y, center=False, color=(0, 0, 0), scale=(1.0, 1.0)):
-#         self.resManager.createTextSurface(self.resManager.DEFAULT_FONT, self.resManager.DEFAULT_FONT_SIZE, color, "__pprint", text, True)
-#         surf = self.resManager.getLoaded("__pprint")
-#         rect = surf.get_rect()
-#         surf = pygame.transform.scale(surf, (int(scale[0] * rect.width), int(scale[1] * rect.height)))
-#         if center:
-#             x -= surf.get_width() / 2
-#             y -= surf.get_height() / 2
-#         self.surface.blit(surf, (x, y))
-
-#     def _distanceDivision(self, distance, rect):
-#         distanceFactor = 1 / distance
-#         rect.x      *= distanceFactor
-#         rect.y      *= distanceFactor
-#         rect.width  *= distanceFactor
-#         rect.height *= distanceFactor
-
+    @staticmethod
+    def _createProgram(vshader, fshader):
+        program = glCreateProgram()
+        glAttachShader(program, vshader)
+        glAttachShader(program, fshader)
+        glLinkProgram(program)
+        print(glGetProgramInfoLog(program))
+        glDetachShader(program, vshader)
+        glDetachShader(program, fshader)
+        return program

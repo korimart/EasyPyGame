@@ -15,7 +15,7 @@ class MoveDelta:
 
 MOVEDELTA = [MoveDelta.UP, MoveDelta.RIGHT, MoveDelta.DOWN, MoveDelta.LEFT]
 
-ROBOTZ = 0.01
+ROBOTZ = 0.02
 
 class Working(GameObjectState):
     def __init__(self):
@@ -107,3 +107,13 @@ class Robot(GameObject):
     def nextPos(self, num=2):
         return (self.rect.x + MOVEDELTA[self.facing][0] * num, \
             self.rect.y + MOVEDELTA[self.facing][1] * num)
+
+    def yourLogic(self, ms):
+        if EasyPygame.isDown1stTime(","):
+            self.workTime += 100
+            if self.runSpeed - 0.001 > 0:
+                self.runSpeed -= 0.001
+        elif EasyPygame.isDown1stTime("."):
+            if self.workTime - 100 > 0:
+                self.workTime -= 100
+            self.runSpeed += 0.001
