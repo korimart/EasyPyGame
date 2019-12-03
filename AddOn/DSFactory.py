@@ -60,14 +60,6 @@ class InsertCallbackDSFactory:
     def getGraph(self):
         pass
 
-class DSSet:
-    def __init(self):
-        self.set = set()
-    def add(self, item):
-        self.set.add(item)
-    def 
-
-
 # __len__은 파이썬 문법 참고
 class DSQueue:
     def __init__(self):
