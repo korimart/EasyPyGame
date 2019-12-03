@@ -89,7 +89,7 @@ class Running(GameObjectState):
 class Robot(GameObject):
     def __init__(self, scene):
         super().__init__(scene, "Robot")
-        self.transform.translate(ROBOTZ)
+        self.transform.translate(0, 0, ROBOTZ)
         self.x = 0
         self.y = 0
         self.facing = Direction.UP
