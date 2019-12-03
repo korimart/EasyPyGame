@@ -136,7 +136,7 @@ class RendererOpenGL:
         self.instIndiviWorlds = None
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
-        # glEnable(GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST)
         self._initBuffers()
         for program in self.programs:
             glUseProgram(program)
@@ -448,6 +448,20 @@ class RendererOpenGL:
         return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
             glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
 
+class Renderer:
+    def renderColor(self, transComp, color):
+        pass
+
+    def renderColorInstanced(self, transCompList, color):
+        pass
+
+    def renderTexture(self, transComp, texture, texCoord=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False, blending=False):
+        pass
+
+    def renderTextureInstanced(self, transCompList, texture, texCoord=None, minFilter="nearest", \
+            magFilter="nearest", flipX=False, flipY=False, blending=False):
+        pass
 
 # class Renderer:
 #     def __init__(self, displaySurf, resManager):
