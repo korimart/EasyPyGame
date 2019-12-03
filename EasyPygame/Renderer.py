@@ -4,6 +4,8 @@ from OpenGL.GL import *
 import glm
 from ctypes import c_void_p
 
+import EasyPygame
+
 MVPINDEX = 0
 MINDEX = 0
 VPINDEX = 1
@@ -491,7 +493,7 @@ class Renderer:
         self.currBoundMinFilter = GL_NEAREST
         self.currBoundMagFilter = GL_NEAREST
 
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+        glClearColor(1.0, 1.0, 1.0, 1.0)
         glEnable(GL_DEPTH_TEST)
 
     def render(self, camera):
@@ -522,6 +524,7 @@ class Renderer:
             self._flush(self.textures, self._renderTexture)
 
         glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         if self._useProgram(self.texBlending, self.textureProgram):
             self._flush(self.texBlending, self._renderTexture)
 
@@ -542,6 +545,13 @@ class Renderer:
 
     def disableBlending(self):
         self.blending = False
+
+    def resetSettings(self):
+        self.blending = False
+        self.flipX = False
+        self.flipY = False
+        self.minFilter = "nearest"
+        self.magFilter = "nearest"
 
     def renderColor(self, transComp, color):
         self.colors.append((transComp, color))
@@ -635,7 +645,7 @@ class Renderer:
 
     def _renderTexture(self, minF, magF, flipX, flipY, transComp, texture, texCoord):
         self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
-        mvpMat = self.vpMat * transComp.getWorldMat()
+        mvpMat = self.pv * transComp.getWorldMat()
         glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
@@ -680,6 +690,8 @@ class Renderer:
                 self.currBoundMagFilter = magFilter
 
         texRect = texCoord
+        if not texRect:
+            texRect = EasyPygame.EasyPygameRect(0, 0, 1, 1)
 
         a = [
             texRect.x + texRect.width, texRect.y,

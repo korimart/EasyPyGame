@@ -1,11 +1,12 @@
 import EasyPygame
+import EasyPygame.Components as Cmp
 
 class GameObject:
     def __init__(self, scene, name="GameObject"):
         scene.addGameObject(self)
         self.scene = scene
-        self.transform = EasyPygame.Components.TransformComp()
-        self.renderComp = EasyPygame.Components.DefaultRenderComponent()
+        self.transform = Cmp.TransformComp()
+        self.renderComp = Cmp.InvisibleRenderComponent()
         self.name = name
         self.currentStateIndex = 0
         self.stateList = [GameObjectState()]

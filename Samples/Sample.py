@@ -18,6 +18,13 @@ class Scene1(Scene):
         EasyPygame.load("Carrot.jpg")
         EasyPygame.load("darkness.png")
         self.carrot = GameObject(self, "Carrot")
+        ins1 = self.carrot.transform.copy()
+        ins1.rotate(25)
+        ins1.translate(1, 0, 0)
+        instances = [self.carrot.transform, ins1]
+        # self.carrot.renderComp = TextureRenderComponent("Carrot.jpg")
+        # self.carrot.renderComp = DefaultInstancedRenderComponent(instances)
+        self.carrot.renderComp = TextureInstancedRenderComponent(instances, "Carrot.jpg")
 
     def postRender(self, ms):
         if EasyPygame.isDown1stTime("RETURN"):

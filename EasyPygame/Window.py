@@ -9,6 +9,8 @@ class Window:
         self.width = width
         self.height = height
         self.caption = caption
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLEBUFFERS, 1)
+        pygame.display.gl_set_attribute(pygame.GL_MULTISAMPLESAMPLES, 8)
         self.displaySurface = pygame.display.set_mode((self.width, self.height), pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.OPENGL)
         pygame.display.set_caption(self.caption)
 

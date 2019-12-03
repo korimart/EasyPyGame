@@ -23,3 +23,9 @@ class TransformComp:
 
     def scale(self, x, y):
         self.worldMat = glm.scale(self.worldMat, glm.vec3(x, y, 1))
+
+    def copy(self):
+        new = TransformComp()
+        new.parent = self.parent
+        new.worldMat = glm.mat4(self.worldMat)
+        return new
