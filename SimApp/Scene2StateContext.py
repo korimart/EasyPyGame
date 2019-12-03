@@ -42,11 +42,11 @@ class Scene2StateContext(GameObject):
         self.buttonList = []
         self._makeButtons()
 
-        self.ready      = self.FSM.addState(ReadyState())
-        self.simulating = self.FSM.addState(SimulatingState())
-        self.done       = self.FSM.addState(DoneState())
+        self.ready      = self.addState(ReadyState())
+        self.simulating = self.addState(SimulatingState())
+        self.done       = self.addState(DoneState())
 
-        self.FSM.switchState(self.ready, 0)
+        self.switchState(self.ready, 0)
 
     def _makeButtons(self):
         self.buttonList.append(GUI.Button(self.scene, name="Start",   callback=lambda: self.start()))
@@ -65,10 +65,10 @@ class Scene2StateContext(GameObject):
         print("cannot wait any longer")
 
     def start(self):
-        self.FSM.switchState(self.simulating, 0)
+        self.switchState(self.simulating, 0)
 
     def finished(self):
-        self.FSM.switchState(self.done, 0)
+        self.switchState(self.done, 0)
 
     def restart(self):
         self.scene.restart()

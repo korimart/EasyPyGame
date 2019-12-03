@@ -16,7 +16,7 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 0.1
+        self.colorTileSpeed = 0.01 # tile per ms
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -106,7 +106,7 @@ class Floor(GameObject):
         else:
             rectList = self.uncoveredHazards
             rectList2 = self.uncoveredBlobs
-        
+
         self.hazard.clearTextureViews()
         imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
         self.hazard.addTextureView(InstancedTextureView("animated.png", rectList, imageRect))
@@ -135,7 +135,7 @@ class Floor(GameObject):
                     self.colorTiles.tileRects.append(pop)
 
             self.colorTileTimer = 0
-        
+
         if EasyPygame.isDown1stTime("b"):
             self.blackSheepWall()
 
