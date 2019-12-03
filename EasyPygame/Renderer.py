@@ -470,6 +470,7 @@ class Renderer:
             glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
             glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
+        self.p = glm.perspectiveFovRH(glm.radians(90), window.width, window.height, 0.1, 100)
         self.pv = None
         self.colors = []
         self.colorIns = []
@@ -483,6 +484,52 @@ class Renderer:
         self.flipY = False
         self.minFilter = "nearest"
         self.magFilter = "nearest"
+
+        self.bufferInsNum = dict()
+        self.currProgram = None
+        self.currBoundTex = None
+        self.currBoundMinFilter = GL_NEAREST
+        self.currBoundMagFilter = GL_NEAREST
+
+    def render(self, camera):
+        self.pv = self.p * self._calcVMat(camera)
+
+        glEnableVertexAttribArray(2)
+        glEnableVertexAttribArray(3)
+        glEnableVertexAttribArray(4)
+        glEnableVertexAttribArray(5)
+
+        self._useProgram(self.colorIns, self.colorInsProgram)
+        glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.pv))
+        self._flush(self.colorIns, self._renderColorInstanced)
+
+        self._useProgram(self.texIns, self.textureInsProgram)
+        glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.pv))
+        self._flush(self.texIns, self._renderTextureInstanced)
+
+        glDisableVertexAttribArray(2)
+        glDisableVertexAttribArray(3)
+        glDisableVertexAttribArray(4)
+        glDisableVertexAttribArray(5)
+
+        self._useProgram(self.colors, self.colorProgram)
+        self._flush(self.colors, self._renderColor)
+
+        self._useProgram(self.textures, self.textureProgram)
+        self._flush(self.textures, self._renderTexture)
+
+        glEnable(GL_BLEND)
+        self._useProgram(self.texBlending, self.textureProgram)
+        self._flush(self.texBlending, self._renderTexture)
+
+        glEnableVertexAttribArray(2)
+        glEnableVertexAttribArray(3)
+        glEnableVertexAttribArray(4)
+        glEnableVertexAttribArray(5)
+
+        self._useProgram(self.texInsBlending, self.textureInsProgram)
+        glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.pv))
+        self._flush(self.texInsBlending, self._renderTextureInstanced)
 
     def enableBlending(self):
         self.blending = True
@@ -521,10 +568,50 @@ class Renderer:
             self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
 
     def setInstancingTransComps(self, transCompList, static=True):
-        pass
+        ret = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, ret)
+
+        a = []
+        for transComp in transCompList:
+            worldMat = transComp.getWorldMat()
+            for i in range(4):
+                for j in range(4):
+                    a.append(worldMat[i][j])
+
+        data = array('f', a).tobytes()
+
+        if static:
+            glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW)
+        else:
+            glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
+
+        self.bufferInsNum[ret] = len(transCompList)
+
+        return ret
 
     def updateInstancingTransComps(self, bufferID, offset, transCompList):
-        pass
+        a = []
+        for transComp in transCompList:
+            worldMat = transComp.getWorldMat()
+            for i in range(4):
+                for j in range(4):
+                    a.append(worldMat[i][j])
+
+        data = array('f', a).tobytes()
+
+        glBindBuffer(GL_ARRAY_BUFFER, bufferID)
+        glBufferSubData(GL_ARRAY_BUFFER, 16 * 4 * offset, None, data)
+
+    def _useProgram(self, radixList, program):
+        if radixList:
+            if not self.currProgram == program:
+                self.currProgram = program
+                glUseProgram(program)
+
+    def _flush(self, radixList, func):
+        for obj in radixList:
+            func(*obj)
+        del radixList[:]
 
     def _renderColor(self, transComp, color):
         world = transComp.getWorldMat()
@@ -533,6 +620,79 @@ class Renderer:
         glUniform4f(COLORINDEX, *color, 1.0)
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+
+    def _renderColorInstanced(self, bufferID, color):
+        glUniform4f(COLORINDEX, *color, 1.0)
+        self._bindAndDrawIns(bufferID)
+
+    def _renderTexture(self, minF, magF, flipX, flipY, transComp, texture, texCoord):
+        self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
+        mvpMat = self.vpMat * transComp.getWorldMat()
+        glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+
+    def _renderTextureInstanced(self, minF, magF, flipX, flipY, bufferID, texture, texCoord):
+        self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
+        self._bindAndDrawIns(bufferID)
+
+    def _bindAndDrawIns(self, bufferID):
+        glBindBuffer(GL_ARRAY_BUFFER, bufferID)
+
+        glVertexAttribPointer(2, 4, GL_FLOAT, False, 16 * 4, c_void_p(0))
+        glVertexAttribPointer(3, 4, GL_FLOAT, False, 16 * 4, c_void_p(16))
+        glVertexAttribPointer(4, 4, GL_FLOAT, False, 16 * 4, c_void_p(32))
+        glVertexAttribPointer(5, 4, GL_FLOAT, False, 16 * 4, c_void_p(48))
+
+        glVertexAttribDivisor(2, 1)
+        glVertexAttribDivisor(3, 1)
+        glVertexAttribDivisor(4, 1)
+        glVertexAttribDivisor(5, 1)
+
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, self.bufferInsNum[bufferID])
+
+    def _textureUploadAttributes(self, minFilter, magFilter, flipX, flipY, tex, texCoord):
+        texture = self.resManager.getTexture(tex)
+        minFilter = GL_LINEAR if minFilter == "linear" else GL_NEAREST
+        magFilter = GL_LINEAR if magFilter == "linear" else GL_NEAREST
+        if texture != self.currBoundTex:
+            glBindTexture(GL_TEXTURE_2D, texture)
+            self.currBoundTex = texture
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        else:
+            if self.currBoundMinFilter != minFilter:
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter)
+                self.currBoundMinFilter = minFilter
+            if self.currBoundMagFilter != magFilter:
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter)
+                self.currBoundMagFilter = magFilter
+
+        texRect = texCoord
+
+        a = [
+            texRect.x + texRect.width, texRect.y,
+            texRect.x + texRect.width, texRect.y + texRect.height,
+            texRect.x, texRect.y,
+            texRect.x, texRect.y + texRect.height
+        ]
+
+        if flipX:
+            a[0], a[1], a[4], a[5] = a[4], a[5], a[0], a[1]
+            a[2], a[3], a[6], a[7] = a[6], a[7], a[2], a[3]
+
+        if flipY:
+            a[0], a[1], a[2], a[3] = a[2], a[3], a[0], a[1]
+            a[4], a[5], a[6], a[7] = a[6], a[7], a[4], a[5]
+
+        texCoords = array('f', a).tobytes()
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.quadTexCoords)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, None, texCoords)
+        glVertexAttribPointer(1, 2, GL_FLOAT, False, 0, None)
 
     def _initPrograms(self):
         vshader = self._createShader(GL_VERTEX_SHADER, VSHADER)
@@ -578,3 +738,8 @@ class Renderer:
         glDetachShader(program, vshader)
         glDetachShader(program, fshader)
         return program
+
+    @staticmethod
+    def _calcVMat(constCamera):
+        return glm.lookAt(glm.vec3(constCamera.pos[0], constCamera.pos[1], constCamera.distance), \
+            glm.vec3(constCamera.pos[0], constCamera.pos[1], 0), glm.vec3(0, 1, 0))
