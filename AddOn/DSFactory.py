@@ -169,5 +169,5 @@ class PushPopTimeCheckWrapper(PushPopWrapper):
             self.time += (time.process_time() - self.lastTime) * 1000
             if self.time > self.maxTime:
                 raise self.exception
-
+            self.lastTime = time.process_time()
 
