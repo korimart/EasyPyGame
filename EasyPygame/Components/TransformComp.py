@@ -10,7 +10,7 @@ class TransformComp:
 
     def getWorldMat(self):
         ret = glm.mat4()
-        if parent:
+        if self.parent:
             ret = parent.getWorldMat()
 
         return ret * self.worldMat

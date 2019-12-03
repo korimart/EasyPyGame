@@ -1,47 +1,33 @@
 import EasyPygame
-from EasyPygame.Components import TextureView
-from EasyPygame.Components import FSM
 
 class GameObject:
     def __init__(self, scene, name="GameObject"):
-        self.rect = EasyPygame.Rect(0, 0, 1, 1)
-
-        self.textureViewList = [TextureView.InvisibleTextureView()]
-        self.FSM = FSM.FSM(self)
-        self.textureViewIndex = 0
-
-        self.scene = scene
-        self.name = name
         scene.addGameObject(self)
+        self.scene = scene
+        self.transform = EasyPygame.Components.TransformComp()
+        self.renderComp = EasyPygame.Components.DefaultRenderComponent()
+        self.name = name
+        self.currentStateIndex = 0
+        self.stateList = [GameObjectState()]
+        self.concurrentStateDict = dict()
 
     def update(self, ms):
-        self.FSM.update(ms)
+        self.stateList[self.currentStateIndex].update(self, ms)
+        if self.currentStateIndex in self.concurrentStateDict:
+            for conState in self.concurrentStateDict[self.currentStateIndex]:
+                conState.update(self, ms)
 
     def yourLogic(self, ms):
         pass
 
     def render(self, ms):
-        self.textureViewList[self.textureViewIndex].render(self)
-
-    def addTextureView(self, textureView):
-        self.textureViewList.append(textureView)
-        return len(self.textureViewList) - 1
-
-    def useTextureView(self, textureViewIndex):
-        if 0 <= textureViewIndex < len(self.textureViewList):
-            self.textureViewIndex = textureViewIndex
-        else:
-            self.textureViewIndex = 0
-
-    def clearTextureViews(self):
-        self.textureViewList = [TextureView.InvisibleTextureView()]
+        self.renderComp.render(self)
 
     def disable(self):
-        self.useTextureView(0)
-        self.FSM.switchState(0, 0)
+        self.switchState(0, 0)
 
     def enable(self, stateIndex):
-        self.FSM.switchState(stateIndex, 0)
+        self.switchState(stateIndex, 0)
 
     def isMouseOn(self):
         camera = self.scene.camera
@@ -52,37 +38,105 @@ class GameObject:
         except AttributeError:
             return False
 
-    def setX(self, x):
-        self.rect.x = x
+    def addState(self, state):
+        self.stateList.append(state)
+        return len(self.stateList) - 1
 
-    def setY(self, y):
-        self.rect.y = y
+    def attachConcurrentState(self, gameObjectStateIndex, state):
+        try:
+            self.concurrentStateDict[gameObjectStateIndex].append(state)
+        except KeyError:
+            self.concurrentStateDict[gameObjectStateIndex] = [state]
 
-    def setZ(self, z):
-        self.rect.z = z
+    def clearConcurrentStates(self):
+        self.concurrentStateDict = dict()
 
-    def setXYZ(self, x, y, z):
-        if x is not None:
-            self.setX(x)
-        if y is not None:
-            self.setY(y)
-        if z is not None:
-            self.setZ(z)
+    def switchState(self, stateIndex, ms):
+        if 0 <= stateIndex < len(self.stateList):
+            if self.currentStateIndex in self.concurrentStateDict:
+                for conState in self.concurrentStateDict[self.currentStateIndex]:
+                    conState.onExit(self.gameObject, ms)
+            self.stateList[self.currentStateIndex].onExit(self, ms)
 
-    def setWidth(self, width):
-        self.rect.width = width
+            self.currentStateIndex = stateIndex
+        else:
+            self.currentStateIndex = 0
 
-    def setHeight(self, height):
-        self.rect.height = height
+        self.stateList[self.currentStateIndex].onEnter(self, ms)
+        if self.currentStateIndex in self.concurrentStateDict:
+            for conState in self.concurrentStateDict[self.currentStateIndex]:
+                conState.onEnter(self, ms)
 
-    def setSize(self, width, height):
-        if width is not None:
-            self.setWidth(width)
-        if height is not None:
-            self.setHeight(height)
+    def getGameObjectState(self, index):
+        return self.stateList[index]
+
+    def getCurrentState(self):
+        return self.stateList[self.currentStateIndex]
 
     def __eq__(self, other):
         return self.rect.z == other.rect.z
 
     def __lt__(self, other):
         return self.rect.z < other.rect.z
+
+class GameObjectState:
+    def onEnter(self, gameObject, ms):
+        pass
+
+    def update(self, gameObject, ms):
+        pass
+
+    def onExit(self, gameObject, ms):
+        pass
+
+class StaticTextureState(GameObjectState):
+    def __init__(self, staticTextureViewIndex):
+        self.staticTextureViewIndex = staticTextureViewIndex
+
+    def onEnter(self, gameObject, ms):
+        if self.staticTextureViewIndex >= 0:
+            gameObject.useTextureView(self.staticTextureViewIndex)
+
+class SpriteAnimState(GameObjectState):
+    def __init__(self, duration, textureViewIndexList):
+        self.duration = duration
+        self.textureViewIndexList = textureViewIndexList
+        self.ms = 0
+
+        try:
+            self.msPerFrame = duration / len(textureViewIndexList)
+        except ZeroDivisionError:
+            self.msPerFrame = duration
+            self.textureViewIndexList = [0]
+
+    def update(self, gameObject, ms):
+        index = int(self.ms / self.msPerFrame)
+        gameObject.useTextureView(self.textureViewIndexList[index])
+        self.ms += ms
+        self.ms %= self.duration
+
+class TerneryState(GameObjectState):
+    def __init__(self, condVar, unaryFunc, state1, state2):
+        self.condVar = condVar
+        self.unaryFunc = unaryFunc
+        self.state1 = state1
+        self.state2 = state2
+        self.currState = None
+
+    def setCondVar(self, condVar):
+        self.condVar = condVar
+
+    def setUnaryFunc(self, unaryFunc):
+        self.unaryFunc = unaryFunc
+
+    def onEnter(self, gameObject, ms):
+        left = getattr(gameObject, self.condVar)
+        boolean = self.unaryFunc(left)
+        self.currState = self.state1 if boolean else self.state2
+        self.currState.onEnter(gameObject, ms)
+
+    def update(self, gameObject, ms):
+        self.currState.update(gameObject, ms)
+
+    def onExit(self, gameObject, ms):
+        self.currState.onExit(gameObject, ms)
