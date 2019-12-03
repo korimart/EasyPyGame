@@ -13,16 +13,16 @@ class DefaultScene:
         pass
 
     def update(self, ms):
-        for gobj in reversed(self.gameObjects):
+        for gobj in self.gameObjects:
             gobj.update(ms)
-        for gobj in reversed(self.gameObjects):
+        for gobj in self.gameObjects:
             gobj.yourLogic(ms)
 
     def preRender(self, ms):
         pass
 
     def render(self, ms):
-        for gobj in reversed(self.gameObjects):
+        for gobj in self.gameObjects:
             gobj.render(ms)
 
     def postRender(self, ms):
@@ -30,7 +30,6 @@ class DefaultScene:
 
     def addGameObject(self, obj):
         self.gameObjects.append(obj)
-        self.gameObjects.sort()
 
     def clearGameObjects(self):
         self.gameObjects = []

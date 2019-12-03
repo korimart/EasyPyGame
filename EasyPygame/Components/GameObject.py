@@ -22,7 +22,7 @@ class GameObject:
         pass
 
     def render(self, ms):
-        self.renderComp.render(self)
+        self.renderComp.render(self, ms)
 
     def disable(self):
         self.switchState(0, 0)
@@ -33,9 +33,9 @@ class GameObject:
     def isMouseOn(self):
         camera = self.scene.camera
         mousePos = EasyPygame.getMousePos()
-        x, y = camera.screen2worldCoord(mousePos, self.rect.z)
+        x, y = camera.screen2worldCoord(mousePos, self.transform.getZ())
         try:
-            return self.rect.collidepoint(x, y)
+            return self.transform.collidepoint(x, y)
         except AttributeError:
             return False
 
@@ -74,12 +74,6 @@ class GameObject:
     def getCurrentState(self):
         return self.stateList[self.currentStateIndex]
 
-    def __eq__(self, other):
-        return self.rect.z == other.rect.z
-
-    def __lt__(self, other):
-        return self.rect.z < other.rect.z
-
 class GameObjectState:
     def onEnter(self, gameObject, ms):
         pass
@@ -89,32 +83,6 @@ class GameObjectState:
 
     def onExit(self, gameObject, ms):
         pass
-
-class StaticTextureState(GameObjectState):
-    def __init__(self, staticTextureViewIndex):
-        self.staticTextureViewIndex = staticTextureViewIndex
-
-    def onEnter(self, gameObject, ms):
-        if self.staticTextureViewIndex >= 0:
-            gameObject.useTextureView(self.staticTextureViewIndex)
-
-class SpriteAnimState(GameObjectState):
-    def __init__(self, duration, textureViewIndexList):
-        self.duration = duration
-        self.textureViewIndexList = textureViewIndexList
-        self.ms = 0
-
-        try:
-            self.msPerFrame = duration / len(textureViewIndexList)
-        except ZeroDivisionError:
-            self.msPerFrame = duration
-            self.textureViewIndexList = [0]
-
-    def update(self, gameObject, ms):
-        index = int(self.ms / self.msPerFrame)
-        gameObject.useTextureView(self.textureViewIndexList[index])
-        self.ms += ms
-        self.ms %= self.duration
 
 class TerneryState(GameObjectState):
     def __init__(self, condVar, unaryFunc, state1, state2):

@@ -618,6 +618,10 @@ class Renderer:
         glBindBuffer(GL_ARRAY_BUFFER, bufferID)
         glBufferSubData(GL_ARRAY_BUFFER, 16 * 4 * offset, None, data)
 
+    def deleteBuffer(self, bufferID):
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glDeleteBuffers(1, bufferID)
+
     def _useProgram(self, radixList, program):
         if radixList:
             if not self.currProgram == program:

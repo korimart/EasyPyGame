@@ -2,23 +2,32 @@ import EasyPygame
 from EasyPygame.Components import *
 
 class ButtonReleased(GameObjectState):
+    def onEnter(self, gameObject, ms):
+        gameObject.renderComp = gameObject.releaseRC
+
     def update(self, gameObject, ms):
         if gameObject.isMouseOn():
-            gameObject.FSM.switchState(2, ms)
+            gameObject.switchState(2, ms)
 
 class ButtonPressed(GameObjectState):
+    def onEnter(self, gameObject, ms):
+        gameObject.renderComp = gameObject.pressRC
+
     def update(self, gameObject, ms):
         if not EasyPygame.isDown("MOUSELEFT"):
-            gameObject.FSM.switchState(1, ms)
+            gameObject.switchState(1, ms)
             gameObject.callback()
 
 class ButtonHover(GameObjectState):
+    def onEnter(self, gameObject, ms):
+        gameObject.renderComp = gameObject.hoverRC
+
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT"):
             EasyPygame.consume("MOUSELEFT")
-            gameObject.FSM.switchState(3, ms)
+            gameObject.switchState(3, ms)
         elif not gameObject.isMouseOn():
-            gameObject.FSM.switchState(1, ms)
+            gameObject.switchState(1, ms)
 
 class Button(GameObject):
     def __init__(self, scene, name="Button", callback=None):
@@ -26,30 +35,20 @@ class Button(GameObject):
         self.callback = callback
         self.fixedRect = EasyPygame.Rect(0, 0, 1, 1)
 
-        # texture views: 1, 2, 3
-        self.addTextureView(DefaultTextureView((0, 0, 255)))
-        self.addTextureView(DefaultTextureView((0, 255, 0)))
-        self.addTextureView(DefaultTextureView((255, 0, 0)))
+        self.releaseRC = DefaultRenderComponent()
+        self.pressRC = DefaultRenderComponent((1, 0, 0))
+        self.hoverRC = DefaultRenderComponent((0, 1, 0))
 
-        self.FSM.addState(ButtonReleased())
-        self.FSM.addState(ButtonHover())
-        self.FSM.addState(ButtonPressed())
-        self.FSM.attachConcurrentState(1, StaticTextureState(1))
-        self.FSM.attachConcurrentState(2, StaticTextureState(2))
-        self.FSM.attachConcurrentState(3, StaticTextureState(3))
+        self.addState(ButtonReleased())
+        self.addState(ButtonHover())
+        self.addState(ButtonPressed())
 
-        self.FSM.switchState(1, 0)
+        self.switchState(1, 0)
 
     def setCallback(self, callback):
         self.callback = callback
 
-    def yourLogic(self, ms):
-        camPos = self.scene.camera.pos
-        camDist = self.scene.camera.distance
-        self.setXYZ(camPos[0] + self.fixedRect.x, camPos[1] + self.fixedRect.y, camDist - 3)
-
-    # def isMouseOn(self):
-    #     rect = self.rect
-    #     self.rect = self.fixedRect
-    #     super().isMouseOn()
-    #     self.rect = rect
+    # def yourLogic(self, ms):
+    #     camPos = self.scene.camera.pos
+    #     camDist = self.scene.camera.distance
+    #     self.setXYZ(camPos[0] + self.fixedRect.x, camPos[1] + self.fixedRect.y, camDist - 3)
