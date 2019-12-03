@@ -146,10 +146,12 @@ class PushPopPushCheckWrapper(PushPopWrapper):
         self.callBack(item)
 
 class PushPopTimeCheckWrapper(PushPopWrapper):
-    def __init__(self, dataStructure, maxTime, exception):
+    def __init__(self, dataStructure, maxTime, exception, frequency=30):
         super().__init__(dataStructure)
         self.maxTime = maxTime
         self.exception = exception
+        self.frequency = frequency
+        self.frequencyCounter = 0
         self.time = 0
         self.lastTime = time.process_time()
 
@@ -162,8 +164,10 @@ class PushPopTimeCheckWrapper(PushPopWrapper):
         self._check()
 
     def _check(self):
-        self.time += (time.process_time() - self.lastTime) * 1000
-        if self.time > self.maxTime:
-            raise self.exception
+        self.frequencyCounter += 1
+        if self.frequencyCounter > self.frequency:
+            self.time += (time.process_time() - self.lastTime) * 1000
+            if self.time > self.maxTime:
+                raise self.exception
 
 
