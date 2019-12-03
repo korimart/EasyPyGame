@@ -30,6 +30,10 @@ class MemCheckDSFactory:
     def getGraph(self):
         pass
 
+    def getSet(self):
+        sett =  self.dsFactory.getSet()
+        return sett
+
 class TimeCheckDSFactory:
     def __init__(self, dsFactory, maxMS, exception):
         self.dsFactory = dsFactory
@@ -46,6 +50,10 @@ class TimeCheckDSFactory:
 
     def getGraph(self):
         pass
+
+    def getSet(self):
+        sett =  self.dsFactory.getSet()
+        return sett
 
 class InsertCallbackDSFactory:
     def __init__(self, dsFactory, callback):
@@ -64,7 +72,29 @@ class InsertCallbackDSFactory:
         pass
 
     def getSet(self):
-        pass
+        sett = self.dsFactory.getSet()
+        return AddRemoveAddCheckWrapper(sett, self.callback)
+
+
+class AddRemoveWrapper:
+    def __init__(self, ds):
+        self.ds = ds
+    def add(self, item):
+        self.ds.add(item)
+    def __iter__(self):
+        return iter(self.ds)
+    def remove(self, item):
+        self.ds.remove(item)
+    def __len__(self):
+        return len(self.ds)
+
+class AddRemoveAddCheckWrapper(AddRemoveWrapper):
+    def __init__(self, ds, callback):
+        super().__init__(ds)
+        self.callback = callback
+    def add(self, item):
+        super().add(item)
+        self.callback(item)
 
 class DSSet:
     def __init__(self):
