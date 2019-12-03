@@ -35,7 +35,7 @@ class TextBoxFocused(GameObjectState):
 
 class TextBox(GameObject):
     def __init__(self, scene, width, name="TextBox", defaultText="", \
-            fontName="comic.ttf", color=(0,0,0)):
+            fontName="monogram.ttf", color=(0,0,0)):
         super().__init__(scene, name)
         self.text = defaultText
         self.fontName = fontName

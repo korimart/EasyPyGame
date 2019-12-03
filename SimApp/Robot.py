@@ -24,82 +24,108 @@ class Working(GameObjectState):
     def onEnter(self, gameObject, ms):
         self.elapsed = 0
         gameObject.isWorking = True
+        gameObject.renderComp = gameObject.idleRC
 
     def update(self, gameObject, ms):
-        if self.elapsed < gameObject.workTime:
-            self.elapsed += ms
-        else:
-            gameObject.FSM.switchState(1, ms) # idle
+        self.elapsed += ms
+        if self.elapsed * gameObject.workSpeed > 1:
+            gameObject.switchState(gameObject.idle, ms)
+
+class Rotating(GameObjectState):
+    def __init__(self):
+        self.elapsed = 0
+        self.destAngle = 0
+
+    def onEnter(self, gameObject, ms):
+        self.elapsed = 0
+        self.destAngle = -gameObject.facing % 4 * 90
+        gameObject.isWorking = True
+        gameObject.renderComp = gameObject.idleRC
+
+    def update(self, gameObject, ms):
+        gameObject.arrow.transform.rotate(gameObject.workSpeed * ms * -90)
+        self.elapsed += ms
+        if self.elapsed * gameObject.workSpeed > 1:
+            gameObject.switchState(gameObject.idle, ms)
+            gameObject.transform.reset()
+            gameObject.transform.rotate(self.destAngle)
+            gameObject.transform.translate(0, 1, 0)
 
 class Idle(GameObjectState):
     def onEnter(self, gameObject, ms):
         gameObject.isWorking = False
+        gameObject.renderComp = gameObject.idleRC
 
 class Running(GameObjectState):
     def __init__(self):
-        self.x = None
-        self.y = None
+        self.destX = None
+        self.destY = None
         self.deltaX = None
         self.deltaY = None
         self.elapsed = 0
 
     def onEnter(self, gameObject, ms):
+        gameObject.renderComp = gameObject.runningRC
         gameObject.isWorking = True
-        self.x, self.y = gameObject.rect.x, gameObject.rect.y
         self.deltaX = MOVEDELTA[gameObject.facing][0] * gameObject.num
         self.deltaY = MOVEDELTA[gameObject.facing][1] * gameObject.num
+        self.destX = gameObject.x + self.deltaX
+        self.destY = gameObject.y + self.deltaY
         self.elapsed = 0
 
     def update(self, gameObject, ms):
         self.elapsed += ms
         deltaX = self.deltaX * gameObject.runSpeed * ms
         deltaY = self.deltaY * gameObject.runSpeed * ms
-        gameObject.setX(gameObject.rect.x + deltaX)
-        gameObject.setY(gameObject.rect.y + deltaY)
-        arrow = gameObject.arrow
-        arrow.setXYZ(arrow.rect.x + deltaX, arrow.rect.y + deltaY, None)
-        gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
+        gameObject.transform.translate(deltaX, deltaY, 0)
 
         if gameObject.runSpeed * self.elapsed > 1:
-            gameObject.FSM.switchState(gameObject.idle, ms)
+            gameObject.switchState(gameObject.idle, ms)
 
     def onExit(self, gameObject, ms):
-        gameObject.setXYZ(self.x + self.deltaX, self.y + self.deltaY, None)
-        gameObject.arrow.setXYZ(self.x + self.deltaX + MOVEDELTA[gameObject.facing][0], self.y + self.deltaY + MOVEDELTA[gameObject.facing][1], None)
-        gameObject.scene.camera.moveTo(gameObject.rect.x, gameObject.rect.y)
+        gameObject.transform.setTranslate(self.destX, self.destY, ROBOTZ)
+        gameObject.x, gameObject.y = self.destX, self.destY
 
 class Robot(GameObject):
     def __init__(self, scene):
         super().__init__(scene, "Robot")
-        self.setZ(ROBOTZ)
+        self.transform.translate(ROBOTZ)
+        self.x = 0
+        self.y = 0
         self.facing = Direction.UP
         self.lastFace = Direction.RIGHT
-        self.workTime = 100
-        self.runSpeed = 0.01 # 0.001 per ms -> 1 per second
+        self.workSpeed = 0.01 # work per ms
+        self.runSpeed = 0.01 # block per ms
         self.isWorking = False
         self.num = None
 
-        self.idle = self.FSM.addState(Idle())
-        self.working = self.FSM.addState(Working())
-        self.running = self.FSM.addState(Running())
+        self.idle = self.addState(Idle())
+        self.rotating = self.addState(Rotating())
+        self.working = self.addState(Working())
+        self.running = self.addState(Running())
+
+        self.idleRC = None
+        self.workingRC = None
+        self.runningRC = None
 
         self.arrow = GameObject(scene, "RobotArrow")
-        self.arrow.setXYZ(MOVEDELTA[self.facing][0], MOVEDELTA[self.facing][1], self.rect.z)
+        self.arrow.transform.setParent(self.transform)
+        self.arrow.transform.translate(0, 1, 0)
 
     def move(self, num=1):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
             self.lastFace = self.facing
+            self._flipX()
         self.num = num
-        self.FSM.switchState(self.running, 0)
+        self.switchState(self.running, 0)
 
     def getPos(self):
-        self.FSM.switchState(self.working, 0)
+        self.switchState(self.working, 0)
         return (self.rect.x, self.rect.y, self.facing)
 
     def rotate(self):
-        self.FSM.switchState(self.working, 0)
         self.facing = (self.facing + 1) % 4
-        self.arrow.setXYZ(self.rect.x + MOVEDELTA[self.facing][0], self.rect.y + MOVEDELTA[self.facing][1], None)
+        self.switchState(self.rotating, 0)
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)
@@ -108,12 +134,17 @@ class Robot(GameObject):
         return (self.rect.x + MOVEDELTA[self.facing][0] * num, \
             self.rect.y + MOVEDELTA[self.facing][1] * num)
 
-    def yourLogic(self, ms):
-        if EasyPygame.isDown1stTime(","):
-            self.workTime += 100
-            if self.runSpeed - 0.001 > 0:
-                self.runSpeed -= 0.001
-        elif EasyPygame.isDown1stTime("."):
-            if self.workTime - 100 > 0:
-                self.workTime -= 100
-            self.runSpeed += 0.001
+    # def yourLogic(self, ms):
+    #     if EasyPygame.isDown1stTime(","):
+    #         self.workTime += 100
+    #         if self.runSpeed - 0.001 > 0:
+    #             self.runSpeed -= 0.001
+    #     elif EasyPygame.isDown1stTime("."):
+    #         if self.workTime - 100 > 0:
+    #             self.workTime -= 100
+    #         self.runSpeed += 0.001
+
+    def _flipX(self):
+        self.idleRC.flipX = not self.idleRC.flipX
+        self.workingRC.flipX = not self.workingRC.flipX
+        self.runningRC.flipX = not self.runningRC.flipX
