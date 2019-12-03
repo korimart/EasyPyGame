@@ -22,10 +22,12 @@ class Floor(GameObject):
         self.blackSheepWallEnabled = False
 
         self.hazards = []
+        self.blobs = []
         self.uncoveredHazards = []
+        self.uncoveredBlobs = []
 
         self.hazard = GameObject(scene, "Hazard")
-        imageRect = EasyPygame.Rect(32 / 512, 12 / 512, 16 / 512, 16 / 512)
+        self.blob = GameObject(scene, "Blob")
 
         self.colorTiles = GameObject(scene, "ColorTile")
         self.colorTiles.tileRects = []
@@ -54,9 +56,6 @@ class Floor(GameObject):
                 if self.terrain[i][j]:
                     rect.x, rect.y = j, i
                     self.hazards.append(rect.copy())
-
-    def restart(self, map):
-        pass
 
     def senseBlob(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
