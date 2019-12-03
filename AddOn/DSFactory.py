@@ -9,6 +9,9 @@ class DSFactory:
 
     def getGraph(self):
         pass
+    
+    def getSet(self):
+        return DSSet()
 
 class MemCheckDSFactory:
     def __init__(self, dsFactory, maxBytes, memCallback):
@@ -59,6 +62,21 @@ class InsertCallbackDSFactory:
 
     def getGraph(self):
         pass
+
+    def getSet(self):
+        pass
+
+class DSSet:
+    def __init__(self):
+        self.set = set()
+    def add(self, item):
+        self.set.add(item)
+    def __iter__(self):
+        return iter(self.set)
+    def remove(self, item):
+        self.set.remove(item)
+    def __len__(self):
+        return len(self.set)
 
 # __len__은 파이썬 문법 참고
 class DSQueue:
@@ -160,8 +178,9 @@ class PushPopTimeCheckWrapper(PushPopWrapper):
         self._check()
 
     def pop(self):
-        super().pop()
+        popped = super().pop()
         self._check()
+        return popped
 
     def _check(self):
         self.frequencyCounter += 1
