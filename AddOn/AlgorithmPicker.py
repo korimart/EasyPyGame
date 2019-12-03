@@ -12,7 +12,7 @@ class AlgorithmPicker:
         self.maxTime = maxTime
         self.dsFactory = TimeCheckDSFactory(MemCheckDSFactory(dsFactory, maxBytes, self.memCallback), maxTime, TimeoutError)
         self.algorithms = [BFS(self.dsFactory), IDAstar(self.dsFactory)]
-        self.currAlgoIndex = AlgorithmPicker._IDAstar
+        self.currAlgoIndex = AlgorithmPicker._BFS
         self.fromBFS = False
         self.minTries = minTries
         self.numTries = 0
@@ -34,6 +34,7 @@ class AlgorithmPicker:
                     return path
             """
         except MemoryError:
+            
             if self.currAlgoIndex == AlgorithmPicker._BFS:
                 self.currAlgoIndex = AlgorithmPicker._IDAstar
                 #self.fromBFS = True
