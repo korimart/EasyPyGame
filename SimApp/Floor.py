@@ -39,9 +39,10 @@ class Floor(GameObject):
         self.pathTaken.addTextureView(DefaultInstancedTextureView(self.pathTaken.pathRects, (0.8, 0.8, 0), False))
         self.pathTaken.useTextureView(1)
 
-    def randomize(self, startingPos, targetList, hazardList):
-        self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList)
+    def randomize(self, startingPos, targetList, hazardList, blobList):
+        self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList, blobList)
         self.hazards = []
+        self.blobs = []
         self._prepareHazards()
         self.blackSheepWall()
 

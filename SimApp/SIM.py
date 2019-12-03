@@ -34,8 +34,8 @@ class SIMProgramSide:
         self.robot.changeSkin(self.skinChanger)
         self.close = False
 
-        self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList)
-
+        self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList, \
+            parent.knownBlobsList)
 
         self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)

@@ -9,7 +9,7 @@ class MazeGenerator:
     DIRECTIONS = [(2, 0), (-2, 0), (0, 2), (0, -2)]
     DIRECTIONS1 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
-    def generate(self, width, height, startingPos, targetList, hazardList):
+    def generate(self, width, height, startingPos, targetList, hazardList, blobList):
         # from world space to array space (flip x y)
         targets = [(startingPos[1], startingPos[0])]
         for target in targetList:
@@ -61,6 +61,9 @@ class MazeGenerator:
             
         for hazard in hazardList:
             ret[hazard[1]][hazard[0]] = Terrain.HAZARD
+
+        for blob in blobList:
+            ret[blob[1]][blob[0]] = Terrain.BLOB
 
         return ret
 
