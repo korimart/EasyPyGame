@@ -61,7 +61,8 @@ class Scene2StateContext(GameObject):
         self.buttonList[-1].fixedRect.x = 0.5
 
     def cwal(self):
-        print("cannot wait any longer")
+        pass
+        #print("cannot wait any longer")
 
     def start(self):
         self.FSM.switchState(self.simulating, 0)
