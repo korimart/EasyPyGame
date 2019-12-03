@@ -28,7 +28,7 @@ class MemCheckDSFactory:
         pass
 
 class TimeCheckDSFactory:
-    def __init__(self, DSFactory, maxMS, exception):
+    def __init__(self, dsFactory, maxMS, exception):
         self.dsFactory = dsFactory
         self.maxMS = maxMS
         self.exception = exception
