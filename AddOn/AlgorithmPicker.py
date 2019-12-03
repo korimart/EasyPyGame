@@ -5,18 +5,14 @@ import time
 
 class AlgorithmPicker:
 
-    _BFS_MEM = 0
-    _IDAstar_MEM = 1
-    _BFS_TIME = 2
-    _IDAstar_TIME = 3
+    _BFS = 0
+    _IDAstar = 1
 
     def __init__(self, dsFactory, maxBytes, maxTime, minTries=1):
         self.maxTime = maxTime
-        self.dsFactoryMem = MemCheckDSFactory(dsFactory, maxBytes, self.memCallback)
-        self.dsFactoryTime = TimeCheckDSFactory(dsFactory, maxTime, TimeoutError)
-        self.algorithms = [BFS(self.dsFactoryMem), IDAstar(self.dsFactoryMem),
-            BFS(self.dsFactoryTime), IDAstar(self.dsFactoryTime)]
-        self.currAlgoIndex = AlgorithmPicker._IDAstar_TIME
+        self.dsFactory = MemCheckDSFactory(TimeCheckDSFactory(dsFactory, maxTime, TimeoutError), maxBytes, self.memCallback)
+        self.algorithms = [BFS(self.dsFactory), IDAstar(self.dsFactory)]
+        self.currAlgoIndex = AlgorithmPicker._IDAstar
         self.fromBFS = False
         self.minTries = minTries
         self.numTries = 0
@@ -38,8 +34,8 @@ class AlgorithmPicker:
                     return path
             """
         except MemoryError:
-            if isinstance(self.algorithms[self.currAlgoIndex], BFS):
-                self.currAlgoIndex = AlgorithmPicker._IDAstar_TIME
+            if self.currAlgoIndex == AlgorithmPicker._BFS:
+                self.currAlgoIndex = AlgorithmPicker._IDAstar
                 #self.fromBFS = True
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
                 return path
@@ -47,9 +43,9 @@ class AlgorithmPicker:
                 raise MemoryError
 
         except TimeoutError:
-            if self.currAlgoIndex == AlgorithmPicker._IDAstar_TIME:
+            if self.currAlgoIndex == AlgorithmPicker._IDAstar:
                 #if not self.fromBFS or self.numTries > self.minTries:
-                self.currAlgoIndex = AlgorithmPicker._BFS_MEM
+                self.currAlgoIndex = AlgorithmPicker._BFS
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
                 #print(path)
                 return path
