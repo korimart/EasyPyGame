@@ -537,6 +537,8 @@ class Renderer:
             glUniformMatrix4fv(VPINDEX, 1, GL_FALSE, glm.value_ptr(self.pv))
             self._flush(self.texInsBlending, self._renderTextureInstanced)
 
+        glDisable(GL_BLEND)
+
     def clear(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 

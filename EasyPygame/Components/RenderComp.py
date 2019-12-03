@@ -2,7 +2,7 @@ from random import randint
 import EasyPygame
 
 class InvisibleRenderComponent:
-    def render(self, gameObject):
+    def render(self, gameObject, ms):
         pass
 
 class DefaultRenderComponent:
