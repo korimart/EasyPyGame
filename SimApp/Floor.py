@@ -16,7 +16,7 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 10
+        self.colorTileSpeed = 0.1
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -138,3 +138,9 @@ class Floor(GameObject):
         
         if EasyPygame.isDown1stTime("b"):
             self.blackSheepWall()
+
+        if EasyPygame.isDown1stTime(","):
+            if self.colorTileSpeed - 0.1 > 0:
+                self.colorTileSpeed -= 0.1
+        elif EasyPygame.isDown1stTime("."):
+            self.colorTileSpeed += 0.1
