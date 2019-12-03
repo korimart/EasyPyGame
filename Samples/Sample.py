@@ -28,6 +28,7 @@ class Scene1(Scene):
         # self.carrot.renderComp = TextureInstancedRenderComponent(instances, "Carrot.jpg")
         self.carrot.renderComp = AnimationRenderComponent([TextureRenderComponent("Carrot.jpg"), \
             DefaultRenderComponent()], 500)
+        # self.carrot.transform.translate(3, 0, 0)
 
         self.button = GUI.Button(self, callback=self.testCallback)
         self.button.transform.translate(1, 0, 0)

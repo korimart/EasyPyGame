@@ -32,6 +32,8 @@ class ButtonHover(GameObjectState):
 class Button(GameObject):
     def __init__(self, scene, name="Button", callback=None):
         super().__init__(scene, name)
+        self.transform.setParent(scene.camera.transform)
+        self.transform.translate(0, 0, -scene.camera.DEFAULTDIST)
         self.callback = callback
         self.fixedRect = EasyPygame.Rect(0, 0, 1, 1)
 

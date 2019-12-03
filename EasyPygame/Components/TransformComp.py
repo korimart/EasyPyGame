@@ -18,12 +18,15 @@ class TransformComp:
     def getWorldMat(self):
         ret = glm.mat4()
         if self.parent:
-            ret = parent.getWorldMat()
+            ret = self.parent.getWorldMat()
 
         return ret * self.worldMat
 
     def translate(self, x, y, z):
         self.worldMat = glm.translate(self.worldMat, glm.vec3(x, y, z))
+
+    def setTranslate(self, x, y, z):
+        self.worldMat = glm.translate(glm.mat4(), glm.vec3(x, y, z))
 
     def rotate(self, angle):
         self.worldMat = glm.rotate(self.worldMat, glm.radians(angle), glm.vec3(0, 0, 1))
@@ -36,6 +39,9 @@ class TransformComp:
         new.parent = self.parent
         new.worldMat = glm.mat4(self.worldMat)
         return new
+
+    def setParent(self, parent):
+        self.parent = parent
 
     def getZ(self):
         return (self.getWorldMat() * glm.vec4(0, 0, 0, 1))[2]
