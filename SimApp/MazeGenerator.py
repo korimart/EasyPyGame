@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, random
 
 class Terrain:
     NOTHING = 0
@@ -18,7 +18,8 @@ class MazeGenerator:
         start = targets[0]
         xEven = start[0] % 2
         yEven = start[1] % 2
-        # cells surrounded by 4 walls
+
+        # cells are surrounded by 4 walls
         ret = [[Terrain.NOTHING if i % 2 == xEven else Terrain.HAZARD \
             for i in range(width)] if j % 2 == yEven else \
                 [Terrain.HAZARD for _ in range(width)] for j in range(height)]
@@ -42,6 +43,7 @@ class MazeGenerator:
                 visited[chosen[0]][chosen[1]] = True
                 stack.append(chosen)
 
+        # targets should not be blocked or isolated
         for curr in targets:
             while True:
                 ret[curr[0]][curr[1]] = Terrain.NOTHING
@@ -58,10 +60,17 @@ class MazeGenerator:
                     curr = chosen
                     continue
                 break
+
+        for i in range(height):
+            for j in range(width):
+                if ret[i][j] == Terrain.NOTHING:
+                    if random() < 0.05:
+                        ret[i][j] = Terrain.BLOB
             
         for hazard in hazardList:
             ret[hazard[1]][hazard[0]] = Terrain.HAZARD
 
+        # doesn't care if isolated
         for blob in blobList:
             ret[blob[1]][blob[0]] = Terrain.BLOB
 

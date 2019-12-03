@@ -136,7 +136,7 @@ class RendererOpenGL:
         self.instIndiviWorlds = None
 
         glClearColor(0.0, 0.0, 0.0, 1.0)
-        # glEnable(GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST)
         self._initBuffers()
         for program in self.programs:
             glUseProgram(program)

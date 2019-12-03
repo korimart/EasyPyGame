@@ -6,6 +6,7 @@ FLOORTILEZ = -0.03
 HAZARDZ = -0.02
 COLORTILEZ = -0.01
 PATHTAKENZ = -0.005
+BLOBZ = 0.01
 
 class Floor(GameObject):
     def __init__(self, scene, width, height):
@@ -43,20 +44,24 @@ class Floor(GameObject):
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList, blobList)
         self.hazards = []
         self.blobs = []
-        self._prepareHazards()
+        self._initHazardBlobList()
         self.blackSheepWall()
 
         for hazard in hazardList:
             self.uncoveredHazards.append(EasyPygame.EasyPygameRect(*hazard, 1, 1, z=HAZARDZ))
 
-    def _prepareHazards(self):
-        rect = EasyPygame.Rect(0, 0, 1, 1)
-        rect.z = HAZARDZ
+        for blob in blobList:
+            self.uncoveredBlobs.append(EasyPygame.EasyPygameRect(*blob, 1, 1, z=BLOBZ))
+
+    def _initHazardBlobList(self):
         for i in range(self.height):
             for j in range(self.width):
-                if self.terrain[i][j]:
-                    rect.x, rect.y = j, i
-                    self.hazards.append(rect.copy())
+                if self.terrain[i][j] == Terrain.HAZARD:
+                    rect = EasyPygame.EasyPygameRect(j, i, 1, 1, z=HAZARDZ)
+                    self.hazards.append(rect)
+                elif self.terrain[i][j] == Terrain.BLOB:
+                    rect = EasyPygame.EasyPygameRect(j, i, 1, 1, z=BLOBZ)
+                    self.blobs.append(rect)
 
     def senseBlob(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
@@ -78,6 +83,8 @@ class Floor(GameObject):
     def uncover(self, terrain, x, y):
         if terrain == Terrain.HAZARD:
             self.uncoveredHazards.append(EasyPygame.EasyPygameRect(x, y, 1, 1, z=HAZARDZ))
+        elif terrain == Terrain.BLOB:
+            self.uncoveredBlobs.append(EasyPygame.EasyPygameRect(x, y, 1, 1, z=BLOBZ))
 
     def pathed(self, x, y):
         rt = EasyPygame.EasyPygameRect(x, y, 1, 1)
@@ -95,13 +102,22 @@ class Floor(GameObject):
     def blackSheepWall(self):
         if self.blackSheepWallEnabled:
             rectList = self.hazards
+            rectList2 = self.blobs
         else:
             rectList = self.uncoveredHazards
+            rectList2 = self.uncoveredBlobs
         
         self.hazard.clearTextureViews()
         imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
         self.hazard.addTextureView(InstancedTextureView("animated.png", rectList, imageRect))
         self.hazard.useTextureView(1)
+
+        self.blob.clearTextureViews()
+        for i in range(4):
+            imageRect = EasyPygame.Rect(288 / 512 + i * 16 / 512, 224 / 512, 16 / 512, 16 / 512)
+            self.blob.addTextureView(InstancedTextureView("animated.png", rectList2, imageRect.copy()))
+        self.blob.FSM.attachConcurrentState(0, SpriteAnimState(500, [1, 2, 3, 4]))
+
         self.blackSheepWallEnabled = not self.blackSheepWallEnabled
 
     def yourLogic(self, ms):

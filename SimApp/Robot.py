@@ -15,7 +15,7 @@ class MoveDelta:
 
 MOVEDELTA = [MoveDelta.UP, MoveDelta.RIGHT, MoveDelta.DOWN, MoveDelta.LEFT]
 
-ROBOTZ = 0.01
+ROBOTZ = 0.02
 
 class Working(GameObjectState):
     def __init__(self):
