@@ -1,3 +1,5 @@
+import time
+
 class DSFactory:
     def getQueue(self):
         return DSQueue()
@@ -21,6 +23,23 @@ class MemCheckDSFactory:
     def getStack(self):
         stack = self.dsFactory.getStack()
         return PushPopMemCheckWrapper(stack, self.maxBytes, self.memCallback)
+
+    def getGraph(self):
+        pass
+
+class TimeCheckDSFactory:
+    def __init__(self, DSFactory, maxMS, exception):
+        self.dsFactory = dsFactory
+        self.maxMS = maxMS
+        self.exception = exception
+
+    def getQueue(self):
+        queue = self.dsFactory.getQueue()
+        return PushPopTimeCheckWrapper(queue, self.maxMS, self.exception)
+
+    def getStack(self):
+        stack = self.dsFactory.getStack()
+        return PushPopTimeCheckWrapper(stack, self.maxMS, self.exception)
 
     def getGraph(self):
         pass
@@ -125,3 +144,26 @@ class PushPopPushCheckWrapper(PushPopWrapper):
     def push(self, item):
         super().push(item)
         self.callBack(item)
+
+class PushPopTimeCheckWrapper(PushPopWrapper):
+    def __init__(self, dataStructure, maxTime, exception):
+        super().__init__(dataStructure)
+        self.maxTime = maxTime
+        self.exception = exception
+        self.time = 0
+        self.lastTime = time.process_time()
+
+    def push(self, item):
+        super().push(item)
+        self._check()
+
+    def pop(self):
+        super().pop()
+        self._check()
+
+    def _check(self):
+        self.time += (time.process_time() - self.lastTime) * 1000
+        if self.time > self.maxTime:
+            raise self.exception
+
+
