@@ -35,6 +35,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
         self.knownBlobsList = knownBlobsList
+        self.speed = 1
 
         self.SIM = SIMProgramSide(scene, self)
 
@@ -45,6 +46,11 @@ class Scene2StateContext(GameObject):
         self.ready      = self.addState(ReadyState())
         self.simulating = self.addState(SimulatingState())
         self.done       = self.addState(DoneState())
+
+        self.text = GUI.Text(scene, font="monogram.ttf", color=(1, 1, 1))
+        self.text.transform.translate(-3, 2.7, 0)
+        self.text.transform.scale(0.5, 0.5)
+        self.text.setText("Speed: " + str(self.speed) + "x")
 
         self.switchState(self.ready, 0)
 
@@ -60,8 +66,8 @@ class Scene2StateContext(GameObject):
         self.buttonList[-1].transform.translate(-1.5, 0, 0)
 
     def cwal(self):
-        pass
         #print("cannot wait any longer")
+        pass
 
     def start(self):
         self.switchState(self.simulating, 0)
@@ -74,3 +80,18 @@ class Scene2StateContext(GameObject):
 
     def reset(self):
         EasyPygame.nextScene("Scene2", "Scene1")
+
+    def yourLogic(self, ms):
+        dirty = False
+        if EasyPygame.isDown1stTime(","):
+            if self.speed > 0:
+                self.speed -= 1
+                self.SIM.scaleSpeed(1 / 1.2)
+                dirty = True
+        if EasyPygame.isDown1stTime("."):
+            self.SIM.scaleSpeed(1.2)
+            self.speed += 1
+            dirty = True
+
+        if dirty:        
+            self.text.setText("Speed: " + str(self.speed) + "x")

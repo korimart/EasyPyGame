@@ -80,6 +80,13 @@ class SIMProgramSide:
         process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
         process.start()
 
+    def scaleSpeed(self, scale):
+        self.robot.scaleWorkSpeed(scale)
+        self.robot.scaleMoveSpeed(scale)
+        self.robot.scaleRotationSpeed(scale)
+        self.floor.scalePathDrawSpeed(scale)
+        self.floor.scaleTileDrawSpeed(scale)
+
     @staticmethod
     def _go(addOn, pipe):
         sim = SIMAddOnSide(pipe)
@@ -132,11 +139,6 @@ class SIMProgramSide:
             self.ret = None
             self.floor.colorPath(path)
 
-        # elif message == Message.COLORTILEARRAY:
-        #     tupleList = self.progPipe.recv()
-        #     for pos in tupleList:
-        #         self.floor.colorTile(*pos)
-
         elif message == Message.CLOSE:
             self.close = True
             self.needReturn = False
@@ -183,11 +185,6 @@ class SIMAddOnSide:
         self.pipe.send(Message.PATH)
         self.pipe.send(path)
         return self.pipe.recv()
-
-    # def colorTileArray(self, tupleList):
-    #     self.pipe.send(Message.COLORTILEARRAY)
-    #     self.pipe.send(tupleList)
-    #     return self.pipe.recv()
 
     def close(self):
         self.pipe.send(Message.CLOSE)

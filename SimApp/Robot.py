@@ -101,9 +101,9 @@ class Robot(GameObject):
         self.y = 0
         self.facing = Direction.UP
         self.lastFace = Direction.RIGHT
-        self.workSpeed = 0.01 # work per ms
-        self.runSpeed = 0.01 # block per ms
-        self.rotationSpeed = 0.01
+        self.workSpeed = 0.001 # work per ms
+        self.runSpeed = 0.001 # block per ms
+        self.rotationSpeed = 0.001
         self.isWorking = False
         self.num = None
 
@@ -142,18 +142,16 @@ class Robot(GameObject):
     def nextPos(self, num=2):
         return (self.x + MOVEDELTA[self.facing][0] * num, \
             self.y + MOVEDELTA[self.facing][1] * num)
+        
+    def scaleWorkSpeed(self, scale):
+        self.workSpeed *= scale
 
-    # def yourLogic(self, ms):
-    #     if EasyPygame.isDown1stTime(","):
-    #         self.workTime += 100
-    #         if self.runSpeed - 0.001 > 0:
-    #             self.runSpeed -= 0.001
-    #     elif EasyPygame.isDown1stTime("."):
-    #         if self.workTime - 100 > 0:
-    #             self.workTime -= 100
-    #         self.runSpeed += 0.001
+    def scaleMoveSpeed(self, scale):
+        self.runSpeed *= scale
+    
+    def scaleRotationSpeed(self, scale):
+        self.rotationSpeed *= scale
 
     def _flipX(self):
         self.idleRC.renderComp.flipX = not self.idleRC.renderComp.flipX
-        # self.workingRC.renderComp.flipX = not self.workingRC.renderComp.flipX
         self.runningRC.renderComp.flipX = not self.runningRC.renderComp.flipX
