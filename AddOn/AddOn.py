@@ -43,6 +43,8 @@ class AddOn:
             except:
                 return
 
+count = 0
+
 class PaintingPathFinder:
     def __init__(self, pathFinder, painter):
         self.pathFinder = pathFinder
@@ -52,8 +54,10 @@ class PaintingPathFinder:
         self.painter.clear()
         path = self.pathFinder.findPath(startingPoint, targetList, mmap)
         self.painter.clear()
-        for pos in path:
-            self.painter.draw(*pos)
+        self.painter.drawPath(path)
+        global count
+        count += 1
+        print(count)
         return path
 
 class Painter:
@@ -67,6 +71,9 @@ class Painter:
         if self.array[y][x] == 0:
             self.sim.colorTile(x, y)
         self.array[y][x] += 1
+
+    def drawPath(self, path):
+        self.sim.colorPath(path)
 
     def clear(self):
         self.sim.clearColor()

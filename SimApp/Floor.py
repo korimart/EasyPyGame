@@ -21,6 +21,10 @@ class Floor(GameObject):
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
+        self.pathSpeed = 0.1
+        self.pathTimer = 0
+        self.pathBuffer = []
+
         self.blackSheepWallEnabled = False
 
         self.known = []
@@ -38,6 +42,9 @@ class Floor(GameObject):
             False, size=width*height, static=False)
         self.pathTaken = GameObject(scene, "PathTaken")
         self.pathTaken.renderComp = DefaultInstancedRenderComponent(None, (0.8, 0.8, 0), \
+            False, size=width*height, static=False)
+        self.pathTiles = GameObject(scene, "Path")
+        self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (255 / 255, 105 / 255, 180 / 255), \
             False, size=width*height, static=False)
 
     def randomize(self, startingPos, targetList, hazardList, blobList):
@@ -109,6 +116,9 @@ class Floor(GameObject):
     def colorTile(self, x, y):
         self.colorTileBuffer.append((x, y))
 
+    def colorPath(self, path):
+        self.pathBuffer = path
+
     def clearColor(self):
         self.colorTileBuffer.append(None)
 
@@ -124,8 +134,7 @@ class Floor(GameObject):
 
     def yourLogic(self, ms):
         if self.colorTileBuffer:
-            self.colorTileTimer += ms
-            num = self.colorTileSpeed * self.colorTileTimer
+            num = self.colorTileSpeed * ms
             for _ in range(int(num)):
                 try:
                     pop = self.colorTileBuffer.pop(0)
@@ -133,13 +142,24 @@ class Floor(GameObject):
                     break
                 if not pop:
                     self.colorTiles.renderComp.clear()
+                    self.pathTiles.renderComp.clear()
                 else:
                     self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
 
-            self.colorTileTimer = 0
+        elif self.pathBuffer:
+            num = self.pathSpeed * ms
+            for _ in range(int(num)):
+                try:
+                    pop = self.pathBuffer.pop(0)
+                except:
+                    break
+                self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
 
         if EasyPygame.isDown1stTime("b"):
             self.blackSheepWall()
+
+    def isDrawing(self):
+        return bool(self.colorTileBuffer) or bool(self.pathBuffer)
 
         # if EasyPygame.isDown1stTime(","):
         #     if self.colorTileSpeed - 0.1 > 0:

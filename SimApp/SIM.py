@@ -15,7 +15,8 @@ class Message:
     SENSEHAZARD = 4
     CLEARCOLOR = 5
     COLORTILE = 6
-    COLORTILEARRAY = 7
+    # COLORTILEARRAY = 7
+    PATH = 7
     CLOSE = 8
 
 class SIMProgramSide:
@@ -41,7 +42,7 @@ class SIMProgramSide:
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):
-        if self.floor.colorTileBuffer:
+        if self.floor.isDrawing():
             return
 
         count = 0
@@ -122,15 +123,19 @@ class SIMProgramSide:
             self.floor.clearColor()
 
         elif message == Message.COLORTILE:
-            x = self.progPipe.recv()
-            y = self.progPipe.recv()
+            x, y = self.progPipe.recv()
             self.ret = None
             self.floor.colorTile(x, y)
 
-        elif message == Message.COLORTILEARRAY:
-            tupleList = self.progPipe.recv()
-            for pos in tupleList:
-                self.floor.colorTile(*pos)
+        elif message == Message.PATH:
+            path = self.progPipe.recv()
+            self.ret = None
+            self.floor.colorPath(path)
+
+        # elif message == Message.COLORTILEARRAY:
+        #     tupleList = self.progPipe.recv()
+        #     for pos in tupleList:
+        #         self.floor.colorTile(*pos)
 
         elif message == Message.CLOSE:
             self.close = True
@@ -171,14 +176,18 @@ class SIMAddOnSide:
 
     def colorTile(self, x, y):
         self.pipe.send(Message.COLORTILE)
-        self.pipe.send(int(x))
-        self.pipe.send(int(y))
+        self.pipe.send((int(x), int(y)))
         return self.pipe.recv()
 
-    def colorTileArray(self, tupleList):
-        self.pipe.send(Message.COLORTILEARRAY)
-        self.pipe.send(tupleList)
+    def colorPath(self, path):
+        self.pipe.send(Message.PATH)
+        self.pipe.send(path)
         return self.pipe.recv()
+
+    # def colorTileArray(self, tupleList):
+    #     self.pipe.send(Message.COLORTILEARRAY)
+    #     self.pipe.send(tupleList)
+    #     return self.pipe.recv()
 
     def close(self):
         self.pipe.send(Message.CLOSE)
