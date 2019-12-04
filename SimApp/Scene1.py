@@ -14,18 +14,31 @@ class Scene1(Scene):
     def __init__(self):
         super().__init__()
         self.inputFields = []
+        self.texts = []
         self.submitButton = None
         self.errorMessage = ""
         self.errorMessageTime = 0
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["10x10", "0,0", "[(9, 9)]", "[(1, 1)]", "[(3, 3)]"]
+        data = ["100x100", "(0,0)", "[(99,99), (99, 0)]", "[(1,1)]", "[(3,3)]"]
         for i in range(5):
-            inputField = GUI.TextBox(self, width=3, name="input" + str(i), defaultText=data[i])
-            inputField.transform.translate(-1, 2 - i * 1.2, 0)
-            inputField.transform.scale(3, 1)
+            inputField = GUI.TextBox(self, ratio=4, name="input" + str(i), defaultText=data[i])
+            inputField.transform.translate(-1.5, 2.3 - i * 1.2, 0)
+            inputField.transform.scale(0.5, 0.5)
             self.inputFields.append(inputField)
+
+            text = GUI.Text(self, font="monogram.ttf", size=72, color=(1, 1, 1), fixOnCamera=False)
+            text.transform.setParent(self.inputFields[i].transform)
+            text.transform.translate(-2, 1, 0)
+            text.transform.scale(0.7, 0.7)
+            self.texts.append(text)
+
+        self.texts[0].setText("Map width X height")
+        self.texts[1].setText("Starting Point")
+        self.texts[2].setText("List of Target Points")
+        self.texts[3].setText("List of Known Hazards")
+        self.texts[4].setText("List of Known Blobs")
 
         self.submitButton = GUI.Button(self, name="Submit", callback=lambda: self.checkInput())
         self.submitButton.transform.translate(2, -2, 0)

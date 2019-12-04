@@ -34,6 +34,9 @@ class Scene1(Scene):
         self.button = GUI.Button(self, callback=self.testCallback)
         self.button.transform.translate(1, 0, 0)
 
+        self.text = GUI.Text(self, text="Sample", font="monogram.ttf", size=72, color=(1, 1, 1))
+        self.text.transform.translate(-1, 0, 0)
+
     def testCallback(self):
         print("yes")
 

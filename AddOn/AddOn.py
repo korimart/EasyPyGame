@@ -11,14 +11,10 @@ class AddOn:
     def __init__(self):
         self.mmap = None
         self.behavior = BehaviorGoFast()
-        self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        #self.algorithm = IDAstar(self.dsFactory)
-        self.algorithm = AlgorithmPicker(self.dsFactory, maxBytes=100000, maxTime=100000, minTries=2)
-        self.pathFinder = VisitOrderProducer(self.algorithm)
-
-        # test
         self.painter = Painter()
-        self.paintingPF = PaintingPathFinder(self.pathFinder, self.painter)
+        self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
+        self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=100000, maxTime=200, minTries=3)
+        self.paintingPF = PaintingPathFinder(VisitOrderProducer(self.algorithm), self.painter)
         self.sim = None
 
     def go(self, robot):
@@ -52,8 +48,7 @@ class PaintingPathFinder:
         self.painter.clear()
         path = self.pathFinder.findPath(startingPoint, targetList, mmap)
         self.painter.clear()
-        for pos in path:
-            self.painter.draw(*pos)
+        self.painter.drawPath(path)
         return path
 
 class Painter:
@@ -67,6 +62,9 @@ class Painter:
         if self.array[y][x] == 0:
             self.sim.colorTile(x, y)
         self.array[y][x] += 1
+
+    def drawPath(self, path):
+        self.sim.colorPath(path)
 
     def clear(self):
         self.sim.clearColor()

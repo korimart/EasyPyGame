@@ -10,7 +10,8 @@ class AlgorithmPicker:
     _BFS_MEM_ONLY = 2
     _IDAstar_MEM_ONLY = 3
 
-    def __init__(self, dsFactory, maxBytes, maxTime, minTries=3):
+    def __init__(self, painter, dsFactory, maxBytes, maxTime, minTries=3):
+        self.painter = painter
         self.maxTime = maxTime
         self.maxBytes = maxBytes
         self.dsFactPaintOnly = dsFactory
@@ -25,6 +26,13 @@ class AlgorithmPicker:
         self.BFS_MemOut = False
 
     def findPath(self, pointA, pointB, mmap):
+        path = self._findPath(pointA, pointB, mmap)
+        self.painter.clear()
+        for coord in path:
+            self.painter.draw(*coord)
+        return path
+
+    def _findPath(self, pointA, pointB, mmap):
         try:
             if self.currAlgoIndex == AlgorithmPicker._BFS_MEM_ONLY:
                 if self.minTries > self.numTries:
@@ -93,8 +101,6 @@ class AlgorithmPicker:
                 self.currAlgoIndex = AlgorithmPicker._IDAstar
                 path = self.algorithms[self.currAlgoIndex].findPath(pointA, pointB, mmap)
                 return path
-
-                    
             
     def memCallback(self):
         raise MemoryError

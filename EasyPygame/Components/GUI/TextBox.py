@@ -34,14 +34,15 @@ class TextBoxFocused(GameObjectState):
             gameObject.dirty = False
 
 class TextBox(GameObject):
-    def __init__(self, scene, width, name="TextBox", defaultText="", \
+    def __init__(self, scene, ratio, name="TextBox", defaultText="", \
             fontName="monogram.ttf", color=(0,0,0)):
         super().__init__(scene, name)
         self.text = defaultText
         self.fontName = fontName
         self.color = color
         self.dirty = False
-        self.ratio = width
+        self.ratio = ratio
+        self.transform.scalePredefined(ratio, 1)
 
         while True:
             self.textureName = "__Kori" + str(random.randint(0, 10000))
@@ -53,7 +54,7 @@ class TextBox(GameObject):
         self.renderComp = TextureRenderComponent(self.textureName, blending=True)
 
         self.bg = GameObject(scene, name + "BG")
-        self.bg.transform.setParent(self.transform)
+        self.bg.transform.setClone(self.transform)
         self.bg.transform.translate(0, 0, -0.01)
         self.bg.renderComp = DefaultRenderComponent((0.8, 0.8, 0.8), showName=False)
 

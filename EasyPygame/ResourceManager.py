@@ -60,7 +60,7 @@ class ResourceManager:
         height = ascent + descent
         img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
-        draw.text((0, 0), text, color, font=fontObj)
+        draw.text((0, 0), text, (int(255*color[0]), int(255*color[1]), int(255*color[2])), font=fontObj)
         texture = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, texture)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.tobytes())
