@@ -145,6 +145,7 @@ class Robot(GameObject):
     #         self.runSpeed += 0.001
 
     def _flipX(self):
-        self.idleRC.flipX = not self.idleRC.flipX
-        self.workingRC.flipX = not self.workingRC.flipX
-        self.runningRC.flipX = not self.runningRC.flipX
+        pass
+        # self.idleRC.flipX = not self.idleRC.flipX
+        # self.workingRC.flipX = not self.workingRC.flipX
+        # self.runningRC.flipX = not self.runningRC.flipX
