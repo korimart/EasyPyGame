@@ -7,6 +7,7 @@ FLOORTILEZ = -0.03
 HAZARDZ = -0.02
 COLORTILEZ = -0.01
 PATHTAKENZ = -0.005
+PATHZ = -0.03
 BLOBZ = 0.01
 
 class Floor(GameObject):
@@ -40,16 +41,20 @@ class Floor(GameObject):
         self.colorTiles = GameObject(scene, "ColorTile")
         self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), \
             False, size=width*height, static=False)
+
         self.pathTaken = GameObject(scene, "PathTaken")
         self.pathTaken.renderComp = DefaultInstancedRenderComponent(None, (0.8, 0.8, 0), \
             False, size=width*height, static=False)
+
         self.pathTiles = GameObject(scene, "Path")
         self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (255 / 255, 105 / 255, 180 / 255), \
             False, size=width*height, static=False)
 
+        self.target = GameObject(scene, "Target")
+
     def randomize(self, startingPos, targetList, hazardList, blobList):
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList, blobList)
-        self._initHazardBlob()
+        self._initRC(targetList)
         self.blackSheepWall()
 
         for hazard in hazardList:
@@ -135,17 +140,15 @@ class Floor(GameObject):
                     pop = self.pathBuffer.pop(0)
                 except:
                     break
-                self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
-
-        if EasyPygame.isDown1stTime("b"):
-            self.blackSheepWall()
+                self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, PATHZ)))
 
     def isDrawing(self):
         return bool(self.colorTileBuffer) or bool(self.pathBuffer)
 
-    def _initHazardBlob(self):
+    def _initRC(self, targetList):
         hazards = []
         blobs = []
+        targets = []
         for i in range(self.height):
             for j in range(self.width):
                 if self.terrain[i][j] == Terrain.HAZARD:
@@ -153,6 +156,10 @@ class Floor(GameObject):
                 elif self.terrain[i][j] == Terrain.BLOB:
                     blobs.append(glm.translate(glm.mat4(), glm.vec3(j, i, BLOBZ)))
 
+        for target in targetList:
+            mat = glm.translate(glm.mat4(), glm.vec3(target[0], target[1] + 1, BLOBZ))
+            mat = glm.scale(mat, glm.vec3(1, 2, 1))
+            targets.append(mat)
 
         imageRectList = []
         for i in range(4):
@@ -160,9 +167,15 @@ class Floor(GameObject):
 
         imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
         self.allHazardsRC = TextureInstancedRenderComponent(hazards, "animated.png", imageRect=imageRect)
+
         self.allBlobsRC = AnimationRenderComponent(TextureInstancedRenderComponent(blobs, "animated.png", blending=True),\
             imageRectList, 500)
+
         self.knownHazardsRC = TextureInstancedRenderComponent(None, "animated.png", imageRect=imageRect, size=len(hazards), static=False)
+
         self.knownBlobsRC = AnimationRenderComponent(\
             TextureInstancedRenderComponent(None, "animated.png", size=len(blobs), static=False, blending=True),\
                 imageRectList, 500)
+
+        self.target.renderComp = AnimationRenderComponent(TextureInstancedRenderComponent(targets, "animated.png", blending=True),\
+            imageRectList, 500)

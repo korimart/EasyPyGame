@@ -35,7 +35,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
         self.knownBlobsList = knownBlobsList
-        self.speed = 1
+        self.speed = 0
 
         self.SIM = SIMProgramSide(scene, self)
 
@@ -50,7 +50,7 @@ class Scene2StateContext(GameObject):
         self.text = GUI.Text(scene, font="monogram.ttf", color=(1, 1, 1))
         self.text.transform.translate(-3, 2.7, 0)
         self.text.transform.scale(0.5, 0.5)
-        self.text.setText("Speed: " + str(self.speed) + "x")
+        self.text.setText("Speed: " + str(self.speed) + " UBD")
 
         self.switchState(self.ready, 0)
 
@@ -92,6 +92,8 @@ class Scene2StateContext(GameObject):
             self.SIM.scaleSpeed(1.2)
             self.speed += 1
             dirty = True
+        if EasyPygame.isDown1stTime("b"):
+            self.SIM.floor.blackSheepWall()
 
         if dirty:        
-            self.text.setText("Speed: " + str(self.speed) + "x")
+            self.text.setText("Speed: " + str(self.speed) + " UBD")
