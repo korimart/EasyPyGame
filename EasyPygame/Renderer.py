@@ -585,25 +585,36 @@ class Renderer:
         else:
             self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
 
-    def setInstancingWorlds(self, worldList, static=True):
+    def setInstancingWorlds(self, worldList, num=None, static=True):
         ret = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, ret)
 
-        a = []
-        for world in worldList:
-            worldMat = world
-            for i in range(4):
-                for j in range(4):
-                    a.append(worldMat[i][j])
+        if worldList:
+            a = []
+            for world in worldList:
+                worldMat = world
+                for i in range(4):
+                    for j in range(4):
+                        a.append(worldMat[i][j])
 
-        data = array('f', a).tobytes()
+            data = array('f', a).tobytes()
 
-        if static:
-            glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW)
+            if static:
+                glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW)
+            else:
+                glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
+
+            self.bufferInsNum[ret] = len(worldList)
+        elif num:
+            if static:
+                glBufferData(GL_ARRAY_BUFFER, 16 * 4 * num, None, GL_STATIC_DRAW)
+            else:
+                glBufferData(GL_ARRAY_BUFFER, 16 * 4 * num, None, GL_DYNAMIC_DRAW)
+            
+            self.bufferInsNum[ret] = num
         else:
-            glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
+            return
 
-        self.bufferInsNum[ret] = len(worldList)
 
         return ret
 
