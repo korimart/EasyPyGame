@@ -168,3 +168,15 @@ class AnimationRenderComponent:
         self.renderComp.render(gameObject, ms)
         self.ms += ms
         self.ms %= self.duration
+
+    def append(self, world):
+        try:
+            self.renderComp.append(world)
+        except:
+            pass
+
+    def clear(self):
+        try:
+            self.renderComp.clear()
+        except:
+            pass

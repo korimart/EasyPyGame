@@ -36,4 +36,5 @@ class DungeonSkinChanger:
         robot.runningRC = AnimationRenderComponent(texComp, imageRectList, 500)
 
         robot.renderComp = robot.idleRC
-        robot.arrow.renderComp = DefaultRenderComponent((0.5, 0.5, 0))
+        robot.arrow.renderComp = TextureRenderComponent("animated.png",\
+            EasyPygame.Rect(320 / 512, 26 / 512, 16 / 512, 21 / 512), blending=True)

@@ -99,7 +99,7 @@ class Floor(GameObject):
         if terrain == Terrain.HAZARD:
             self.knownHazardsRC.append(glm.translate(glm.mat4(), glm.vec3(x, y, HAZARDZ)))
         elif terrain == Terrain.BLOB:
-            self.knownBlobsRC.renderComp.append(glm.translate(glm.mat4(), glm.vec3(x, y, BLOBZ)))
+            self.knownBlobsRC.append(glm.translate(glm.mat4(), glm.vec3(x, y, BLOBZ)))
 
         self.known.append((x, y))
 
