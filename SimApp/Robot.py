@@ -43,13 +43,16 @@ class Rotating(GameObjectState):
         gameObject.renderComp = gameObject.idleRC
 
     def update(self, gameObject, ms):
-        gameObject.arrow.transform.rotate(gameObject.workSpeed * ms * -90)
         self.elapsed += ms
-        if self.elapsed * gameObject.workSpeed > 1:
+        gameObject.arrow.transform.reset()
+        gameObject.arrow.transform.rotate(gameObject.rotationSpeed * self.elapsed * -90)
+        gameObject.arrow.transform.translate(0, 1, 0)
+
+        if self.elapsed * gameObject.rotationSpeed > 1:
+            # gameObject.arrow.transform.reset()
+            # gameObject.arrow.transform.rotate(self.destAngle)
+            # gameObject.arrow.transform.translate(0, 1, 0)
             gameObject.switchState(gameObject.idle, ms)
-            gameObject.transform.reset()
-            gameObject.transform.rotate(self.destAngle)
-            gameObject.transform.translate(0, 1, 0)
 
 class Idle(GameObjectState):
     def onEnter(self, gameObject, ms):
@@ -96,6 +99,7 @@ class Robot(GameObject):
         self.lastFace = Direction.RIGHT
         self.workSpeed = 0.01 # work per ms
         self.runSpeed = 0.01 # block per ms
+        self.rotationSpeed = 0.001
         self.isWorking = False
         self.num = None
 
