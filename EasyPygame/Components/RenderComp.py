@@ -44,19 +44,25 @@ class DefaultInstancedRenderComponent:
             t = glm.translate(world, glm.vec3(0, 0, 0.001))
             self.textWorlds.append(t)
 
-        self.buffer = EasyPygame.renderer.setInstancingWorlds(self.worlds)
-        self.textBuffer = EasyPygame.renderer.setInstancingWorlds(self.textWorlds)
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(self.worlds, size, static)
+        self.textBuffer = EasyPygame.renderer.setInstancingWorlds(self.textWorlds, size, static)
 
     def render(self, gameObject, ms):
         if not self.madeTexture:
             EasyPygame.resManager.createTextTexture(self.handle, "monogram.ttf", 30, gameObject.name, (0, 0, 0))
             self.madeTexture = True
 
-        renderer = EasyPygame.renderer
-        renderer.resetSettings()
-        renderer.renderColorInstanced(self.buffer, self.color, self.num)
-        renderer.enableBlending()
-        renderer.renderTextureInstanced(self.textBuffer, self.num, self.handle)
+        if self.num:
+            renderer = EasyPygame.renderer
+            renderer.resetSettings()
+            renderer.renderColorInstanced(self.buffer, self.color, self.num)
+            renderer.enableBlending()
+            renderer.renderTextureInstanced(self.textBuffer, self.num, self.handle)
+
+    def clear(self):
+        self.worlds = []
+        self.textWorlds = []
+        self.num = 0
 
     def append(self, world):
         self.worlds.append(glm.mat4(world))
@@ -107,9 +113,14 @@ class TextureInstancedRenderComponent(TextureRenderComponent):
         self.worlds = [glm.mat4(world) for world in worldList]
 
     def render(self, gameObject, ms):
-        renderer = EasyPygame.renderer
-        super()._settings(renderer)
-        renderer.renderTextureInstanced(self.buffer, self.num, self.texture, self.imageRect)
+        if self.num:
+            renderer = EasyPygame.renderer
+            super()._settings(renderer)
+            renderer.renderTextureInstanced(self.buffer, self.num, self.texture, self.imageRect)
+
+    def clear(self):
+        self.worlds = []
+        self.num = 0
 
     def append(self, world):
         self.worlds.append(glm.mat4(world))
