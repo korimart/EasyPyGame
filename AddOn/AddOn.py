@@ -11,12 +11,10 @@ class AddOn:
     def __init__(self):
         self.mmap = None
         self.behavior = BehaviorGoFast()
-        self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = AlgorithmPicker(self.dsFactory, maxBytes=100000, maxTime=100000, minTries=3)
-        self.pathFinder = VisitOrderProducer(self.algorithm)
-
         self.painter = Painter()
-        self.paintingPF = PaintingPathFinder(self.pathFinder, self.painter)
+        self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
+        self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=100000, maxTime=200, minTries=3)
+        self.paintingPF = PaintingPathFinder(VisitOrderProducer(self.algorithm), self.painter)
         self.sim = None
 
     def go(self, robot):

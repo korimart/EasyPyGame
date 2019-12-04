@@ -17,11 +17,11 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 0.1 # tile per ms
+        self.colorTileSpeed = 10 # tile per ms
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
-        self.pathSpeed = 0.1
+        self.pathSpeed = 10
         self.pathTimer = 0
         self.pathBuffer = []
 
