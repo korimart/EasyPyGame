@@ -31,8 +31,8 @@ class Floor(GameObject):
         self.allBlobsRC = None
         self.knownBlobsRC = None
 
-        self.colorTile = GameObject(scene, "ColorTile")
-        self.colorTile.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), False, size=width*height, static=False)
+        self.colorTiles = GameObject(scene, "ColorTile")
+        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), False, size=width*height, static=False)
         self.pathTaken = GameObject(scene, "PathTaken")
         self.pathTaken.renderComp = DefaultInstancedRenderComponent(None, (0.8, 0.8, 0), False, size=width*height, static=False)
 
@@ -143,9 +143,9 @@ class Floor(GameObject):
                 except:
                     break
                 if not pop:
-                    self.colorTile.renderComp.clear()
+                    self.colorTiles.renderComp.clear()
                 else:
-                    self.colorTile.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
+                    self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
 
             self.colorTileTimer = 0
 

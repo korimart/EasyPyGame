@@ -54,12 +54,10 @@ class Scene2StateContext(GameObject):
         self.buttonList.append(GUI.Button(self.scene, name="Reset",   callback=lambda: self.reset()))
 
         for button in self.buttonList:
-            button.fixedRect.x = 2
-            button.fixedRect.y = -2
-            button.setSize(1, 1)
+            button.transform.translate(2, -2, 0)
             button.disable()
 
-        self.buttonList[-1].fixedRect.x = 0.5
+        self.buttonList[-1].transform.setTranslate(0.5, 0, 0)
 
     def cwal(self):
         print("cannot wait any longer")

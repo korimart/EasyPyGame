@@ -121,7 +121,7 @@ class Robot(GameObject):
 
     def getPos(self):
         self.switchState(self.working, 0)
-        return (self.rect.x, self.rect.y, self.facing)
+        return (self.x, self.y, self.facing)
 
     def rotate(self):
         self.facing = (self.facing + 1) % 4
@@ -131,8 +131,8 @@ class Robot(GameObject):
         skinChanger.changeRobot(self)
 
     def nextPos(self, num=2):
-        return (self.rect.x + MOVEDELTA[self.facing][0] * num, \
-            self.rect.y + MOVEDELTA[self.facing][1] * num)
+        return (self.x + MOVEDELTA[self.facing][0] * num, \
+            self.y + MOVEDELTA[self.facing][1] * num)
 
     # def yourLogic(self, ms):
     #     if EasyPygame.isDown1stTime(","):
