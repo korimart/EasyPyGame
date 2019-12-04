@@ -14,7 +14,7 @@ class AddOn:
         self.painter = Painter()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
         self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=100000, maxTime=200, minTries=3)
-        self.paintingPF = PaintingPathFinder(VisitOrderProducer(self.algorithm), self.painter)
+        self.paintingPF = PaintingPathFinder(NearestFirst(self.algorithm), self.painter)
         self.sim = None
 
     def go(self, robot):

@@ -33,7 +33,7 @@ class Terrain:
     NOTHING = 0
     HAZARD = 1
 
-class VisitOrderProducer:
+class NearestFirst:
     def __init__(self, algorithm):
         self.algorithm = algorithm
 
