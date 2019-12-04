@@ -20,9 +20,9 @@ class Scene2(Scene):
         self.camera.reset()
 
     def postRender(self, ms):
-        if EasyPygame.isDown("KP9"):
+        if EasyPygame.isDown("]"):
             self.camera.setDistanceDelta(0.01 * ms)
-        if EasyPygame.isDown("KP7"):
+        if EasyPygame.isDown("["):
             self.camera.setDistanceDelta(-0.01 * ms)
-        if EasyPygame.isDown1stTime("KP5"):
+        if EasyPygame.isDown1stTime("'"):
             self.camera.setDistance(3)

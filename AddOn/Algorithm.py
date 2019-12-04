@@ -68,7 +68,7 @@ class BFS:
         # return a list of points on the calculated path
         queue = self.dsFactory.getQueue()
 
-        visited = set()
+        visited = self.dsFactory.getSet()
         queue.push([pointA])
         visited.add(pointA)
         while(len(queue) != 0):

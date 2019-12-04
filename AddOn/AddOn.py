@@ -5,14 +5,15 @@ from AddOn.Algorithm import *
 from AddOn.Behavior import *
 from AddOn.DSFactory import *
 from AddOn.Map import *
+from AddOn.AlgorithmPicker import *
 
 class AddOn:
     def __init__(self):
         self.mmap = None
         self.behavior = BehaviorGoFast()
-        # self.dsFactory = DSFactory()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = BFS(self.dsFactory)
+        #self.algorithm = IDAstar(self.dsFactory)
+        self.algorithm = AlgorithmPicker(self.dsFactory, maxBytes=100000, maxTime=100000, minTries=3)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
         # test

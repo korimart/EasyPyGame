@@ -60,7 +60,8 @@ class Scene2StateContext(GameObject):
         self.buttonList[-1].transform.setTranslate(0.5, 0, 0)
 
     def cwal(self):
-        print("cannot wait any longer")
+        pass
+        #print("cannot wait any longer")
 
     def start(self):
         self.switchState(self.simulating, 0)
