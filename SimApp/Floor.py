@@ -141,8 +141,8 @@ class Floor(GameObject):
         if EasyPygame.isDown1stTime("b"):
             self.blackSheepWall()
 
-        if EasyPygame.isDown1stTime(","):
-            if self.colorTileSpeed - 0.1 > 0:
-                self.colorTileSpeed -= 0.1
-        elif EasyPygame.isDown1stTime("."):
-            self.colorTileSpeed += 0.1
+        # if EasyPygame.isDown1stTime(","):
+        #     if self.colorTileSpeed - 0.1 > 0:
+        #         self.colorTileSpeed -= 0.1
+        # elif EasyPygame.isDown1stTime("."):
+        #     self.colorTileSpeed += 0.1

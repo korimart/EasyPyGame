@@ -83,6 +83,7 @@ class Running(GameObjectState):
         deltaX = self.deltaX * gameObject.runSpeed * ms
         deltaY = self.deltaY * gameObject.runSpeed * ms
         gameObject.transform.translate(deltaX, deltaY, 0)
+        gameObject.scene.camera.move((deltaX, deltaY))
 
         if gameObject.runSpeed * self.elapsed > 1:
             gameObject.switchState(gameObject.idle, ms)
@@ -90,6 +91,7 @@ class Running(GameObjectState):
     def onExit(self, gameObject, ms):
         gameObject.transform.setTranslate(self.destX, self.destY, ROBOTZ)
         gameObject.x, gameObject.y = self.destX, self.destY
+        gameObject.scene.camera.moveTo(self.destX, self.destY)
 
 class Robot(GameObject):
     def __init__(self, scene):
