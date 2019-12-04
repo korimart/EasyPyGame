@@ -12,11 +12,9 @@ class AddOn:
         self.mmap = None
         self.behavior = BehaviorGoFast()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        #self.algorithm = IDAstar(self.dsFactory)
         self.algorithm = AlgorithmPicker(self.dsFactory, maxBytes=100000, maxTime=100000, minTries=3)
         self.pathFinder = VisitOrderProducer(self.algorithm)
 
-        # test
         self.painter = Painter()
         self.paintingPF = PaintingPathFinder(self.pathFinder, self.painter)
         self.sim = None
@@ -43,8 +41,6 @@ class AddOn:
             except:
                 return
 
-count = 0
-
 class PaintingPathFinder:
     def __init__(self, pathFinder, painter):
         self.pathFinder = pathFinder
@@ -55,9 +51,6 @@ class PaintingPathFinder:
         path = self.pathFinder.findPath(startingPoint, targetList, mmap)
         self.painter.clear()
         self.painter.drawPath(path)
-        global count
-        count += 1
-        print(count)
         return path
 
 class Painter:
