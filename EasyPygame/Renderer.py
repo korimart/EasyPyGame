@@ -558,8 +558,8 @@ class Renderer:
     def renderColor(self, world, color):
         self.colors.append((world, color))
 
-    def renderColorInstanced(self, bufferID, color):
-        self.colorIns.append((bufferID, color))
+    def renderColorInstanced(self, bufferID, color, instNum):
+        self.colorIns.append((bufferID, color, instNum))
 
     def setFilter(self, minFilter="nearest", magFilter="nearest"):
         if minFilter is not None:
@@ -579,11 +579,11 @@ class Renderer:
         else:
             self.textures.append((self.minFilter, self.magFilter, self.flipX, self.flipY, world, texture, texCoord))
 
-    def renderTextureInstanced(self, bufferID, texture, texCoord=None):
+    def renderTextureInstanced(self, bufferID, instNum, texture, texCoord=None):
         if self.blending:
-            self.texInsBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
+            self.texInsBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord, instNum))
         else:
-            self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
+            self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord, instNum))
 
     def setInstancingWorlds(self, worldList, num=None, static=True):
         ret = glGenBuffers(1)
@@ -604,14 +604,12 @@ class Renderer:
             else:
                 glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
 
-            self.bufferInsNum[ret] = len(worldList)
         elif num:
             if static:
                 glBufferData(GL_ARRAY_BUFFER, 16 * 4 * num, None, GL_STATIC_DRAW)
             else:
                 glBufferData(GL_ARRAY_BUFFER, 16 * 4 * num, None, GL_DYNAMIC_DRAW)
-            
-            self.bufferInsNum[ret] = num
+
         else:
             return
 
@@ -621,10 +619,9 @@ class Renderer:
     def updateInstancingWorlds(self, bufferID, offset, worldList):
         a = []
         for world in worldList:
-            worldMat = world
             for i in range(4):
                 for j in range(4):
-                    a.append(worldMat[i][j])
+                    a.append(world[i][j])
 
         data = array('f', a).tobytes()
 
@@ -656,9 +653,9 @@ class Renderer:
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-    def _renderColorInstanced(self, bufferID, color):
+    def _renderColorInstanced(self, bufferID, color, instNum):
         glUniform4f(COLORINDEX, *color, 1.0)
-        self._bindAndDrawIns(bufferID)
+        self._bindAndDrawIns(bufferID, instNum)
 
     def _renderTexture(self, minF, magF, flipX, flipY, world, texture, texCoord):
         self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
@@ -667,11 +664,11 @@ class Renderer:
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
-    def _renderTextureInstanced(self, minF, magF, flipX, flipY, bufferID, texture, texCoord):
+    def _renderTextureInstanced(self, minF, magF, flipX, flipY, bufferID, texture, texCoord, instNum):
         self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
-        self._bindAndDrawIns(bufferID)
+        self._bindAndDrawIns(bufferID, instNum)
 
-    def _bindAndDrawIns(self, bufferID):
+    def _bindAndDrawIns(self, bufferID, instNum):
         glBindBuffer(GL_ARRAY_BUFFER, bufferID)
 
         glVertexAttribPointer(2, 4, GL_FLOAT, False, 16 * 4, c_void_p(0))
@@ -684,7 +681,7 @@ class Renderer:
         glVertexAttribDivisor(4, 1)
         glVertexAttribDivisor(5, 1)
 
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, self.bufferInsNum[bufferID])
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, instNum)
 
     def _textureUploadAttributes(self, minFilter, magFilter, flipX, flipY, tex, texCoord):
         texture = self.resManager.getTexture(tex)

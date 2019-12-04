@@ -1,5 +1,6 @@
 from random import randint
 import EasyPygame
+import glm
 
 class InvisibleRenderComponent:
     def render(self, gameObject, ms):
@@ -25,17 +26,26 @@ class DefaultRenderComponent:
         renderer.disableBlending()
 
 class DefaultInstancedRenderComponent:
-    def __init__(self, worldList, color=(0, 0, 1), showName=True):
+    def __init__(self, worldList, color=(0, 0, 1), showName=True, size=None, static=True):
         self.color = color
         self.handle = str(randint(0, 100000000))
         self.madeTexture = False
-        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList)
-        transList = []
-        for transform in worldList:
-            t = transform.copy()
-            t.translate(0, 0, 0.001)
-            transList.append(t)
-        self.textBuffer = EasyPygame.renderer.setInstancingWorlds(transList)
+        self.num = len(worldList) if worldList else 0
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList, size, static)
+
+        if not worldList:
+            worldList = []
+
+        self.worlds = []
+        self.textWorlds = []
+        for world in worldList:
+            t = glm.mat4(world)
+            self.worlds.append(t)
+            t = glm.translate(world, glm.vec3(0, 0, 0.001))
+            self.textWorlds.append(t)
+
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(self.worlds)
+        self.textBuffer = EasyPygame.renderer.setInstancingWorlds(self.textWorlds)
 
     def render(self, gameObject, ms):
         if not self.madeTexture:
@@ -44,9 +54,15 @@ class DefaultInstancedRenderComponent:
 
         renderer = EasyPygame.renderer
         renderer.resetSettings()
-        renderer.renderColorInstanced(self.buffer, self.color)
+        renderer.renderColorInstanced(self.buffer, self.color, self.num)
         renderer.enableBlending()
-        renderer.renderTextureInstanced(self.textBuffer, self.handle)
+        renderer.renderTextureInstanced(self.textBuffer, self.num, self.handle)
+
+    def append(self, world):
+        self.worlds.append(glm.mat4(world))
+        self.textWorlds.append(glm.mat4(world))
+        EasyPygame.renderer.updateInstancingWorlds(self.buffer, self.num, [world])
+        self.num += 1
 
     def __del__(self):
         EasyPygame.renderer.deleteBuffer(self.buffer)
@@ -79,24 +95,26 @@ class TextureRenderComponent:
         renderer.renderTexture(gameObject.transform.getWorldMat(), self.texture, self.imageRect)
 
 class TextureInstancedRenderComponent(TextureRenderComponent):
-    def __init__(self, worldList, texture, imageRect=None, minFilter='nearest', magFilter='nearest', \
-        flipX=False, flipY=False, blending=False):
+    def __init__(self, worldList, texture, size=None, imageRect=None, minFilter='nearest', magFilter='nearest', \
+        flipX=False, flipY=False, blending=False, static=True):
         super().__init__(texture, imageRect=imageRect, minFilter=minFilter, magFilter=magFilter, \
             flipX=flipX, flipY=flipY, blending=blending)
 
-        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList)
-        self.worlds = []
+        self.num = len(worldList) if worldList else 0
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList, size, static)
+        if not worldList:
+            worldList = []
+        self.worlds = [glm.mat4(world) for world in worldList]
 
     def render(self, gameObject, ms):
         renderer = EasyPygame.renderer
         super()._settings(renderer)
-        renderer.renderTextureInstanced(self.buffer, self.texture, self.imageRect)
+        renderer.renderTextureInstanced(self.buffer, self.num, self.texture, self.imageRect)
 
     def append(self, world):
-        # TODO
-        offset = 0
-        worldList = []
-        EasyPygame.renderer.updateInstancingWorlds(self.buffer, offset, worldList)
+        self.worlds.append(glm.mat4(world))
+        EasyPygame.renderer.updateInstancingWorlds(self.buffer, self.num, [world])
+        self.num += 1
 
     def __del__(self):
         EasyPygame.renderer.deleteBuffer(self.buffer)

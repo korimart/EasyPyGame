@@ -19,15 +19,16 @@ class Scene1(Scene):
         EasyPygame.load("Carrot.jpg")
         EasyPygame.load("darkness.png")
         self.carrot = GameObject(self, "Carrot")
-        # ins1 = self.carrot.transform.copy()
-        # ins1.rotate(25)
-        # ins1.translate(1, 0, 0)
-        # instances = [self.carrot.transform, ins1]
+        ins1 = self.carrot.transform.copy()
+        ins1.rotate(25)
+        ins1.translate(1, 0, 0)
         # self.carrot.renderComp = TextureRenderComponent("Carrot.jpg")
         # self.carrot.renderComp = DefaultInstancedRenderComponent(instances)
-        # self.carrot.renderComp = TextureInstancedRenderComponent(instances, "Carrot.jpg")
-        self.carrot.renderComp = AnimationRenderComponent([TextureRenderComponent("Carrot.jpg"), \
-            DefaultRenderComponent()], 500)
+        self.carrot.renderComp = TextureInstancedRenderComponent(None, "Carrot.jpg", size=30)
+        self.carrot.renderComp.append(self.carrot.transform.getWorldMat())
+        self.carrot.renderComp.append(ins1.getWorldMat())
+        # self.carrot.renderComp = AnimationRenderComponent([TextureRenderComponent("Carrot.jpg"), \
+            # DefaultRenderComponent()], 500)
         # self.carrot.transform.translate(3, 0, 0)
 
         self.button = GUI.Button(self, callback=self.testCallback)
