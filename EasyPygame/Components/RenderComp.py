@@ -17,25 +17,25 @@ class DefaultRenderComponent:
             self.madeTexture = True
 
         renderer = EasyPygame.renderer
-        renderer.renderColor(gameObject.transform, self.color)
+        renderer.renderColor(gameObject.transform.getWorldMat(), self.color)
         renderer.enableBlending()
         textTrans = gameObject.transform.copy()
         textTrans.translate(0, 0, 0.001)
-        renderer.renderTexture(textTrans, self.handle)
+        renderer.renderTexture(textTrans.getWorldMat(), self.handle)
         renderer.disableBlending()
 
 class DefaultInstancedRenderComponent:
-    def __init__(self, transCompList, color=(0, 0, 1), showName=True):
+    def __init__(self, worldList, color=(0, 0, 1), showName=True):
         self.color = color
         self.handle = str(randint(0, 100000000))
         self.madeTexture = False
-        self.buffer = EasyPygame.renderer.setInstancingTransComps(transCompList)
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList)
         transList = []
-        for transform in transCompList:
+        for transform in worldList:
             t = transform.copy()
             t.translate(0, 0, 0.001)
             transList.append(t)
-        self.textBuffer = EasyPygame.renderer.setInstancingTransComps(transList)
+        self.textBuffer = EasyPygame.renderer.setInstancingWorlds(transList)
 
     def render(self, gameObject, ms):
         if not self.madeTexture:
@@ -76,20 +76,27 @@ class TextureRenderComponent:
     def render(self, gameObject, ms):
         renderer = EasyPygame.renderer
         self._settings(renderer)
-        renderer.renderTexture(gameObject.transform, self.texture, self.imageRect)
+        renderer.renderTexture(gameObject.transform.getWorldMat(), self.texture, self.imageRect)
 
 class TextureInstancedRenderComponent(TextureRenderComponent):
-    def __init__(self, transCompList, texture, imageRect=None, minFilter='nearest', magFilter='nearest', \
+    def __init__(self, worldList, texture, imageRect=None, minFilter='nearest', magFilter='nearest', \
         flipX=False, flipY=False, blending=False):
         super().__init__(texture, imageRect=imageRect, minFilter=minFilter, magFilter=magFilter, \
             flipX=flipX, flipY=flipY, blending=blending)
 
-        self.buffer = EasyPygame.renderer.setInstancingTransComps(transCompList)
+        self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList)
+        self.worlds = []
 
     def render(self, gameObject, ms):
         renderer = EasyPygame.renderer
         super()._settings(renderer)
         renderer.renderTextureInstanced(self.buffer, self.texture, self.imageRect)
+
+    def append(self, world):
+        # TODO
+        offset = 0
+        worldList = []
+        EasyPygame.renderer.updateInstancingWorlds(self.buffer, offset, worldList)
 
     def __del__(self):
         EasyPygame.renderer.deleteBuffer(self.buffer)

@@ -555,8 +555,8 @@ class Renderer:
         self.minFilter = "nearest"
         self.magFilter = "nearest"
 
-    def renderColor(self, transComp, color):
-        self.colors.append((transComp, color))
+    def renderColor(self, world, color):
+        self.colors.append((world, color))
 
     def renderColorInstanced(self, bufferID, color):
         self.colorIns.append((bufferID, color))
@@ -573,11 +573,11 @@ class Renderer:
         if y is not None:
             self.flipY = y
 
-    def renderTexture(self, transComp, texture, texCoord=None):
+    def renderTexture(self, world, texture, texCoord=None):
         if self.blending:
-            self.texBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, transComp, texture, texCoord))
+            self.texBlending.append((self.minFilter, self.magFilter, self.flipX, self.flipY, world, texture, texCoord))
         else:
-            self.textures.append((self.minFilter, self.magFilter, self.flipX, self.flipY, transComp, texture, texCoord))
+            self.textures.append((self.minFilter, self.magFilter, self.flipX, self.flipY, world, texture, texCoord))
 
     def renderTextureInstanced(self, bufferID, texture, texCoord=None):
         if self.blending:
@@ -585,13 +585,13 @@ class Renderer:
         else:
             self.texIns.append((self.minFilter, self.magFilter, self.flipX, self.flipY, bufferID, texture, texCoord))
 
-    def setInstancingTransComps(self, transCompList, static=True):
+    def setInstancingWorlds(self, worldList, static=True):
         ret = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, ret)
 
         a = []
-        for transComp in transCompList:
-            worldMat = transComp.getWorldMat()
+        for world in worldList:
+            worldMat = world
             for i in range(4):
                 for j in range(4):
                     a.append(worldMat[i][j])
@@ -603,14 +603,14 @@ class Renderer:
         else:
             glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
 
-        self.bufferInsNum[ret] = len(transCompList)
+        self.bufferInsNum[ret] = len(worldList)
 
         return ret
 
-    def updateInstancingTransComps(self, bufferID, offset, transCompList):
+    def updateInstancingWorlds(self, bufferID, offset, worldList):
         a = []
-        for transComp in transCompList:
-            worldMat = transComp.getWorldMat()
+        for world in worldList:
+            worldMat = world
             for i in range(4):
                 for j in range(4):
                     a.append(worldMat[i][j])
@@ -637,8 +637,8 @@ class Renderer:
             func(*obj)
         del radixList[:]
 
-    def _renderColor(self, transComp, color):
-        world = transComp.getWorldMat()
+    def _renderColor(self, world, color):
+        world = world
         pvw = self.pv * world
         glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(pvw))
         glUniform4f(COLORINDEX, *color, 1.0)
@@ -649,9 +649,9 @@ class Renderer:
         glUniform4f(COLORINDEX, *color, 1.0)
         self._bindAndDrawIns(bufferID)
 
-    def _renderTexture(self, minF, magF, flipX, flipY, transComp, texture, texCoord):
+    def _renderTexture(self, minF, magF, flipX, flipY, world, texture, texCoord):
         self._textureUploadAttributes(minF, magF, flipX, flipY, texture, texCoord)
-        mvpMat = self.pv * transComp.getWorldMat()
+        mvpMat = self.pv * world
         glUniformMatrix4fv(MVPINDEX, 1, GL_FALSE, glm.value_ptr(mvpMat))
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
