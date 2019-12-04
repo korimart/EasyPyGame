@@ -23,6 +23,8 @@ class Floor(GameObject):
 
         self.blackSheepWallEnabled = False
 
+        self.known = []
+
         self.hazard = GameObject(scene, "Hazard")
         self.allHazardsRC = None
         self.knownHazardsRC = None
@@ -32,27 +34,11 @@ class Floor(GameObject):
         self.knownBlobsRC = None
 
         self.colorTiles = GameObject(scene, "ColorTile")
-        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), False, size=width*height, static=False)
+        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), \
+            False, size=width*height, static=False)
         self.pathTaken = GameObject(scene, "PathTaken")
-        self.pathTaken.renderComp = DefaultInstancedRenderComponent(None, (0.8, 0.8, 0), False, size=width*height, static=False)
-
-        # self.hazards = []
-        # self.blobs = []
-        # self.uncoveredHazards = []
-        # self.uncoveredBlobs = []
-
-        # self.hazard = GameObject(scene, "Hazard")
-        # self.blob = GameObject(scene, "Blob")
-
-        # self.colorTiles = GameObject(scene, "ColorTile")
-        # self.colorTiles.tileRects = []
-        # self.colorTiles.addTextureView(DefaultInstancedTextureView(self.colorTiles.tileRects, (0, 1, 1), False))
-        # self.colorTiles.useTextureView(1)
-
-        # self.pathTaken = GameObject(scene, "PathTaken")
-        # self.pathTaken.pathRects = []
-        # self.pathTaken.addTextureView(DefaultInstancedTextureView(self.pathTaken.pathRects, (0.8, 0.8, 0), False))
-        # self.pathTaken.useTextureView(1)
+        self.pathTaken.renderComp = DefaultInstancedRenderComponent(None, (0.8, 0.8, 0), \
+            False, size=width*height, static=False)
 
     def randomize(self, startingPos, targetList, hazardList, blobList):
         self.terrain = self.mazeGenerator.generate(self.width, self.height, startingPos, targetList, hazardList, blobList)
@@ -75,10 +61,19 @@ class Floor(GameObject):
                 elif self.terrain[i][j] == Terrain.BLOB:
                     blobs.append(glm.translate(glm.mat4(), glm.vec3(j, i, BLOBZ)))
 
-        self.allHazardsRC = DefaultInstancedRenderComponent(hazards)
-        self.allBlobsRC = DefaultInstancedRenderComponent(blobs, (1, 0, 0))
-        self.knownHazardsRC = DefaultInstancedRenderComponent(None, size=len(hazards), static=False)
-        self.knownBlobsRC = DefaultInstancedRenderComponent(None, size=len(blobs), static=False)
+
+        imageRectList = []
+        for i in range(4):
+            imageRectList.append(EasyPygame.Rect(288 / 512 + i * 16 / 512, 224 / 512, 16 / 512, 16 / 512))
+
+        imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
+        self.allHazardsRC = TextureInstancedRenderComponent(hazards, "animated.png", imageRect=imageRect)
+        self.allBlobsRC = AnimationRenderComponent(TextureInstancedRenderComponent(blobs, "animated.png", blending=True),\
+            imageRectList, 500)
+        self.knownHazardsRC = TextureInstancedRenderComponent(None, "animated.png", imageRect=imageRect, size=len(hazards), static=False)
+        self.knownBlobsRC = AnimationRenderComponent(\
+            TextureInstancedRenderComponent(None, "animated.png", size=len(blobs), static=False, blending=True),\
+                imageRectList, 500)
 
     def senseBlob(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
@@ -98,10 +93,15 @@ class Floor(GameObject):
         return True
 
     def uncover(self, terrain, x, y):
+        if (x, y) in self.known:
+            return
+
         if terrain == Terrain.HAZARD:
             self.knownHazardsRC.append(glm.translate(glm.mat4(), glm.vec3(x, y, HAZARDZ)))
         elif terrain == Terrain.BLOB:
-            self.knownBlobsRC.append(glm.translate(glm.mat4(), glm.vec3(x, y, BLOBZ)))
+            self.knownBlobsRC.renderComp.append(glm.translate(glm.mat4(), glm.vec3(x, y, BLOBZ)))
+
+        self.known.append((x, y))
 
     def pathed(self, x, y):
         self.pathTaken.renderComp.append(glm.translate(glm.mat4(), glm.vec3(x, y, PATHTAKENZ)))
@@ -119,17 +119,6 @@ class Floor(GameObject):
         else:
             self.hazard.renderComp = self.knownHazardsRC
             self.blob.renderComp = self.knownBlobsRC
-
-        # self.hazard.clearTextureViews()
-        # imageRect = EasyPygame.Rect(16 / 512, 12 / 512, 16 / 512, 16 / 512)
-        # self.hazard.addTextureView(InstancedTextureView("animated.png", rectList, imageRect))
-        # self.hazard.useTextureView(1)
-
-        # self.blob.clearTextureViews()
-        # for i in range(4):
-        #     imageRect = EasyPygame.Rect(288 / 512 + i * 16 / 512, 224 / 512, 16 / 512, 16 / 512)
-        #     self.blob.addTextureView(InstancedTextureView("animated.png", rectList2, imageRect.copy()))
-        # self.blob.FSM.attachConcurrentState(0, SpriteAnimState(500, [1, 2, 3, 4]))
 
         self.blackSheepWallEnabled = not self.blackSheepWallEnabled
 

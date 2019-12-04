@@ -72,7 +72,7 @@ class SIMProgramSide:
                 break
 
         if self.close:
-            self.parent.FSM.switchState(self.parent.done, ms)
+            self.parent.switchState(self.parent.done, ms)
 
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)

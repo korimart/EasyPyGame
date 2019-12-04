@@ -15,7 +15,7 @@ class MoveDelta:
 
 MOVEDELTA = [MoveDelta.UP, MoveDelta.RIGHT, MoveDelta.DOWN, MoveDelta.LEFT]
 
-ROBOTZ = 0.02
+ROBOTZ = 0.015
 
 class Working(GameObjectState):
     def __init__(self):
@@ -39,6 +39,7 @@ class Rotating(GameObjectState):
     def onEnter(self, gameObject, ms):
         self.elapsed = 0
         self.destAngle = -gameObject.facing % 4 * 90
+        self.startAngle = self.destAngle + 90
         gameObject.isWorking = True
         gameObject.renderComp = gameObject.idleRC
 
@@ -46,12 +47,13 @@ class Rotating(GameObjectState):
         self.elapsed += ms
         gameObject.arrow.transform.reset()
         gameObject.arrow.transform.rotate(gameObject.rotationSpeed * self.elapsed * -90)
+        gameObject.arrow.transform.rotate(self.startAngle)
         gameObject.arrow.transform.translate(0, 1, 0)
 
         if self.elapsed * gameObject.rotationSpeed > 1:
-            # gameObject.arrow.transform.reset()
-            # gameObject.arrow.transform.rotate(self.destAngle)
-            # gameObject.arrow.transform.translate(0, 1, 0)
+            gameObject.arrow.transform.reset()
+            gameObject.arrow.transform.rotate(self.destAngle)
+            gameObject.arrow.transform.translate(0, 1, 0)
             gameObject.switchState(gameObject.idle, ms)
 
 class Idle(GameObjectState):
@@ -99,7 +101,7 @@ class Robot(GameObject):
         self.lastFace = Direction.RIGHT
         self.workSpeed = 0.01 # work per ms
         self.runSpeed = 0.01 # block per ms
-        self.rotationSpeed = 0.001
+        self.rotationSpeed = 0.01
         self.isWorking = False
         self.num = None
 
@@ -118,8 +120,9 @@ class Robot(GameObject):
 
     def move(self, num=1):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
-            self.lastFace = self.facing
-            self._flipX()
+            if self.facing is not self.lastFace:
+                self.lastFace = self.facing
+                self._flipX()
         self.num = num
         self.switchState(self.running, 0)
 
@@ -149,7 +152,6 @@ class Robot(GameObject):
     #         self.runSpeed += 0.001
 
     def _flipX(self):
-        pass
-        # self.idleRC.flipX = not self.idleRC.flipX
-        # self.workingRC.flipX = not self.workingRC.flipX
-        # self.runningRC.flipX = not self.runningRC.flipX
+        self.idleRC.renderComp.flipX = not self.idleRC.renderComp.flipX
+        # self.workingRC.renderComp.flipX = not self.workingRC.renderComp.flipX
+        self.runningRC.renderComp.flipX = not self.runningRC.renderComp.flipX

@@ -18,6 +18,7 @@ class DefaultRenderComponent:
             self.madeTexture = True
 
         renderer = EasyPygame.renderer
+        renderer.resetSettings()
         renderer.renderColor(gameObject.transform.getWorldMat(), self.color)
         renderer.enableBlending()
         textTrans = gameObject.transform.copy()
@@ -130,20 +131,40 @@ class TextureInstancedRenderComponent(TextureRenderComponent):
     def __del__(self):
         EasyPygame.renderer.deleteBuffer(self.buffer)
 
+# class AnimationRenderComponent:
+#     def __init__(self, renderCompList, duration):
+#         self.compList = renderCompList
+#         self.duration = duration
+#         self.ms = 0
+
+#         try:
+#             self.msPerFrame = duration / len(renderCompList)
+#         except ZeroDivisionError:
+#             self.msPerFrame = duration
+#             self.compList = [DefaultRenderComponent()]
+
+#     def render(self, gameObject, ms):
+#         index = int(self.ms / self.msPerFrame)
+#         self.compList[index].render(gameObject, ms)
+#         self.ms += ms
+#         self.ms %= self.duration
+
 class AnimationRenderComponent:
-    def __init__(self, renderCompList, duration):
-        self.compList = renderCompList
+    def __init__(self, renderComponent, imageRectList, duration):
+        self.renderComp = renderComponent
+        self.rectList = imageRectList
         self.duration = duration
         self.ms = 0
 
         try:
-            self.msPerFrame = duration / len(renderCompList)
+            self.msPerFrame = duration / len(imageRectList)
         except ZeroDivisionError:
             self.msPerFrame = duration
-            self.compList = [DefaultRenderComponent()]
+            self.compList = [None]
 
     def render(self, gameObject, ms):
         index = int(self.ms / self.msPerFrame)
-        self.compList[index].render(gameObject, ms)
+        self.renderComp.imageRect = self.rectList[index]
+        self.renderComp.render(gameObject, ms)
         self.ms += ms
         self.ms %= self.duration

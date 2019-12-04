@@ -7,6 +7,7 @@ class GameObject:
         self.scene = scene
         self.transform = Cmp.TransformComp()
         self.renderComp = Cmp.InvisibleRenderComponent()
+        self._renderCompTemp = None
         self.name = name
         self.currentStateIndex = 0
         self.stateList = [GameObjectState()]
@@ -25,9 +26,12 @@ class GameObject:
         self.renderComp.render(self, ms)
 
     def disable(self):
+        self._renderCompTemp = self.renderComp
+        self.renderComp = EasyPygame.Components.InvisibleRenderComponent()
         self.switchState(0, 0)
 
     def enable(self, stateIndex):
+        self.renderComp = self._renderCompTemp
         self.switchState(stateIndex, 0)
 
     def isMouseOn(self):

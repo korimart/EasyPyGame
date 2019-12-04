@@ -57,7 +57,7 @@ class Scene2StateContext(GameObject):
             button.transform.translate(2, -2, 0)
             button.disable()
 
-        self.buttonList[-1].transform.setTranslate(0.5, 0, 0)
+        self.buttonList[-1].transform.translate(-1.5, 0, 0)
 
     def cwal(self):
         pass

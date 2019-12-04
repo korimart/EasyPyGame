@@ -22,18 +22,18 @@ from EasyPygame.Components import *
 
 class DungeonSkinChanger:
     def changeRobot(self, robot):
+        imageRectList = []
         for i in range(4):
-            compList = []
-            imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512)
-            compList.append(TextureRenderComponent("animated.png", imageRect.copy(), flipX=True, blending=True))
+            imageRectList.append(EasyPygame.Rect(128 / 512 + 16 / 512 * i, 16 / 512, 16 / 512, 16 / 512))
 
-        robot.idleRC = AnimationRenderComponent(compList, 500)
+        texComp = TextureRenderComponent("animated.png", None, blending=True)
+        robot.idleRC = AnimationRenderComponent(texComp, imageRectList, 500)
 
         for i in range(4):
-            compList = []
-            imageRect = EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512)
-            compList.append(TextureRenderComponent("animated.png", imageRect.copy(), flipX=True, blending=True))
+            imageRectList.append(EasyPygame.Rect(128 / 512 + 16 / 512 * (i + 4), 16 / 512, 16 / 512, 16 / 512))
 
-        robot.runningRC = AnimationRenderComponent(compList, 500)
+        texComp = TextureRenderComponent("animated.png", None, blending=True)
+        robot.runningRC = AnimationRenderComponent(texComp, imageRectList, 500)
 
+        robot.renderComp = robot.idleRC
         robot.arrow.renderComp = DefaultRenderComponent((0.5, 0.5, 0))
