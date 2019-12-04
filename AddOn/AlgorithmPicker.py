@@ -28,7 +28,8 @@ class AlgorithmPicker:
     def findPath(self, pointA, pointB, mmap):
         path = self._findPath(pointA, pointB, mmap)
         self.painter.clear()
-        self.painter.drawPath(path)
+        for coord in path:
+            self.painter.draw(*coord)
         return path
 
     def _findPath(self, pointA, pointB, mmap):
