@@ -13,7 +13,7 @@ class AddOn:
         self.behavior = BehaviorGoFast()
         self.painter = Painter()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
-        self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=10000, maxTime=200, minTriesTime=3, minTriesMem=1)
+        self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=10000, maxTime=200, minTriesTime=3, minTriesMem=2)
         self.paintingPF = PaintingPathFinder(NearestFirst(self.algorithm), self.painter)
         self.sim = None
 

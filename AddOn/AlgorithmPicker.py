@@ -14,19 +14,15 @@ class AlgorithmPicker:
         self.painter = painter
         self.maxTime = maxTime
         self.maxBytes = maxBytes
-        self.dsFactPaintOnly = dsFactory
         self.dsFactory = TimeCheckDSFactory(MemCheckDSFactory(dsFactory, self.maxBytes, self.memCallback), maxTime, TimeoutError)
-        self.dsFactMemOnly = self.dsFactory.dsFactory
+        self.dsFactMemOnly = MemCheckDSFactory(dsFactory, self.maxBytes, self.memCallback)
         self.algorithms = [BFS(self.dsFactory), IDAstar(self.dsFactory), BFS(self.dsFactMemOnly), IDAstar(self.dsFactMemOnly)]
-        self.currAlgoIndex = AlgorithmPicker._IDAstar
+        self.currAlgoIndex = AlgorithmPicker._BFS
         self.memExceptionfromBFS = False
         self.minTriesTime = minTriesTime
         self.numTriesTime = 0
         self.minTriesMem = minTriesMem
         self.numTriesMem = 0
-        
-        self.IDAsTimeout = False
-        self.BFS_MemOut = False
 
     def findPath(self, pointA, pointB, mmap):
         path = self._findPath(pointA, pointB, mmap)
@@ -52,7 +48,6 @@ class AlgorithmPicker:
                             if self.memExceptionfromBFS:
                                 self.currAlgoIndex = AlgorithmPicker._BFS
                                 print("self.currAlgoIndex = AlgorithmPicker.AlgorithmPicker._BFS")
-                                
                             else:
                                 self.currAlgoIndex = AlgorithmPicker._BFS_MEM_ONLY
                                 print("self.currAlgoIndex = AlgorithmPicker.AlgorithmPicker._BFS_MEM_ONLY")
@@ -61,8 +56,7 @@ class AlgorithmPicker:
                 # If MEMORY ERROR OCCURS WHEN self.currAlgoIndex == AlgorithmPicker._BFS_MEM_ONLY,
                 # self.currAlgoIndex CHANGES TO _IDAstar_MEM_ONLY
                 # WHEN IT COMES BACK TO _BFS_MEM_ONLY, self.numTriesTime += 1 WILL BE PERFORMED
-                # EVEN THOUGH BFS DID NOT ACTUALLY FIND A PATH
-                # SINCE A PATH WAS FOUND, THIS ALSO COUNTS AS ONE 
+                # EVEN THOUGH IT WANSN"T BFS WHO FOUND THE PATH(S)
 
                 if self.currAlgoIndex == AlgorithmPicker._BFS_MEM_ONLY:
                     if self.minTriesTime > self.numTriesTime:
