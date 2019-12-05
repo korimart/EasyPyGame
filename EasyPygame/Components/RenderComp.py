@@ -11,6 +11,7 @@ class DefaultRenderComponent:
         self.color = color
         self.handle = str(randint(0, 100000000))
         self.madeTexture = False
+        self.showName = showName
 
     def render(self, gameObject, ms):
         if not self.madeTexture:
@@ -21,10 +22,11 @@ class DefaultRenderComponent:
         renderer.resetSettings()
         renderer.renderColor(gameObject.transform.getWorldMat(), self.color)
         renderer.enableBlending()
-        textTrans = gameObject.transform.copy()
-        textTrans.translate(0, 0, 0.001)
-        renderer.renderTexture(textTrans.getWorldMat(), self.handle)
-        renderer.disableBlending()
+        if self.showName:
+            textTrans = gameObject.transform.copy()
+            textTrans.translate(0, 0, 0.001)
+            renderer.renderTexture(textTrans.getWorldMat(), self.handle)
+            renderer.disableBlending()
 
 class DefaultInstancedRenderComponent:
     def __init__(self, worldList, color=(0, 0, 1), showName=True, size=None, static=True):
@@ -33,6 +35,7 @@ class DefaultInstancedRenderComponent:
         self.madeTexture = False
         self.num = len(worldList) if worldList else 0
         self.buffer = EasyPygame.renderer.setInstancingWorlds(worldList, size, static)
+        self.showName = showName
 
         if not worldList:
             worldList = []
@@ -57,8 +60,9 @@ class DefaultInstancedRenderComponent:
             renderer = EasyPygame.renderer
             renderer.resetSettings()
             renderer.renderColorInstanced(self.buffer, self.color, self.num)
-            renderer.enableBlending()
-            renderer.renderTextureInstanced(self.textBuffer, self.num, self.handle)
+            if self.showName:
+                renderer.enableBlending()
+                renderer.renderTextureInstanced(self.textBuffer, self.num, self.handle)
 
     def clear(self):
         self.worlds = []

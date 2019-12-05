@@ -148,7 +148,8 @@ class Renderer:
         self.currBoundMinFilter = GL_NEAREST
         self.currBoundMagFilter = GL_NEAREST
 
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+        r, g, b = 29/255, 27/255, 27/255
+        glClearColor(r, g, b, 1.0)
         glEnable(GL_DEPTH_TEST)
 
     def render(self, camera):

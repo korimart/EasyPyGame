@@ -5,8 +5,8 @@ from EasyPygame.Components import *
 
 class TextBoxUnfocused(GameObjectState):
     def onEnter(self, gameObject, ms):
+        gameObject.bg.renderComp = gameObject.bgRC1
         gameObject.modifyTextureView()
-        gameObject.bg.renderComp.color = (0.8, 0.8, 0.8)
 
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("MOUSELEFT") and gameObject.isMouseOn():
@@ -14,7 +14,7 @@ class TextBoxUnfocused(GameObjectState):
 
 class TextBoxFocused(GameObjectState):
     def onEnter(self, gameObject, ms):
-        gameObject.bg.renderComp.color = (0.2, 0.2, 0.9)
+        gameObject.bg.renderComp = gameObject.bgRC2
 
     def update(self, gameObject, ms):
         if EasyPygame.isDown1stTime("RETURN") \
@@ -35,7 +35,7 @@ class TextBoxFocused(GameObjectState):
 
 class TextBox(GameObject):
     def __init__(self, scene, ratio, name="TextBox", defaultText="", \
-            fontName="monogram.ttf", color=(0,0,0)):
+            fontName="monogram.ttf", color=(0, 0, 0)):
         super().__init__(scene, name)
         self.text = defaultText
         self.fontName = fontName
@@ -53,10 +53,12 @@ class TextBox(GameObject):
 
         self.renderComp = TextureRenderComponent(self.textureName, blending=True)
 
-        self.bg = GameObject(scene, name + "BG")
+        self.bg = GameObject(scene, "BG")
         self.bg.transform.setClone(self.transform)
         self.bg.transform.translate(0, 0, -0.01)
-        self.bg.renderComp = DefaultRenderComponent((0.8, 0.8, 0.8), showName=False)
+        self.bgRC1 = DefaultRenderComponent((0.8, 0.8, 0.8), showName=False)
+        self.bgRC2 = DefaultRenderComponent((47/255, 60/255, 114/255), showName=False)
+        self.bg.renderComp = self.bgRC1
 
         self.addState(TextBoxUnfocused())
         self.addState(TextBoxFocused())

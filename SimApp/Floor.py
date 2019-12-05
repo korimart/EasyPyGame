@@ -40,7 +40,7 @@ class Floor(GameObject):
         self.knownBlobsRC = None
 
         self.colorTiles = GameObject(scene, "ColorTile")
-        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), \
+        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (251/255, 234/255, 235/255), \
             False, size=width*height, static=False)
 
         self.pathTaken = GameObject(scene, "PathTaken")
@@ -48,7 +48,7 @@ class Floor(GameObject):
             False, size=width*height, static=False)
 
         self.pathTiles = GameObject(scene, "Path")
-        self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (255 / 255, 105 / 255, 180 / 255), \
+        self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (236 / 255, 77 / 255, 55 / 255), \
             False, size=width*height, static=False)
 
         self.target = GameObject(scene, "Target")
