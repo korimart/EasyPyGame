@@ -9,7 +9,13 @@ class Scene2(Scene):
         self.stateContext = None
 
     def onLoad(self):
+        EasyPygame.load("animated.png")
+        EasyPygame.load("arrow.png")
         self.stateContext = Scene2StateContext(self, *self.dataTuple)
+
+    def onUnLoad(self):
+        EasyPygame.unLoad("animated.png")
+        EasyPygame.unLoad("arrow.png")
 
     def setInputData(self, dataTuple):
         self.dataTuple = dataTuple
@@ -21,8 +27,8 @@ class Scene2(Scene):
 
     def postRender(self, ms):
         if EasyPygame.isDown("]"):
-            self.camera.setDistanceDelta(0.01 * ms)
+            self.camera.setDistanceDelta(0.05 * ms)
         if EasyPygame.isDown("["):
-            self.camera.setDistanceDelta(-0.01 * ms)
+            self.camera.setDistanceDelta(-0.05 * ms)
         if EasyPygame.isDown1stTime("'"):
-            self.camera.setDistance(3)
+            self.camera.setDistance(self.camera.DEFAULTDIST)

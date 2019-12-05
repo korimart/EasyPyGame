@@ -18,11 +18,12 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 0.1 # tile per ms
+        self.colorTileSpeed = 0.05 # tile per ms
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
-        self.pathSpeed = 0.1
+        self.pathLength = 0
+        self.pathSpeed = 0.001 # path per ms
         self.pathTimer = 0
         self.pathBuffer = []
 
@@ -39,7 +40,7 @@ class Floor(GameObject):
         self.knownBlobsRC = None
 
         self.colorTiles = GameObject(scene, "ColorTile")
-        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (0, 1, 1), \
+        self.colorTiles.renderComp = DefaultInstancedRenderComponent(None, (251/255, 234/255, 235/255), \
             False, size=width*height, static=False)
 
         self.pathTaken = GameObject(scene, "PathTaken")
@@ -47,7 +48,7 @@ class Floor(GameObject):
             False, size=width*height, static=False)
 
         self.pathTiles = GameObject(scene, "Path")
-        self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (255 / 255, 105 / 255, 180 / 255), \
+        self.pathTiles.renderComp = DefaultInstancedRenderComponent(None, (236 / 255, 77 / 255, 55 / 255), \
             False, size=width*height, static=False)
 
         self.target = GameObject(scene, "Target")
@@ -104,10 +105,47 @@ class Floor(GameObject):
         self.colorTileBuffer.append((x, y))
 
     def colorPath(self, path):
+        self.pathLength = len(path)
         self.pathBuffer = path
 
     def clearColor(self):
         self.colorTileBuffer.append(None)
+
+    def draw(self, ms):
+        if self.colorTileBuffer:
+            self.colorTileTimer += ms
+            num = int(self.colorTileSpeed * self.colorTileTimer)
+
+            if num:
+                self.colorTileTimer = 0
+                for _ in range(num):
+                    try:
+                        pop = self.colorTileBuffer.pop(0)
+                    except:
+                        break
+                    if not pop:
+                        self.colorTiles.renderComp.clear()
+                        self.pathTiles.renderComp.clear()
+                    else:
+                        self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
+
+        elif self.pathBuffer:
+            self.pathTimer += ms
+            num = int(self.pathSpeed * self.pathLength * self.pathTimer)
+
+            if num:
+                self.pathTimer = 0
+                for _ in range(num):
+                    try:
+                        pop = self.pathBuffer.pop(0)
+                    except:
+                        break
+                    self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, PATHZ)))
+
+        if not self.colorTileBuffer and not self.pathBuffer:
+            return False
+
+        return True
 
     def blackSheepWall(self):
         if self.blackSheepWallEnabled:
@@ -119,31 +157,8 @@ class Floor(GameObject):
 
         self.blackSheepWallEnabled = not self.blackSheepWallEnabled
 
-    def yourLogic(self, ms):
-        if self.colorTileBuffer:
-            num = self.colorTileSpeed * ms
-            for _ in range(int(num)):
-                try:
-                    pop = self.colorTileBuffer.pop(0)
-                except:
-                    break
-                if not pop:
-                    self.colorTiles.renderComp.clear()
-                    self.pathTiles.renderComp.clear()
-                else:
-                    self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
-
-        elif self.pathBuffer:
-            num = self.pathSpeed * ms
-            for _ in range(int(num)):
-                try:
-                    pop = self.pathBuffer.pop(0)
-                except:
-                    break
-                self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, PATHZ)))
-
-    def isDrawing(self):
-        return bool(self.colorTileBuffer) or bool(self.pathBuffer)
+    def needToDraw(self):
+        return self.colorTileBuffer or self.pathBuffer
 
     def _initRC(self, targetList):
         hazards = []
@@ -157,8 +172,7 @@ class Floor(GameObject):
                     blobs.append(glm.translate(glm.mat4(), glm.vec3(j, i, BLOBZ)))
 
         for target in targetList:
-            mat = glm.translate(glm.mat4(), glm.vec3(target[0], target[1] + 1, BLOBZ))
-            mat = glm.scale(mat, glm.vec3(1, 2, 1))
+            mat = glm.translate(glm.mat4(), glm.vec3(target[0], target[1] + 0.7, BLOBZ))
             targets.append(mat)
 
         imageRectList = []
@@ -177,5 +191,9 @@ class Floor(GameObject):
             TextureInstancedRenderComponent(None, "animated.png", size=len(blobs), static=False, blending=True),\
                 imageRectList, 500)
 
-        self.target.renderComp = AnimationRenderComponent(TextureInstancedRenderComponent(targets, "animated.png", blending=True),\
+        imageRectList = []
+        for i in range(4):
+            imageRectList.append(EasyPygame.Rect(i * 128 / 641, 0, 128 / 641, 1))
+
+        self.target.renderComp = AnimationRenderComponent(TextureInstancedRenderComponent(targets, "arrow.png", blending=True, flipY=True),\
             imageRectList, 500)

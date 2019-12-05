@@ -10,7 +10,7 @@ from AddOn.AlgorithmPicker import *
 class AddOn:
     def __init__(self):
         self.mmap = None
-        self.behavior = BehaviorGoFast()
+        self.behavior = BehaviorGoSlow()
         self.painter = Painter()
         self.dsFactory = InsertCallbackDSFactory(DSFactory(), self._inserted)
         self.algorithm = AlgorithmPicker(self.painter, self.dsFactory, maxBytes=10000, maxTime=200, minTriesTime=3, minTriesMem=2)
@@ -20,6 +20,7 @@ class AddOn:
     def go(self, robot):
         self.painter.sim = robot
         self.sim = robot
+        robot.start()
         self.behavior.go(robot, self.mmap, self.paintingPF)
 
     def setMap(self, size, hazardList, startingPoint, targetList):

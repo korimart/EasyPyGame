@@ -37,9 +37,9 @@ class Button(GameObject):
         self.callback = callback
         self.fixedRect = EasyPygame.Rect(0, 0, 1, 1)
 
-        self.releaseRC = DefaultRenderComponent()
-        self.pressRC = DefaultRenderComponent((1, 0, 0))
-        self.hoverRC = DefaultRenderComponent((0, 1, 0))
+        self.releaseRC = DefaultRenderComponent((63/255, 70/255, 106/255))
+        self.pressRC = DefaultRenderComponent((239/255, 84/255, 85/255))
+        self.hoverRC = DefaultRenderComponent((250/255, 215/255, 68/255))
 
         self.addState(ButtonReleased())
         self.addState(ButtonHover())

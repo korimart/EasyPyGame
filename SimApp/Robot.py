@@ -142,13 +142,13 @@ class Robot(GameObject):
     def nextPos(self, num=2):
         return (self.x + MOVEDELTA[self.facing][0] * num, \
             self.y + MOVEDELTA[self.facing][1] * num)
-        
+
     def scaleWorkSpeed(self, scale):
         self.workSpeed *= scale
 
     def scaleMoveSpeed(self, scale):
         self.runSpeed *= scale
-    
+
     def scaleRotationSpeed(self, scale):
         self.rotationSpeed *= scale
 

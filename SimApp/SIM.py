@@ -15,12 +15,12 @@ class Message:
     SENSEHAZARD = 4
     CLEARCOLOR = 5
     COLORTILE = 6
-    # COLORTILEARRAY = 7
     PATH = 7
     CLOSE = 8
+    START = 9
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=10, errorRate=0.2):
+    def __init__(self, scene, parent, patience=3000, errorRate=0.2):
         self.parent = parent
         self.patience = patience
         self.patienceMeter = 0
@@ -33,28 +33,32 @@ class SIMProgramSide:
         self.floor.pathed(*parent.startPos)
         self.skinChanger = DungeonSkinChanger()
         self.robot.changeSkin(self.skinChanger)
+
+        self.start = False
         self.close = False
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList, \
             parent.knownBlobsList)
 
+        self.process = None
         self.addOn = AddOn()
-        self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
+        self.addOn.setMap((parent.width, parent.height), parent.knownHazardsList, parent.startPos, parent.targetPosList)
 
     def update(self, ms, cwal):
-        if self.floor.isDrawing():
-            return
-
         count = 0
         thisMS = ms
-        self.patienceMeter = 0
+        breaker = 0
         while not self.close:
-            start = time.process_time()
-            empty = self._handleMessage()
+            startMS = time.process_time()
+            self._handleMessage()
 
-            self.robot.update(0)
+            if not self.start:
+                return
 
             if self.robot.isWorking:
+                return
+
+            if self.floor.draw(ms):
                 return
 
             if self.needReturn:
@@ -63,22 +67,26 @@ class SIMProgramSide:
                 count += 1
 
             if count > 50:
+                self.patienceMeter = 0
                 break
 
-            thisMS = (time.process_time() - start)
-            self.patienceMeter += thisMS * 1000
+            thisMS = (time.process_time() - startMS)
+            breaker += thisMS * 1000
 
-            if self.patienceMeter > self.patience:
-                cwal()
+            if breaker > 10:
+                self.patienceMeter += thisMS * 1000
                 break
+
+        if self.patienceMeter > self.patience:
+            cwal()
 
         if self.close:
             self.parent.switchState(self.parent.done, ms)
 
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
-        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
-        process.start()
+        self.process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
+        self.process.start()
 
     def scaleSpeed(self, scale):
         self.robot.scaleWorkSpeed(scale)
@@ -87,11 +95,16 @@ class SIMProgramSide:
         self.floor.scalePathDrawSpeed(scale)
         self.floor.scaleTileDrawSpeed(scale)
 
+    def terminateAddOn(self):
+        if self.process:
+            self.process.terminate()
+            print("terminated")
+
     @staticmethod
     def _go(addOn, pipe):
         sim = SIMAddOnSide(pipe)
         addOn.go(sim)
-        print("end")
+        print("gracefully ended")
 
     def _handleMessage(self):
         if not self.progPipe.poll():
@@ -143,6 +156,10 @@ class SIMProgramSide:
             self.close = True
             self.needReturn = False
 
+        elif message == Message.START:
+            self.start = True
+            self.ret = None
+
         else:
             raise Exception("Unknown message from addOn")
 
@@ -185,6 +202,9 @@ class SIMAddOnSide:
         self.pipe.send(Message.PATH)
         self.pipe.send(path)
         return self.pipe.recv()
+
+    def start(self):
+        self._returnRobotMessage(Message.START)
 
     def close(self):
         self.pipe.send(Message.CLOSE)

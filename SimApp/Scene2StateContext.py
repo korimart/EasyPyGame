@@ -8,13 +8,38 @@ class ReadyState(GameObjectState):
 
     def onExit(self, gameObject, ms):
         gameObject.buttonList[0].disable()
-
-class SimulatingState(GameObjectState):
-    def onEnter(self, gameObject, ms):
         gameObject.SIM.go()
 
+class SimulatingState(GameObjectState):
     def update(self, gameObject, ms):
         gameObject.SIM.update(ms, gameObject.cwal)
+
+class NoResponseState(GameObjectState):
+    def __init__(self):
+        self.responsed = False
+
+    def onEnter(self, gameObject, ms):
+        gameObject.cwalText.enable()
+        gameObject.cwalText2.enable()
+
+    def update(self, gameObject, ms):
+        self.responsed = True
+        gameObject.SIM.update(ms, self.cwal)
+        if self.responsed:
+            gameObject.switchState(gameObject.simulating, ms)
+        elif EasyPygame.isDown1stTime("r"):
+            gameObject.reset()
+            gameObject.SIM.terminateAddOn()
+        elif EasyPygame.isDown1stTime("RETURN"):
+            gameObject.restart()
+            gameObject.SIM.terminateAddOn()
+
+    def onExit(self, gameObject, ms):
+        gameObject.cwalText.disable()
+        gameObject.cwalText2.disable()
+
+    def cwal(self):
+        self.responsed = False
 
 class DoneState(GameObjectState):
     def onEnter(self, gameObject, ms):
@@ -35,7 +60,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
         self.knownBlobsList = knownBlobsList
-        self.speed = 0
+        self.speed = 1
 
         self.SIM = SIMProgramSide(scene, self)
 
@@ -46,11 +71,20 @@ class Scene2StateContext(GameObject):
         self.ready      = self.addState(ReadyState())
         self.simulating = self.addState(SimulatingState())
         self.done       = self.addState(DoneState())
+        self.noResponse = self.addState(NoResponseState())
 
-        self.text = GUI.Text(scene, font="monogram.ttf", color=(1, 1, 1))
-        self.text.transform.translate(-3, 2.7, 0)
-        self.text.transform.scale(0.5, 0.5)
-        self.text.setText("Speed: " + str(self.speed) + " UBD")
+        self.speedText = GUI.Text(scene, font="monogram.ttf", color=(1, 1, 1))
+        self.speedText.setText("Speed: " + str(self.speed) + "UBD")
+        self.speedText.transform.translate(-3, 2.7, 0)
+        self.speedText.transform.scale(0.5, 0.5)
+        self.cwalText = GUI.Text(scene, text="Cannot wait any longer!", font="monogram.ttf", color=(1, 0, 0))
+        self.cwalText2 = GUI.Text(scene, text="Press Enter to restart or R to reset", font="monogram.ttf", color=(1, 0, 0))
+        self.cwalText.transform.translate(-3, 2.2, 0)
+        self.cwalText.transform.scale(0.3, 0.3)
+        self.cwalText.disable()
+        self.cwalText2.transform.translate(-3, 1.9, 0)
+        self.cwalText2.transform.scale(0.3, 0.3)
+        self.cwalText2.disable()
 
         self.switchState(self.ready, 0)
 
@@ -66,8 +100,7 @@ class Scene2StateContext(GameObject):
         self.buttonList[-1].transform.translate(-1.5, 0, 0)
 
     def cwal(self):
-        #print("cannot wait any longer")
-        pass
+        self.switchState(self.noResponse, 0)
 
     def start(self):
         self.switchState(self.simulating, 0)
@@ -84,16 +117,16 @@ class Scene2StateContext(GameObject):
     def yourLogic(self, ms):
         dirty = False
         if EasyPygame.isDown1stTime(","):
-            if self.speed > 0:
+            if self.speed > 1:
                 self.speed -= 1
-                self.SIM.scaleSpeed(1 / 1.2)
+                self.SIM.scaleSpeed(1 / 2)
                 dirty = True
         if EasyPygame.isDown1stTime("."):
-            self.SIM.scaleSpeed(1.2)
+            self.SIM.scaleSpeed(2)
             self.speed += 1
             dirty = True
         if EasyPygame.isDown1stTime("b"):
             self.SIM.floor.blackSheepWall()
 
-        if dirty:        
-            self.text.setText("Speed: " + str(self.speed) + " UBD")
+        if dirty:
+            self.speedText.setText("Speed: " + str(self.speed) + "UBD")
