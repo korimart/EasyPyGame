@@ -1,13 +1,6 @@
-import os, sys
-
-THISDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(THISDIR))
-os.chdir(THISDIR)
-
 import EasyPygame
 from EasyPygame.Components import *
 import ast
-from SimApp.Scene2 import Scene2
 
 class Scene1(Scene):
     ERRORMESSAGETIME = 2000
@@ -20,9 +13,6 @@ class Scene1(Scene):
         self.errorMessageTime = 0
 
     def onLoad(self):
-        EasyPygame.load("animated.png")
-        EasyPygame.load("arrow.png")
-
         data = ["10x10", "(0,0)", "[(9,9),(9,0)]", "[]", "[(3,3)]"]
         for i in range(5):
             inputField = GUI.TextBox(self, ratio=4, name="input" + str(i), defaultText=data[i])
@@ -125,9 +115,3 @@ class Scene1(Scene):
 
         EasyPygame.nextScene("Scene1", "Scene2")
         EasyPygame.nextSceneOnInit("Scene2", "setInputData", ((width, height, startPos, targetPosList, knownHazardsList, knownBlobsList), ))
-
-if __name__ == "__main__":
-    EasyPygame.initWindow(500, 500, "Sample", 75)
-    EasyPygame.loadScene("Scene1")
-    EasyPygame.switchScene("Scene1")
-    EasyPygame.run()

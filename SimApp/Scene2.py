@@ -9,7 +9,13 @@ class Scene2(Scene):
         self.stateContext = None
 
     def onLoad(self):
+        EasyPygame.load("animated.png")
+        EasyPygame.load("arrow.png")
         self.stateContext = Scene2StateContext(self, *self.dataTuple)
+
+    def onUnLoad(self):
+        EasyPygame.unLoad("animated.png")
+        EasyPygame.unLoad("arrow.png")
 
     def setInputData(self, dataTuple):
         self.dataTuple = dataTuple
