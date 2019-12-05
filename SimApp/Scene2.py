@@ -21,8 +21,8 @@ class Scene2(Scene):
 
     def postRender(self, ms):
         if EasyPygame.isDown("]"):
-            self.camera.setDistanceDelta(0.01 * ms)
+            self.camera.setDistanceDelta(0.05 * ms)
         if EasyPygame.isDown("["):
-            self.camera.setDistanceDelta(-0.01 * ms)
+            self.camera.setDistanceDelta(-0.05 * ms)
         if EasyPygame.isDown1stTime("'"):
-            self.camera.setDistance(3)
+            self.camera.setDistance(self.camera.DEFAULTDIST)
