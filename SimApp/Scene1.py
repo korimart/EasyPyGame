@@ -21,7 +21,9 @@ class Scene1(Scene):
 
     def onLoad(self):
         EasyPygame.load("animated.png")
-        data = ["10x10", "(0,0)", "[(9,9),(9,0)]", "[(1,1), (1, 0), (3, 1), (4, 1), (0, 1)]", "[(3,3)]"]
+        EasyPygame.load("arrow.png")
+
+        data = ["10x10", "(0,0)", "[(9,9),(9,0)]", "[]", "[(3,3)]"]
         for i in range(5):
             inputField = GUI.TextBox(self, ratio=4, name="input" + str(i), defaultText=data[i])
             inputField.transform.translate(-1.5, 2.3 - i * 1.2, 0)

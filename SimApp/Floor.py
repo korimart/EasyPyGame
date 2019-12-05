@@ -172,8 +172,7 @@ class Floor(GameObject):
                     blobs.append(glm.translate(glm.mat4(), glm.vec3(j, i, BLOBZ)))
 
         for target in targetList:
-            mat = glm.translate(glm.mat4(), glm.vec3(target[0], target[1] + 1, BLOBZ))
-            mat = glm.scale(mat, glm.vec3(1, 2, 1))
+            mat = glm.translate(glm.mat4(), glm.vec3(target[0], target[1] + 0.7, BLOBZ))
             targets.append(mat)
 
         imageRectList = []
@@ -192,5 +191,9 @@ class Floor(GameObject):
             TextureInstancedRenderComponent(None, "animated.png", size=len(blobs), static=False, blending=True),\
                 imageRectList, 500)
 
-        self.target.renderComp = AnimationRenderComponent(TextureInstancedRenderComponent(targets, "animated.png", blending=True),\
+        imageRectList = []
+        for i in range(4):
+            imageRectList.append(EasyPygame.Rect(i * 128 / 641, 0, 128 / 641, 1))
+
+        self.target.renderComp = AnimationRenderComponent(TextureInstancedRenderComponent(targets, "arrow.png", blending=True, flipY=True),\
             imageRectList, 500)
