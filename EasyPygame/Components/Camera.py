@@ -30,12 +30,12 @@ class Camera:
         self.setDistance(self.DEFAULTDIST)
 
     def setDistanceDelta(self, delta):
-        if (self.distance + delta > 0.3):
+        if (100 > self.distance + delta > 0.3):
             self.distance += delta
             self.transform.translate(0, 0, delta)
 
     def setDistance(self, distance):
-        if (distance > 0.3):
+        if (100 > distance > 0.3):
             self.distance = distance
             self.transform.setTranslate(*self.pos, distance)
 
