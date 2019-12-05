@@ -24,11 +24,3 @@ class Scene2(Scene):
         self.clearGameObjects()
         self.stateContext = Scene2StateContext(self, *self.dataTuple)
         self.camera.reset()
-
-    def postRender(self, ms):
-        if EasyPygame.isDown("]"):
-            self.camera.setDistanceDelta(0.05 * ms)
-        if EasyPygame.isDown("["):
-            self.camera.setDistanceDelta(-0.05 * ms)
-        if EasyPygame.isDown1stTime("'"):
-            self.camera.setDistance(self.camera.DEFAULTDIST)

@@ -134,9 +134,11 @@ class SIMProgramSide:
             south = self.floor.senseBlob(self.robot.x, self.robot.y - 1)
             west = self.floor.senseBlob(self.robot.x - 1, self.robot.y)
             self.ret = [north, east, south, west]
+            self.robot.senseBlob()
 
         elif message == Message.SENSEHAZARD:
             self.ret = self.floor.senseHazard(self.robot.x + MOVEDELTA[self.robot.facing][0], self.robot.y + MOVEDELTA[self.robot.facing][1])
+            self.robot.senseHazard()
 
         elif message == Message.CLEARCOLOR:
             self.ret = None

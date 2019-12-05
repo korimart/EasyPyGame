@@ -13,6 +13,11 @@ class MoveDelta:
     DOWN = (0, -1)
     LEFT = (-1, 0)
 
+class WorkState:
+    GPS = "GPS"
+    BLOB = "blob"
+    HAZARD = "hazard"
+
 MOVEDELTA = [MoveDelta.UP, MoveDelta.RIGHT, MoveDelta.DOWN, MoveDelta.LEFT]
 
 ROBOTZ = 0.015
@@ -22,6 +27,7 @@ class Working(GameObjectState):
         self.elapsed = 0
 
     def onEnter(self, gameObject, ms):
+        gameObject.stateText.setText("Sensing " + gameObject.workState + "...")
         self.elapsed = 0
         gameObject.isWorking = True
         gameObject.renderComp = gameObject.idleRC
@@ -37,6 +43,7 @@ class Rotating(GameObjectState):
         self.destAngle = 0
 
     def onEnter(self, gameObject, ms):
+        gameObject.stateText.setText("Rotating...")
         self.elapsed = 0
         self.destAngle = -gameObject.facing % 4 * 90
         self.startAngle = self.destAngle + 90
@@ -58,6 +65,7 @@ class Rotating(GameObjectState):
 
 class Idle(GameObjectState):
     def onEnter(self, gameObject, ms):
+        gameObject.stateText.setText("Idle")
         gameObject.isWorking = False
         gameObject.renderComp = gameObject.idleRC
 
@@ -70,6 +78,7 @@ class Running(GameObjectState):
         self.elapsed = 0
 
     def onEnter(self, gameObject, ms):
+        gameObject.stateText.setText("Moving...")
         gameObject.renderComp = gameObject.runningRC
         gameObject.isWorking = True
         self.deltaX = MOVEDELTA[gameObject.facing][0] * gameObject.num
@@ -120,6 +129,12 @@ class Robot(GameObject):
         self.arrow.transform.setParent(self.transform)
         self.arrow.transform.translate(0, 1, 0)
 
+        self.stateText = GUI.Text(scene, text="Welcome", font="monogram.ttf", color=(1, 1, 1))
+        self.stateText.transform.translate(-3, -2.7, 0)
+        self.stateText.transform.scale(0.5, 0.5)
+
+        self.workState = None
+
     def move(self, num=1):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
             if self.facing is not self.lastFace:
@@ -129,12 +144,21 @@ class Robot(GameObject):
         self.switchState(self.running, 0)
 
     def getPos(self):
+        self.workState = WorkState.GPS
         self.switchState(self.working, 0)
         return (self.x, self.y, self.facing)
 
     def rotate(self):
         self.facing = (self.facing + 1) % 4
         self.switchState(self.rotating, 0)
+
+    def senseBlob(self):
+        self.workState = WorkState.BLOB
+        self.switchState(self.working, 0)
+
+    def senseHazard(self):
+        self.workState = WorkState.HAZARD
+        self.switchState(self.working, 0)
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)

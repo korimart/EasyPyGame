@@ -116,11 +116,18 @@ class Scene2StateContext(GameObject):
 
     def yourLogic(self, ms):
         dirty = False
+
+        if EasyPygame.isDown("]"):
+            self.scene.camera.setDistanceDelta(0.05 * ms)
+        if EasyPygame.isDown("["):
+            self.scene.camera.setDistanceDelta(-0.05 * ms)
+        if EasyPygame.isDown1stTime("'"):
+            self.scene.camera.setDistance(self.scene.camera.DEFAULTDIST)
+
         if EasyPygame.isDown1stTime(","):
-            if self.speed > 1:
-                self.speed -= 1
-                self.SIM.scaleSpeed(1 / 2)
-                dirty = True
+            self.speed -= 1
+            self.SIM.scaleSpeed(1 / 2)
+            dirty = True
         if EasyPygame.isDown1stTime("."):
             self.SIM.scaleSpeed(2)
             self.speed += 1
