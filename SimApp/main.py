@@ -10,7 +10,7 @@ from SimApp.Scene1 import Scene1
 from SimApp.Scene2 import Scene2
 
 if __name__ == "__main__":
-    EasyPygame.initWindow(500, 500, "Sample", 75)
+    EasyPygame.initWindow(500, 500, "Robot", 75)
     EasyPygame.loadScene("Scene1")
     EasyPygame.switchScene("Scene1")
     EasyPygame.run()
