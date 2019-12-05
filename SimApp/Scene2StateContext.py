@@ -14,7 +14,7 @@ class SimulatingState(GameObjectState):
         gameObject.SIM.go()
 
     def update(self, gameObject, ms):
-        gameObject.SIM.update(ms, gameObject.cwal)
+        gameObject.SIM.update(ms)
 
 class DoneState(GameObjectState):
     def onEnter(self, gameObject, ms):
@@ -66,8 +66,7 @@ class Scene2StateContext(GameObject):
         self.buttonList[-1].transform.translate(-1.5, 0, 0)
 
     def cwal(self):
-        #print("cannot wait any longer")
-        pass
+        print("cannot wait any longer")
 
     def start(self):
         self.switchState(self.simulating, 0)
@@ -95,5 +94,5 @@ class Scene2StateContext(GameObject):
         if EasyPygame.isDown1stTime("b"):
             self.SIM.floor.blackSheepWall()
 
-        if dirty:        
+        if dirty:
             self.text.setText("Speed: " + str(self.speed) + " UBD")

@@ -35,7 +35,13 @@ class Input:
         capitalize = bool(caps) != bool(shift)
         try:
             string : str = self.PyChars[pychar]
-            if capitalize: string = string.upper()
+            if capitalize:
+                if string == "9":
+                    string = "("
+                elif string == "0":
+                    string = ")"
+                else:
+                    string = string.upper()
         except:
             return None
 

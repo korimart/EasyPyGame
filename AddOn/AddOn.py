@@ -20,6 +20,7 @@ class AddOn:
     def go(self, robot):
         self.painter.sim = robot
         self.sim = robot
+        robot.start()
         self.behavior.go(robot, self.mmap, self.paintingPF)
 
     def setMap(self, size, hazardList, startingPoint, targetList):

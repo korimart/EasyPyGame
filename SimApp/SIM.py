@@ -15,12 +15,12 @@ class Message:
     SENSEHAZARD = 4
     CLEARCOLOR = 5
     COLORTILE = 6
-    # COLORTILEARRAY = 7
     PATH = 7
     CLOSE = 8
+    START = 9
 
 class SIMProgramSide:
-    def __init__(self, scene, parent, patience=10, errorRate=0.2):
+    def __init__(self, scene, parent, patience=3000, errorRate=0.2):
         self.parent = parent
         self.patience = patience
         self.patienceMeter = 0
@@ -33,6 +33,8 @@ class SIMProgramSide:
         self.floor.pathed(*parent.startPos)
         self.skinChanger = DungeonSkinChanger()
         self.robot.changeSkin(self.skinChanger)
+
+        self.start = False
         self.close = False
 
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList, \
@@ -41,18 +43,19 @@ class SIMProgramSide:
         self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
-    def update(self, ms, cwal):
-        if self.floor.isDrawing():
+    def update(self, ms):
+        if self.floor.draw(ms):
             return
 
         count = 0
         thisMS = ms
         self.patienceMeter = 0
         while not self.close:
-            start = time.process_time()
-            empty = self._handleMessage()
+            startMS = time.process_time()
+            self._handleMessage()
 
-            self.robot.update(0)
+            if not self.start:
+                return
 
             if self.robot.isWorking:
                 return
@@ -65,11 +68,11 @@ class SIMProgramSide:
             if count > 50:
                 break
 
-            thisMS = (time.process_time() - start)
+            thisMS = (time.process_time() - startMS)
             self.patienceMeter += thisMS * 1000
 
             if self.patienceMeter > self.patience:
-                cwal()
+                parent.cwal()
                 break
 
         if self.close:
@@ -143,6 +146,10 @@ class SIMProgramSide:
             self.close = True
             self.needReturn = False
 
+        elif message == Message.START:
+            self.start = True
+            self.ret = None
+
         else:
             raise Exception("Unknown message from addOn")
 
@@ -185,6 +192,9 @@ class SIMAddOnSide:
         self.pipe.send(Message.PATH)
         self.pipe.send(path)
         return self.pipe.recv()
+
+    def start(self):
+        self._returnRobotMessage(Message.START)
 
     def close(self):
         self.pipe.send(Message.CLOSE)

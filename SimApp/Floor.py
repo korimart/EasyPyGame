@@ -22,7 +22,7 @@ class Floor(GameObject):
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
-        self.pathSpeed = 0.1
+        self.pathSpeed = 0.01
         self.pathTimer = 0
         self.pathBuffer = []
 
@@ -109,17 +109,7 @@ class Floor(GameObject):
     def clearColor(self):
         self.colorTileBuffer.append(None)
 
-    def blackSheepWall(self):
-        if self.blackSheepWallEnabled:
-            self.hazard.renderComp = self.allHazardsRC
-            self.blob.renderComp = self.allBlobsRC
-        else:
-            self.hazard.renderComp = self.knownHazardsRC
-            self.blob.renderComp = self.knownBlobsRC
-
-        self.blackSheepWallEnabled = not self.blackSheepWallEnabled
-
-    def yourLogic(self, ms):
+    def draw(self, ms):
         if self.colorTileBuffer:
             num = self.colorTileSpeed * ms
             for _ in range(int(num)):
@@ -134,16 +124,35 @@ class Floor(GameObject):
                     self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
 
         elif self.pathBuffer:
-            num = self.pathSpeed * ms
-            for _ in range(int(num)):
-                try:
-                    pop = self.pathBuffer.pop(0)
-                except:
-                    break
-                self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, PATHZ)))
+            self.pathTimer += ms
+            num = int(self.pathSpeed * self.pathTimer)
 
-    def isDrawing(self):
-        return bool(self.colorTileBuffer) or bool(self.pathBuffer)
+            if num:
+                self.pathTimer = 0
+                for _ in range(num):
+                    try:
+                        pop = self.pathBuffer.pop(0)
+                    except:
+                        break
+                    self.pathTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, PATHZ)))
+
+        if not self.colorTileBuffer and not self.pathBuffer:
+            return False
+
+        return True
+
+    def blackSheepWall(self):
+        if self.blackSheepWallEnabled:
+            self.hazard.renderComp = self.allHazardsRC
+            self.blob.renderComp = self.allBlobsRC
+        else:
+            self.hazard.renderComp = self.knownHazardsRC
+            self.blob.renderComp = self.knownBlobsRC
+
+        self.blackSheepWallEnabled = not self.blackSheepWallEnabled
+
+    def needToDraw(self):
+        return self.colorTileBuffer or self.pathBuffer
 
     def _initRC(self, targetList):
         hazards = []
