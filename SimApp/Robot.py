@@ -106,7 +106,6 @@ class Robot(GameObject):
         self.rotationSpeed = 0.001
         self.isWorking = False
         self.num = None
-        self.workBuffer = []
 
         self.idle = self.addState(Idle())
         self.rotating = self.addState(Rotating())
@@ -122,9 +121,6 @@ class Robot(GameObject):
         self.arrow.transform.translate(0, 1, 0)
 
     def move(self, num=1):
-        self.workBuffer.append((self._move, (num,)))
-
-    def _move(self, num):
         if self.facing in [Direction.RIGHT, Direction.LEFT]:
             if self.facing is not self.lastFace:
                 self.lastFace = self.facing
@@ -133,26 +129,12 @@ class Robot(GameObject):
         self.switchState(self.running, 0)
 
     def getPos(self):
-        self.workBuffer.append((self._getPos, tuple()))
-
-    def _getPos(self):
         self.switchState(self.working, 0)
         return (self.x, self.y, self.facing)
 
     def rotate(self):
-        self.workBuffer.append((self._rotate, tuple()))
-
-    def _rotate(self):
         self.facing = (self.facing + 1) % 4
         self.switchState(self.rotating, 0)
-
-    def work(self):
-        if not self.isWorking and self.workBuffer:
-            pop = self.workBuffer.pop()
-            pop[0](*pop[1])
-
-    def hasWork(self):
-        return bool(self.workBuffer)
 
     def changeSkin(self, skinChanger):
         skinChanger.changeRobot(self)

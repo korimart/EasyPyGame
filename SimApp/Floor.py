@@ -18,7 +18,7 @@ class Floor(GameObject):
         self.height = height
         self.mazeGenerator = MazeGenerator()
 
-        self.colorTileSpeed = 0.1 # tile per ms
+        self.colorTileSpeed = 0.05 # tile per ms
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
@@ -111,17 +111,21 @@ class Floor(GameObject):
 
     def draw(self, ms):
         if self.colorTileBuffer:
-            num = self.colorTileSpeed * ms
-            for _ in range(int(num)):
-                try:
-                    pop = self.colorTileBuffer.pop(0)
-                except:
-                    break
-                if not pop:
-                    self.colorTiles.renderComp.clear()
-                    self.pathTiles.renderComp.clear()
-                else:
-                    self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
+            self.colorTileTimer += ms
+            num = int(self.colorTileSpeed * self.colorTileTimer)
+
+            if num:
+                self.colorTileTimer = 0
+                for _ in range(num):
+                    try:
+                        pop = self.colorTileBuffer.pop(0)
+                    except:
+                        break
+                    if not pop:
+                        self.colorTiles.renderComp.clear()
+                        self.pathTiles.renderComp.clear()
+                    else:
+                        self.colorTiles.renderComp.append(glm.translate(glm.mat4(), glm.vec3(*pop, COLORTILEZ)))
 
         elif self.pathBuffer:
             self.pathTimer += ms

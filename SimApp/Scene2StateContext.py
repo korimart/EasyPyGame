@@ -35,7 +35,7 @@ class Scene2StateContext(GameObject):
         self.targetPosList = targetPosList
         self.knownHazardsList = knownHazardsList
         self.knownBlobsList = knownBlobsList
-        self.speed = 0
+        self.speed = 1
 
         self.SIM = SIMProgramSide(scene, self)
 
@@ -83,12 +83,12 @@ class Scene2StateContext(GameObject):
     def yourLogic(self, ms):
         dirty = False
         if EasyPygame.isDown1stTime(","):
-            if self.speed > 0:
+            if self.speed > 1:
                 self.speed -= 1
-                self.SIM.scaleSpeed(1 / 1.2)
+                self.SIM.scaleSpeed(1 / 2)
                 dirty = True
         if EasyPygame.isDown1stTime("."):
-            self.SIM.scaleSpeed(1.2)
+            self.SIM.scaleSpeed(2)
             self.speed += 1
             dirty = True
         if EasyPygame.isDown1stTime("b"):

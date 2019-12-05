@@ -44,9 +44,6 @@ class SIMProgramSide:
         self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
 
     def update(self, ms):
-        if self.floor.draw(ms):
-            return
-
         count = 0
         thisMS = ms
         self.patienceMeter = 0
@@ -58,6 +55,9 @@ class SIMProgramSide:
                 return
 
             if self.robot.isWorking:
+                return
+
+            if self.floor.draw(ms):
                 return
 
             if self.needReturn:
@@ -72,7 +72,7 @@ class SIMProgramSide:
             self.patienceMeter += thisMS * 1000
 
             if self.patienceMeter > self.patience:
-                parent.cwal()
+                self.parent.cwal()
                 break
 
         if self.close:
