@@ -9,7 +9,10 @@ class Scene1(Scene):
         self.inputFields = []
         self.texts = []
         self.submitButton = None
-        self.errorMessage = ""
+        self.errorMessageText = GUI.Text(self, font="monogram.ttf", color=(1, 0, 0))
+        self.errorMessageText.transform.translate(-3, -2.85, 0)
+        self.errorMessageText.transform.scale(0.3, 0.3)
+        self.errorMessageText.disable()
         self.errorMessageTime = 0
 
     def onLoad(self):
@@ -36,15 +39,14 @@ class Scene1(Scene):
         self.submitButton.transform.translate(2, -2, 0)
 
     def postRender(self, ms):
-        if self.errorMessage and not self.errorMessageTime:
+        if self.errorMessageText.isEnabled() and not self.errorMessageTime:
             self.errorMessageTime = self.ERRORMESSAGETIME
 
-        if self.errorMessage:
-            EasyPygame.pprint(self.errorMessage, 0, 450, False, (255, 0, 0))
+        if self.errorMessageText.isEnabled():
             self.errorMessageTime -= ms
         if self.errorMessageTime < 0:
             self.errorMessageTime = 0
-            self.errorMessage = ""
+            self.errorMessageText.disable()
 
     def checkInput(self):
         inputs = [inputField.getText() for inputField in self.inputFields]
@@ -56,7 +58,8 @@ class Scene1(Scene):
                 break
 
         if len(widthAndHeight) != 2:
-            self.errorMessage = "only width and height must be given"
+            self.errorMessageText.setText("only width and height must be given")
+            self.errorMessageText.enable()
             return
 
         try:
@@ -65,16 +68,18 @@ class Scene1(Scene):
             assert type(width) is int and type(height) is int
             assert width > 0 and height > 0
         except:
-            self.errorMessage = "Incorrect width and/or height"
+            self.errorMessageText.setText("Incorrect width and/or height")
+            self.errorMessageText.enable()
             return
 
         try:
             startPos = ast.literal_eval(inputs[1])
             assert type(startPos) is tuple
             assert type(startPos[0]) is int and type(startPos[1]) is int
-            assert 0 <= startPos[0] < width and 0 <= startPos[0] < height
+            assert 0 <= startPos[0] < width and 0 <= startPos[1] < height
         except:
-            self.errorMessage = "Incorrect Starting Locations"
+            self.errorMessageText.setText("Incorrect Starting Locations")
+            self.errorMessageText.enable()
             return
 
         try:
@@ -86,7 +91,8 @@ class Scene1(Scene):
                 assert 0 <= pos[0] < width and 0 <= pos[1] < height
 
         except:
-            self.errorMessage = "Incorrect Target Locations"
+            self.errorMessageText.setText("Incorrect Target Locations")
+            self.errorMessageText.enable()
             return
 
         try:
@@ -95,10 +101,11 @@ class Scene1(Scene):
             for pos in knownHazardsList:
                 assert type(pos) is tuple
                 assert type(pos[0]) is int and type(pos[1]) is int
-                assert 0 <= pos[0] < width and 0 <= pos[0] < height
+                assert 0 <= pos[0] < width and 0 <= pos[1] < height
 
         except:
-            self.errorMessage = "Incorrect Hazard Locations"
+            self.errorMessageText.setText("Incorrect Hazard Locations")
+            self.errorMessageText.enable()
             return
 
         try:
@@ -107,10 +114,11 @@ class Scene1(Scene):
             for pos in knownBlobsList:
                 assert type(pos) is tuple
                 assert type(pos[0]) is int and type(pos[1]) is int
-                assert 0 <= pos[0] < width and 0 <= pos[0] < height
+                assert 0 <= pos[0] < width and 0 <= pos[1] < height
 
         except:
-            self.errorMessage = "Incorrect Blob Locations"
+            self.errorMessageText.setText("Incorrect Blob Locations")
+            self.errorMessageText.enable()
             return
 
         EasyPygame.nextScene("Scene1", "Scene2")
