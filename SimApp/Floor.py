@@ -22,7 +22,8 @@ class Floor(GameObject):
         self.colorTileTimer = 0
         self.colorTileBuffer = []
 
-        self.pathSpeed = 0.01
+        self.pathLength = 0
+        self.pathSpeed = 0.001 # path per ms
         self.pathTimer = 0
         self.pathBuffer = []
 
@@ -104,6 +105,7 @@ class Floor(GameObject):
         self.colorTileBuffer.append((x, y))
 
     def colorPath(self, path):
+        self.pathLength = len(path)
         self.pathBuffer = path
 
     def clearColor(self):
@@ -129,7 +131,7 @@ class Floor(GameObject):
 
         elif self.pathBuffer:
             self.pathTimer += ms
-            num = int(self.pathSpeed * self.pathTimer)
+            num = int(self.pathSpeed * self.pathLength * self.pathTimer)
 
             if num:
                 self.pathTimer = 0

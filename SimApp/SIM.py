@@ -41,12 +41,12 @@ class SIMProgramSide:
             parent.knownBlobsList)
 
         self.addOn = AddOn()
-        self.addOn.setMap((parent.width, parent.height), [], parent.startPos, parent.targetPosList)
+        self.addOn.setMap((parent.width, parent.height), parent.knownHazardsList, parent.startPos, parent.targetPosList)
 
-    def update(self, ms):
+    def update(self, ms, cwal):
         count = 0
         thisMS = ms
-        self.patienceMeter = 0
+        breaker = 0
         while not self.close:
             startMS = time.process_time()
             self._handleMessage()
@@ -66,14 +66,18 @@ class SIMProgramSide:
                 count += 1
 
             if count > 50:
+                self.patienceMeter = 0
                 break
 
             thisMS = (time.process_time() - startMS)
-            self.patienceMeter += thisMS * 1000
+            breaker += thisMS * 1000
 
-            if self.patienceMeter > self.patience:
-                self.parent.cwal()
+            if breaker > 10:
+                self.patienceMeter += thisMS * 1000
                 break
+
+        if self.patienceMeter > self.patience:
+            cwal()
 
         if self.close:
             self.parent.switchState(self.parent.done, ms)

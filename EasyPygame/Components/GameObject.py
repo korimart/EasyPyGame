@@ -10,8 +10,10 @@ class GameObject:
         self._renderCompTemp = None
         self.name = name
         self.currentStateIndex = 0
+        self._stateIndex = 0
         self.stateList = [GameObjectState()]
         self.concurrentStateDict = dict()
+        self.enabled = True
 
     def update(self, ms):
         self.stateList[self.currentStateIndex].update(self, ms)
@@ -28,11 +30,20 @@ class GameObject:
     def disable(self):
         self._renderCompTemp = self.renderComp
         self.renderComp = EasyPygame.Components.InvisibleRenderComponent()
+        self._stateIndex = self.currentStateIndex
+        self.enabled = False
         self.switchState(0, 0)
 
-    def enable(self, stateIndex):
+    def enable(self, stateIndex=None):
         self.renderComp = self._renderCompTemp
-        self.switchState(stateIndex, 0)
+
+        if not stateIndex:
+            stateIndex = self._stateIndex
+        self.switchState(stateIndex, stateIndex)
+        self.enabled = True
+
+    def isEnabled(self):
+        return self.enabled
 
     def isMouseOn(self):
         camera = self.scene.camera
