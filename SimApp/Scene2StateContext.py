@@ -29,8 +29,10 @@ class NoResponseState(GameObjectState):
             gameObject.switchState(gameObject.simulating, ms)
         elif EasyPygame.isDown1stTime("r"):
             gameObject.reset()
+            gameObject.SIM.terminateAddOn()
         elif EasyPygame.isDown1stTime("RETURN"):
             gameObject.restart()
+            gameObject.SIM.terminateAddOn()
 
     def onExit(self, gameObject, ms):
         gameObject.cwalText.disable()

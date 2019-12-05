@@ -40,6 +40,7 @@ class SIMProgramSide:
         self.floor.randomize(parent.startPos, parent.targetPosList, parent.knownHazardsList, \
             parent.knownBlobsList)
 
+        self.process = None
         self.addOn = AddOn()
         self.addOn.setMap((parent.width, parent.height), parent.knownHazardsList, parent.startPos, parent.targetPosList)
 
@@ -84,8 +85,8 @@ class SIMProgramSide:
 
     def go(self):
         self.progPipe, self.addOnPipe = multiprocessing.Pipe(True)
-        process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
-        process.start()
+        self.process = multiprocessing.Process(target=self._go, args=(self.addOn, self.addOnPipe))
+        self.process.start()
 
     def scaleSpeed(self, scale):
         self.robot.scaleWorkSpeed(scale)
@@ -94,11 +95,16 @@ class SIMProgramSide:
         self.floor.scalePathDrawSpeed(scale)
         self.floor.scaleTileDrawSpeed(scale)
 
+    def terminateAddOn(self):
+        if self.process:
+            self.process.terminate()
+            print("terminated")
+
     @staticmethod
     def _go(addOn, pipe):
         sim = SIMAddOnSide(pipe)
         addOn.go(sim)
-        print("end")
+        print("gracefully ended")
 
     def _handleMessage(self):
         if not self.progPipe.poll():
