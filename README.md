@@ -10,6 +10,8 @@ pip install pygame PyOpenGL PyOpenGL_accelerate pyglm pympler
 
 - Input 편의 클래스
 
+- 버튼과 텍스트박스 UI
+
 - 리소스가 관리되는 단위인 Scene 제공
 
 - Scene 안에 GameObject를 배치하면 Camera를 통해 렌더링
