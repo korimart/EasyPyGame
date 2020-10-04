@@ -1,7 +1,7 @@
 # Dependencies
 
 ```
-pip install pygame pyopengl pyglm pympler
+pip install pygame PyOpenGL PyOpenGL_accelerate pyglm pympler
 ```
 
 # EasyPyGame 폴더
