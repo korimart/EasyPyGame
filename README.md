@@ -1,8 +1,21 @@
-# SE_PROJECT
+# Dependencies
 
-## Updates
-### 2019년 11월 5일
-EasyPygame V1 업로드
+```
+pip install pygame pyopengl pyglm pympler
+```
 
-### 2019년 11월 1일
-산출물 작성 [[링크](https://docs.google.com/document/d/1f5OP5fQdPbMvfWd__tQS4x1DollzHXdyvH24YQF6Ebs/edit?usp=sharing)]
+# EasyPyGame 폴더
+
+간단한 2d 엔진
+
+# Samples 폴더
+
+EasyPyGame 엔진의 간단한 예제 몇개
+
+# SimApp 폴더
+
+EasyPygame으로 만든 길찾기 로봇 시뮬레이터
+
+# AddOn 폴더
+
+SimApp 로봇 시뮬레이터의 로봇 인터페이스를 사용하여 BFS와 A* 알고리즘으로 길을 찾는 플러그인
