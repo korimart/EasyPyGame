@@ -25,7 +25,9 @@ python main.py
 ## 조작
 
 B 지도 on/off
+
 <> 속도조절
+
 [] 카메라 거리 조절
 
 # AddOn 폴더
