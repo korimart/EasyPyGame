@@ -6,7 +6,15 @@ pip install pygame PyOpenGL PyOpenGL_accelerate pyglm pympler
 
 # EasyPyGame 폴더
 
-간단한 2d 엔진
+간단한 2d 엔진. 제공되는 기능은 다음과 같습니다.
+
+- Input 편의 클래스
+
+- 리소스가 관리되는 단위인 Scene 제공
+
+- Scene 안에 GameObject를 배치하면 Camera를 통해 렌더링
+
+- 각 GameObject의 렌더링 방식을 지정할 수 있음 (싱글이미지, 애니메이션, 타일)
 
 # Samples 폴더
 
