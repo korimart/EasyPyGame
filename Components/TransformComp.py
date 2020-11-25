@@ -33,7 +33,7 @@ class TransformComp:
         return self.worldMat
 
     def getPosition(self):
-        return glm.vec3(self.worldMat * glm.vec4(0, 0, 0))
+        return glm.vec3(self.worldMat * glm.vec4(0, 0, 0, 1))
 
     def translate(self, x, y, z):
         self.worldMat = glm.translate(self.worldMat, glm.vec3(x, y, z))
