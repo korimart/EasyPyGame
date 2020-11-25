@@ -44,6 +44,9 @@ class TransformComp:
     def rotate(self, angle):
         self.worldMat = glm.rotate(self.worldMat, glm.radians(angle), glm.vec3(0, 0, 1))
 
+    def rotateRadian(self, angle):
+        self.worldMat = glm.rotate(self.worldMat, angle, glm.vec3(0, 0, 1))
+
     def scale(self, x, y):
         self.worldMat = glm.scale(self.worldMat, glm.vec3(x, y, 1))
 
